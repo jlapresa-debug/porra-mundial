@@ -1,0 +1,50 @@
+rules_version = '2';
+
+// Reglas para La Porra. Aplica con: firebase deploy --only firestore:rules
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Perfil de usuario: cada uno gestiona el suyo; lectura para autenticados (para ranking)
+    match /users/{uid} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == uid;
+
+      // Pronósticos (visibles a otros para calcular ranking)
+      match /predictions/{matchId} {
+        allow read: if request.auth != null;
+        allow write: if request.auth != null && request.auth.uid == uid;
+      }
+
+      // Apuestas especiales
+      match /meta/{docId} {
+        allow read: if request.auth != null;
+        allow write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+
+    // Grupos: cualquiera autenticado puede buscar por código (necesario para unirse);
+    // crear si eres el owner inicial; update solo añadirte tú o si eres owner; borrar solo owner.
+    match /groups/{groupId} {
+      allow read: if request.auth != null;
+
+      allow create: if request.auth != null
+                    && request.resource.data.ownerId == request.auth.uid
+                    && request.auth.uid in request.resource.data.memberIds;
+
+      allow update: if request.auth != null && (
+                      // Owner puede modificar cualquier cosa
+                      resource.data.ownerId == request.auth.uid ||
+                      // Cualquiera puede añadirse a sí mismo sin cambiar nada más sensible
+                      (
+                        request.auth.uid in request.resource.data.memberIds &&
+                        request.resource.data.memberIds.hasAll(resource.data.memberIds) &&
+                        request.resource.data.ownerId == resource.data.ownerId &&
+                        request.resource.data.code == resource.data.code &&
+                        request.resource.data.name == resource.data.name
+                      )
+                    );
+
+      allow delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+    }
+  }
+}

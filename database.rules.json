@@ -1,0 +1,13 @@
+{
+  "rules": {
+    "chats": {
+      "$groupId": {
+        ".read": "auth != null",
+        "$msgId": {
+          ".write": "auth != null && !data.exists() && newData.child('uid').val() == auth.uid",
+          ".validate": "newData.hasChildren(['uid','name','text','ts'])"
+        }
+      }
+    }
+  }
+}
