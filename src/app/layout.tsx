@@ -29,6 +29,11 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={`${inter.variable} ${grotesk.variable}`}>
+      <head>
+        <meta name="mobile-web-app-capable" content="yes" />
+        <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/icons/icon.svg" />
+      </head>
       <body>
         <AuthProvider>{children}</AuthProvider>
       </body>
