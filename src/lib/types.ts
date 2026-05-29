@@ -19,13 +19,17 @@ export type MatchStage =
 
 export interface Match {
   id: string;
+  matchNumber?: number; // 1-104 FIFA
   stage: MatchStage;
   group?: string;
   matchday?: number;
   kickoff: string; // ISO
   home: TeamCode | null;
   away: TeamCode | null;
+  homePlaceholder?: string; // p.ej. "1A", "3 C/E/F/H/I", "Gan. M-73"
+  awayPlaceholder?: string;
   venue: string;
+  city?: string;
   result?: { home: number; away: number; penaltiesWinner?: "home" | "away" };
 }
 

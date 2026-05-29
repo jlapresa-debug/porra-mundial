@@ -46,7 +46,9 @@ export function MatchCard({ match, prediction }: Props) {
       <div className="flex items-center justify-between gap-3">
         <div className="flex-1 flex items-center gap-2 min-w-0">
           <TeamBadge team={home} size="md" showName={false} />
-          <span className="font-medium truncate text-sm">{home?.name ?? "Por definir"}</span>
+          <span className="font-medium truncate text-sm">
+            {home?.name ?? match.homePlaceholder ?? "Por definir"}
+          </span>
         </div>
 
         <div className="px-3">
@@ -67,7 +69,9 @@ export function MatchCard({ match, prediction }: Props) {
         </div>
 
         <div className="flex-1 flex items-center gap-2 justify-end min-w-0">
-          <span className="font-medium truncate text-sm text-right">{away?.name ?? "Por definir"}</span>
+          <span className="font-medium truncate text-sm text-right">
+            {away?.name ?? match.awayPlaceholder ?? "Por definir"}
+          </span>
           <TeamBadge team={away} size="md" showName={false} />
         </div>
       </div>
