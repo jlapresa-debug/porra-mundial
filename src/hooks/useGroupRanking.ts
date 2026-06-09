@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import type { GroupMemberScore, Prediction, SpecialBets } from "@/lib/types";
+import type { GroupMemberScore, SpecialBets } from "@/lib/types";
 import { ALL_MATCHES } from "@/lib/matches";
 import { DEFAULT_RULES, totalScore } from "@/lib/scoring";
 
@@ -13,6 +13,7 @@ export function useGroupRanking(memberIds: string[]) {
 
   useEffect(() => {
     let cancelled = false;
+
     async function load() {
       if (!db || memberIds.length === 0) {
         setRanking([]);
@@ -20,35 +21,60 @@ export function useGroupRanking(memberIds: string[]) {
         return;
       }
       setLoading(true);
+
       const results = await Promise.all(
         memberIds.map(async (uid) => {
           const profileDoc = await getDoc(doc(db!, "users", uid));
           const profile = profileDoc.data() ?? { displayName: "Anónimo", photoURL: null };
+
           const predsSnap = await getDocs(collection(db!, "users", uid, "predictions"));
-          const predictions: Record<string, Prediction> = {};
-          predsSnap.forEach((d) => (predictions[d.id] = d.data() as Prediction));
+          const groupPredictions: Record<string, string[]> = {};
+          const knockoutPredictions: Record<string, string> = {};
+          predsSnap.forEach((d) => {
+            if (d.id.startsWith("GROUP_")) {
+              const order = d.data().order;
+              if (Array.isArray(order)) {
+                groupPredictions[d.id.replace("GROUP_", "")] = order;
+              }
+            } else {
+              const winner = d.data().winner as string | undefined;
+              if (winner) knockoutPredictions[d.id] = winner;
+            }
+          });
+
           const specialsDoc = await getDoc(doc(db!, "users", uid, "meta", "specials"));
           const specials = (specialsDoc.data() as SpecialBets) ?? {};
-          const { total, exact, signs } = totalScore(predictions, specials, ALL_MATCHES, {}, DEFAULT_RULES);
+
+          const { total, groupHits, koHits } = totalScore(
+            groupPredictions,
+            knockoutPredictions,
+            specials,
+            ALL_MATCHES,
+            {}, // resultados de grupos (se añaden cuando haya resultados reales)
+            {},
+            DEFAULT_RULES,
+          );
+
           return {
             uid,
             displayName: (profile.displayName as string) ?? "Anónimo",
             photoURL: (profile.photoURL as string | null) ?? null,
             points: total,
-            exact,
-            signs,
+            groupHits,
+            koHits,
           };
         }),
       );
+
       if (!cancelled) {
-        setRanking(results.sort((a, b) => b.points - a.points || b.exact - a.exact));
+        setRanking(results.sort((a, b) => b.points - a.points || b.groupHits - a.groupHits));
         setLoading(false);
       }
     }
+
     load();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [memberIds.join(",")]);
 
   return { ranking, loading };

@@ -4,41 +4,69 @@ import { useEffect, useState } from "react";
 import { collection, doc, onSnapshot, setDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./useAuth";
-import type { Prediction, SpecialBets } from "@/lib/types";
+import type { SpecialBets } from "@/lib/types";
+
+// Almacenamiento en Firestore (colección predictions ya tiene reglas):
+//   users/{uid}/predictions/GROUP_A  → { group, order: [t1,t2,t3,t4] }
+//   users/{uid}/predictions/M73      → { matchId, winner: teamCode }
+//   users/{uid}/meta/specials        → SpecialBets
 
 export function usePredictions() {
   const { user } = useAuth();
-  const [predictions, setPredictions] = useState<Record<string, Prediction>>({});
+
+  // group → ordered array of 4 team codes (pos 0 = 1°)
+  const [groupPredictions, setGroupPredictions] = useState<Record<string, string[]>>({});
+  // matchId → winning team code
+  const [knockoutPredictions, setKnockoutPredictions] = useState<Record<string, string>>({});
   const [specials, setSpecials] = useState<SpecialBets>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user || !db) return;
-    const unsubP = onSnapshot(collection(db, "users", user.uid, "predictions"), (snap) => {
-      const map: Record<string, Prediction> = {};
-      snap.forEach((d) => {
-        const data = d.data() as Prediction;
-        map[d.id] = data;
-      });
-      setPredictions(map);
-      setLoading(false);
-    });
-    const unsubS = onSnapshot(doc(db, "users", user.uid, "meta", "specials"), (snap) => {
-      setSpecials((snap.data() as SpecialBets) || {});
-    });
-    return () => {
-      unsubP();
-      unsubS();
-    };
+
+    const unsubP = onSnapshot(
+      collection(db, "users", user.uid, "predictions"),
+      (snap) => {
+        const groups: Record<string, string[]> = {};
+        const ko: Record<string, string> = {};
+        snap.forEach((d) => {
+          if (d.id.startsWith("GROUP_")) {
+            const group = d.id.replace("GROUP_", "");
+            const order = d.data().order;
+            if (Array.isArray(order)) groups[group] = order;
+          } else {
+            const winner = d.data().winner as string | undefined;
+            if (winner) ko[d.id] = winner;
+          }
+        });
+        setGroupPredictions(groups);
+        setKnockoutPredictions(ko);
+        setLoading(false);
+      },
+    );
+
+    const unsubS = onSnapshot(
+      doc(db, "users", user.uid, "meta", "specials"),
+      (snap) => setSpecials((snap.data() as SpecialBets) || {}),
+    );
+
+    return () => { unsubP(); unsubS(); };
   }, [user]);
 
-  async function savePrediction(matchId: string, home: number, away: number, pkWinner?: "home" | "away") {
+  async function saveGroupPrediction(group: string, order: string[]) {
     if (!user || !db) return;
-    const data: Prediction = { matchId, home, away, pkWinner, updatedAt: Date.now() };
-    await setDoc(doc(db, "users", user.uid, "predictions", matchId), {
-      ...data,
-      updatedAt: serverTimestamp(),
-    });
+    await setDoc(
+      doc(db, "users", user.uid, "predictions", `GROUP_${group}`),
+      { group, order, updatedAt: serverTimestamp() },
+    );
+  }
+
+  async function saveKnockoutWinner(matchId: string, winner: string) {
+    if (!user || !db) return;
+    await setDoc(
+      doc(db, "users", user.uid, "predictions", matchId),
+      { matchId, winner, updatedAt: serverTimestamp() },
+    );
   }
 
   async function saveSpecials(partial: Partial<SpecialBets>) {
@@ -50,5 +78,13 @@ export function usePredictions() {
     );
   }
 
-  return { predictions, specials, loading, savePrediction, saveSpecials };
+  return {
+    groupPredictions,
+    knockoutPredictions,
+    specials,
+    loading,
+    saveGroupPrediction,
+    saveKnockoutWinner,
+    saveSpecials,
+  };
 }

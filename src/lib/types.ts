@@ -19,25 +19,34 @@ export type MatchStage =
 
 export interface Match {
   id: string;
-  matchNumber?: number; // 1-104 FIFA
+  matchNumber?: number;
   stage: MatchStage;
   group?: string;
   matchday?: number;
   kickoff: string; // ISO
   home: TeamCode | null;
   away: TeamCode | null;
-  homePlaceholder?: string; // p.ej. "1A", "3 C/E/F/H/I", "Gan. M-73"
+  homePlaceholder?: string;
   awayPlaceholder?: string;
   venue: string;
   city?: string;
   result?: { home: number; away: number; penaltiesWinner?: "home" | "away" };
+  winner?: TeamCode; // se rellena cuando termina el partido
 }
 
-export interface Prediction {
+// Apuesta de clasificación en fase de grupos (A-L)
+// Almacenada en users/{uid}/predictions/GROUP_X
+export interface GroupStandingPrediction {
+  group: string;
+  order: [TeamCode, TeamCode, TeamCode, TeamCode]; // posición 0 = 1°, 3 = 4°
+  updatedAt: number;
+}
+
+// Apuesta del ganador en eliminatorias (M73-M104)
+// Almacenada en users/{uid}/predictions/M73 etc.
+export interface KnockoutPrediction {
   matchId: string;
-  home: number;
-  away: number;
-  pkWinner?: "home" | "away";
+  winner: TeamCode;
   updatedAt: number;
 }
 
@@ -46,7 +55,6 @@ export interface SpecialBets {
   runnerUp?: TeamCode;
   topScorer?: string;
   bestPlayer?: string;
-  surprise?: TeamCode;
   updatedAt?: number;
 }
 
@@ -65,21 +73,27 @@ export interface Group {
   ownerId: string;
   memberIds: string[];
   createdAt: number;
-  // Reglas de puntuación opcionales por grupo
   scoring?: ScoringRules;
 }
 
 export interface ScoringRules {
-  exact: number; // resultado exacto
-  signAndDiff: number; // signo y diferencia de goles correctos
-  sign: number; // solo signo correcto
-  goalsOne: number; // acertar un equipo
+  // Puntos por posición exacta en grupo: [1°, 2°, 3°, 4°]
+  groupPosition: [number, number, number, number];
+  // Puntos por acertar el ganador en eliminatorias por ronda
+  knockout: {
+    round32: number;
+    round16: number;
+    quarter: number;
+    semi: number;
+    thirdplace: number;
+    final: number;
+  };
+  // Apuestas especiales
   special: {
     champion: number;
     runnerUp: number;
     topScorer: number;
     bestPlayer: number;
-    surprise: number;
   };
 }
 
@@ -96,6 +110,6 @@ export interface GroupMemberScore {
   displayName: string;
   photoURL?: string | null;
   points: number;
-  exact: number;
-  signs: number;
+  groupHits: number; // posiciones exactas en grupos
+  koHits: number;    // ganadores correctos en eliminatorias
 }

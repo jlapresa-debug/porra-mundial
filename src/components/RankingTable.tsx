@@ -47,7 +47,7 @@ export function RankingTable({ ranking, currentUid }: Props) {
                 {m.displayName} {isYou && <span className="text-[10px] text-brand ml-1">(tú)</span>}
               </div>
               <div className="text-[10px] text-muted">
-                {m.exact} exactos · {m.signs} signos
+                {m.groupHits} pos. grupo · {m.koHits} eliminatorias
               </div>
             </div>
             <div className="font-display font-bold text-lg tabular-nums">{m.points}</div>

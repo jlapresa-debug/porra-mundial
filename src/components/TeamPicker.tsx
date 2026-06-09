@@ -9,9 +9,10 @@ interface Props {
   value?: string;
   onChange: (code: string) => void;
   placeholder?: string;
+  disabled?: boolean;
 }
 
-export function TeamPicker({ value, onChange, placeholder = "Seleccionar selección" }: Props) {
+export function TeamPicker({ value, onChange, placeholder = "Seleccionar selección", disabled = false }: Props) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
 
@@ -24,10 +25,13 @@ export function TeamPicker({ value, onChange, placeholder = "Seleccionar selecci
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={() => !disabled && setOpen(true)}
+        disabled={disabled}
         className={cn(
-          "w-full flex items-center gap-3 px-4 h-14 rounded-xl bg-bg-card border border-line text-left transition hover:border-brand/40",
+          "w-full flex items-center gap-3 px-4 h-14 rounded-xl bg-bg-card border border-line text-left transition",
+          !disabled && "hover:border-brand/40",
           !selected && "text-muted",
+          disabled && "opacity-50 cursor-not-allowed",
         )}
       >
         {selected ? (
