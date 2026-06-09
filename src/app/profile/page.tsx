@@ -8,11 +8,26 @@ import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/hooks/useAuth";
 import { usePredictions } from "@/hooks/usePredictions";
-import { ALL_MATCHES } from "@/lib/matches";
 import { DEFAULT_RULES, totalScore } from "@/lib/scoring";
+import {
+  GROUP_DEADLINE,
+  isGroupsLocked,
+  isKnockoutLocked,
+  formatDeadlineSpain,
+} from "@/lib/deadlines";
+import { ALL_MATCHES } from "@/lib/matches";
 
 const ALL_GROUPS = ["A","B","C","D","E","F","G","H","I","J","K","L"];
 const KO_MATCHES = ALL_MATCHES.filter((m) => m.stage !== "group");
+
+// Próximo cierre de eliminatorias (primer partido KO cuyo plazo aún no ha pasado)
+function nextKODeadlineLabel(): string | null {
+  const now = Date.now();
+  const next = KO_MATCHES.find((m) => !isKnockoutLocked(m.kickoff));
+  if (!next) return null;
+  const d = new Date(new Date(next.kickoff).getTime() - 3_600_000);
+  return formatDeadlineSpain(d);
+}
 
 export default function ProfilePage() {
   const { user, logout } = useAuth();
@@ -107,6 +122,26 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        {/* Calendario de apuestas */}
+        <div className="rounded-2xl bg-bg-card border border-line p-4">
+          <h3 className="font-display font-bold text-sm mb-3">Calendario de apuestas</h3>
+          <div className="space-y-3">
+            <DeadlineRow
+              icon="🗓"
+              label="Grupos y apuestas especiales"
+              deadline={formatDeadlineSpain(GROUP_DEADLINE)}
+              locked={isGroupsLocked()}
+            />
+            <DeadlineRow
+              icon="⚡"
+              label="Eliminatorias"
+              deadline={nextKODeadlineLabel() ?? "Todos los partidos cerrados"}
+              sublabel="Cierre 1h antes de cada partido"
+              locked={false}
+            />
+          </div>
+        </div>
+
         <Button variant="danger" size="lg" fullWidth onClick={handleLogout}>
           Cerrar sesión
         </Button>
@@ -134,5 +169,39 @@ function Rule({ pts, children }: { pts: number; children: React.ReactNode }) {
       <span>{children}</span>
       <span className="font-bold text-brand">+{pts}</span>
     </li>
+  );
+}
+
+function DeadlineRow({
+  icon,
+  label,
+  deadline,
+  sublabel,
+  locked,
+}: {
+  icon: string;
+  label: string;
+  deadline: string;
+  sublabel?: string;
+  locked: boolean;
+}) {
+  return (
+    <div className="flex items-start gap-3 py-2.5 border-b border-line last:border-0">
+      <span className="text-base mt-0.5">{icon}</span>
+      <div className="flex-1 min-w-0">
+        <div className="text-xs font-medium">{label}</div>
+        {sublabel && <div className="text-[10px] text-muted mt-0.5">{sublabel}</div>}
+        <div className="text-[11px] text-muted mt-0.5">{deadline}h</div>
+      </div>
+      <span
+        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 mt-0.5 ${
+          locked
+            ? "bg-amber-500/10 text-amber-400"
+            : "bg-emerald-500/10 text-emerald-400"
+        }`}
+      >
+        {locked ? "🔒 Cerrado" : "● Abierto"}
+      </span>
+    </div>
   );
 }

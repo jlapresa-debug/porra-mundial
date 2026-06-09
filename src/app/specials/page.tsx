@@ -8,9 +8,7 @@ import { Input } from "@/components/ui/Input";
 import { TeamPicker } from "@/components/TeamPicker";
 import { usePredictions } from "@/hooks/usePredictions";
 import { DEFAULT_RULES } from "@/lib/scoring";
-
-// Las apuestas especiales cierran cuando arranca el torneo
-const TOURNAMENT_START = new Date("2026-06-11T21:00:00Z").getTime();
+import { isSpecialsLocked, formatDeadlineSpain, SPECIALS_DEADLINE } from "@/lib/deadlines";
 
 export default function SpecialsPage() {
   const { specials, saveSpecials } = usePredictions();
@@ -21,7 +19,7 @@ export default function SpecialsPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  const locked = Date.now() >= TOURNAMENT_START;
+  const locked = isSpecialsLocked();
 
   useEffect(() => {
     setChampion(specials.champion);
@@ -46,13 +44,15 @@ export default function SpecialsPage() {
     <AppShell>
       <Header
         title="Apuestas especiales"
-        subtitle="Se cierran el 11 de junio al inicio del torneo"
+        subtitle={locked
+          ? "🔒 Plazo cerrado"
+          : `Cierre: ${formatDeadlineSpain(SPECIALS_DEADLINE)}h`}
       />
 
       <div className="container-app mt-4 grid gap-5">
         {locked && (
           <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 px-4 py-3 text-xs text-amber-300">
-            🔒 El torneo ha comenzado. Las apuestas especiales están cerradas.
+            🔒 El plazo ha terminado. Las apuestas especiales están cerradas.
           </div>
         )}
 

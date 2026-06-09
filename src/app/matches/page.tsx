@@ -9,10 +9,8 @@ import { ALL_MATCHES } from "@/lib/matches";
 import { TEAMS_BY_GROUP } from "@/lib/teams";
 import { usePredictions } from "@/hooks/usePredictions";
 import { cn } from "@/lib/cn";
+import { isGroupsLocked, isKnockoutLocked } from "@/lib/deadlines";
 import type { Match } from "@/lib/types";
-
-// El torneo empieza cuando México juega su primer partido
-const TOURNAMENT_START = new Date("2026-06-11T21:00:00Z").getTime();
 
 const ALL_GROUPS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
 
@@ -38,7 +36,7 @@ export default function MatchesPage() {
     saveKnockoutWinner,
   } = usePredictions();
 
-  const groupsLocked = Date.now() >= TOURNAMENT_START;
+  const groupsLocked = isGroupsLocked();
   const groupsDone = ALL_GROUPS.filter((g) => !!groupPredictions[g]).length;
   const koDone = Object.keys(knockoutPredictions).length;
 
@@ -118,7 +116,7 @@ export default function MatchesPage() {
           <div className="container-app mt-3 pb-6 animate-fade-in">
             {groupsLocked && (
               <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 px-4 py-3 text-xs text-amber-300 mb-4">
-                🔒 El torneo ha comenzado — las clasificaciones están cerradas.
+                🔒 Plazo cerrado — las clasificaciones de grupo ya no se pueden modificar.
               </div>
             )}
             <GroupStandingCard
@@ -146,7 +144,7 @@ export default function MatchesPage() {
                 </h2>
                 <div className="grid gap-3">
                   {matches.map((m) => {
-                    const locked = new Date(m.kickoff).getTime() < Date.now();
+                    const locked = isKnockoutLocked(m.kickoff);
                     return (
                       <KnockoutMatchCard
                         key={m.id}

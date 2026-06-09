@@ -93,7 +93,7 @@ export default function GroupDetailPage() {
             loading ? (
               <div className="text-center text-muted text-sm py-8">Calculando puntos...</div>
             ) : (
-              <RankingTable ranking={ranking} currentUid={user?.uid} />
+              <RankingTable ranking={ranking} currentUid={user?.uid} groupId={params.id} />
             )
           ) : (
             <GroupChat groupId={group.id} />

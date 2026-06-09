@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
 
 const items = [
-  { href: "/matches", label: "Partidos", icon: IconBall },
-  { href: "/specials", label: "Apuestas", icon: IconStar },
+  { href: "/matches", label: "Apuestas", icon: IconBall },
+  { href: "/specials", label: "Especiales", icon: IconStar },
   { href: "/groups", label: "Grupos", icon: IconUsers },
   { href: "/profile", label: "Perfil", icon: IconUser },
 ];
