@@ -46,6 +46,7 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
 
   const [saving, setSaving] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Sincronizar con datos guardados al cargar / cambiar
   useEffect(() => {
@@ -73,27 +74,40 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
     [bet.q2.maxGoals],
   );
 
-  const canSave =
-    !locked &&
-    q1 !== "" &&
-    typeof teamGoals === "number" &&
-    typeof opponentGoals === "number" &&
-    (teamGoals === 0 || scorers.every((s) => s !== ""));
+  // Lo que está suficientemente respondido para puntuar
+  const hasQ1 = q1 !== "";
+  const hasQ2 = typeof teamGoals === "number" && typeof opponentGoals === "number";
+  const hasQ3 = hasQ2 && (teamGoals as number) > 0 && scorers.length > 0 && scorers.every((s) => s !== "");
+  const allowSave = !locked && (hasQ1 || hasQ2 || hasQ3);
+
+  // Construye el objeto a guardar omitiendo claves vacías
+  // (Firestore rechaza valores `undefined`, así que no las incluimos)
+  function buildPayload(): Partial<{ q1: ExpressResult; q2: { teamGoals: number; opponentGoals: number }; q3: string[] }> {
+    const data: any = {};
+    if (hasQ1) data.q1 = q1;
+    if (hasQ2) data.q2 = { teamGoals: teamGoals as number, opponentGoals: opponentGoals as number };
+    if (hasQ2 && (teamGoals as number) > 0) {
+      // Guardamos lo que haya, aunque algún hueco esté vacío
+      data.q3 = scorers;
+    }
+    return data;
+  }
 
   async function handleSave() {
-    if (!canSave) return;
+    if (!allowSave) return;
     setSaving(true);
+    setError(null);
     try {
-      await onSave({
-        q1: q1 as ExpressResult,
-        q2: {
-          teamGoals: teamGoals as number,
-          opponentGoals: opponentGoals as number,
-        },
-        q3: scorers,
-      });
+      await onSave(buildPayload());
       setJustSaved(true);
       setTimeout(() => setJustSaved(false), 2500);
+    } catch (e: any) {
+      const msg = e?.code === "permission-denied"
+        ? "Falta publicar las reglas de Firestore para 'express'. Mira el último mensaje en el chat."
+        : e?.message ?? "No se pudo guardar. Vuelve a intentarlo.";
+      setError(msg);
+      // eslint-disable-next-line no-console
+      console.error("[Express] Error al guardar:", e);
     } finally {
       setSaving(false);
     }
@@ -257,13 +271,18 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
 
         {/* Acción */}
         {!locked && (
-          <div className="pt-1">
+          <div className="pt-1 grid gap-2">
+            {error && (
+              <div className="rounded-xl bg-red-500/10 border border-red-500/30 px-3 py-2 text-xs text-red-300">
+                ⚠️ {error}
+              </div>
+            )}
             <Button
               size="lg"
               fullWidth
               onClick={handleSave}
               loading={saving}
-              disabled={!canSave}
+              disabled={!allowSave}
             >
               {justSaved
                 ? "Guardado ✓"
@@ -271,6 +290,11 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
                   ? "Actualizar apuesta"
                   : "Guardar apuesta"}
             </Button>
+            {!hasQ1 && !hasQ2 && !hasQ3 && (
+              <p className="text-[10px] text-muted text-center">
+                Responde al menos una pregunta para guardar
+              </p>
+            )}
           </div>
         )}
       </div>
