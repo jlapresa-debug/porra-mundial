@@ -56,6 +56,9 @@ export const GROUP_MATCH_RESULTS: Record<string, { home: number; away: number }>
   "GE-J2-ECU-CUW": { home: 0, away: 0 },
   "GF-J2-NED-SWE": { home: 5, away: 1 },
   "GF-J2-TUN-JPN": { home: 0, away: 4 },
+
+  // ── MD2 (21 jun) ──────────────────────────────────────────────
+  "GH-J2-ESP-SAU": { home: 4, away: 0 },
 };
 
 // ───────────── ELIMINATORIAS ─────────────
@@ -94,7 +97,7 @@ export const TOURNAMENT_OUTCOME: {
 // ───────────── METADATOS ─────────────
 // Última actualización por humano/Claude — para auditoría
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-06-21T08:00:00Z",
-  by: "Claude (carga manual MD1 + MD2 hasta 20 jun)",
-  source: "Yahoo Sports, ESPN, CBS Sports, NBC News",
+  iso: "2026-06-21T20:30:00Z",
+  by: "Claude (España-Saudí 4-0 + Express)",
+  source: "Reporte directo del usuario tras el partido",
 };

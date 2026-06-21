@@ -96,7 +96,15 @@ export const EXPRESS_BETS: ExpressBet[] = [
 //     q3: ["Lamine Yamal", "Lamine Yamal", "Dani Olmo"],
 //   }
 export const EXPRESS_OUTCOMES: Record<string, ExpressOutcome> = {
-  // Pendiente: ESP-SAU-J2 (partido del 21 jun)
+  // España 4 - Arabia Saudí 0 (21 jun, Atlanta).
+  // Goles: Lamine Yamal, Oyarzábal x2, gol en propia de un defensa saudí.
+  // Nota: el 4º gol fue en propia, así que no es atribuible a ningún jugador
+  // de la convocatoria de España y por tanto nadie puede acertarlo en q3.
+  "ESP-SAU-J2": {
+    q1: "win",
+    q2: { teamGoals: 4, opponentGoals: 0 },
+    q3: ["Lamine Yamal", "Mikel Oyarzabal", "Mikel Oyarzabal", "Gol en propia (Arabia Saudí)"],
+  },
 };
 
 export function getExpressBet(id: string): ExpressBet | undefined {
