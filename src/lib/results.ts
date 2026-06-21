@@ -17,7 +17,45 @@ import type { TeamCode } from "./types";
 // key = match.id (ej: "GA-J1-MEX-RSA")
 // value = goles del local y del visitante
 export const GROUP_MATCH_RESULTS: Record<string, { home: number; away: number }> = {
-  // "GA-J1-MEX-RSA": { home: 1, away: 0 },  // Fuente: ...
+  // ── MD1 (11-17 jun) ──────────────────────────────────────────
+  "GA-J1-MEX-RSA": { home: 2, away: 0 },
+  "GA-J1-KOR-CZE": { home: 2, away: 1 },
+  "GB-J1-CAN-BIH": { home: 1, away: 1 },
+  "GD-J1-USA-PAR": { home: 4, away: 1 },
+  "GB-J1-QAT-SUI": { home: 1, away: 1 },
+  "GC-J1-BRA-MAR": { home: 1, away: 1 },
+  "GC-J1-HAI-SCO": { home: 0, away: 1 },
+  "GD-J1-AUS-TUR": { home: 2, away: 0 },
+  "GE-J1-GER-CUW": { home: 7, away: 1 },
+  "GE-J1-CIV-ECU": { home: 1, away: 0 },
+  "GF-J1-NED-JPN": { home: 2, away: 2 },
+  "GF-J1-SWE-TUN": { home: 5, away: 1 },
+  "GG-J1-IRN-NZL": { home: 2, away: 2 },
+  "GG-J1-BEL-EGY": { home: 1, away: 1 },
+  "GH-J1-ESP-CPV": { home: 0, away: 0 },
+  "GH-J1-SAU-URU": { home: 1, away: 1 },
+  "GI-J1-FRA-SEN": { home: 3, away: 1 },
+  "GI-J1-IRQ-NOR": { home: 1, away: 4 },
+  "GJ-J1-ARG-ALG": { home: 3, away: 0 },
+  "GJ-J1-AUT-JOR": { home: 3, away: 1 },
+  "GK-J1-POR-COD": { home: 1, away: 1 },
+  "GK-J1-UZB-COL": { home: 1, away: 3 },
+  "GL-J1-ENG-CRO": { home: 4, away: 2 },
+  "GL-J1-GHA-PAN": { home: 1, away: 0 },
+
+  // ── MD2 (18-20 jun, los partidos del 21 jun aún no terminan) ─
+  "GA-J2-CZE-RSA": { home: 1, away: 1 },
+  "GA-J2-MEX-KOR": { home: 1, away: 0 },
+  "GB-J2-SUI-BIH": { home: 4, away: 1 },
+  "GB-J2-CAN-QAT": { home: 6, away: 0 },
+  "GC-J2-SCO-MAR": { home: 0, away: 1 },
+  "GC-J2-BRA-HAI": { home: 3, away: 0 },
+  "GD-J2-USA-AUS": { home: 2, away: 0 },
+  "GD-J2-TUR-PAR": { home: 0, away: 1 },
+  "GE-J2-GER-CIV": { home: 2, away: 1 },
+  "GE-J2-ECU-CUW": { home: 0, away: 0 },
+  "GF-J2-NED-SWE": { home: 5, away: 1 },
+  "GF-J2-TUN-JPN": { home: 0, away: 4 },
 };
 
 // ───────────── ELIMINATORIAS ─────────────
@@ -56,7 +94,7 @@ export const TOURNAMENT_OUTCOME: {
 // ───────────── METADATOS ─────────────
 // Última actualización por humano/Claude — para auditoría
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-06-21T00:00:00Z",
-  by: "Claude (setup)",
-  source: "—",
+  iso: "2026-06-21T08:00:00Z",
+  by: "Claude (carga manual MD1 + MD2 hasta 20 jun)",
+  source: "Yahoo Sports, ESPN, CBS Sports, NBC News",
 };
