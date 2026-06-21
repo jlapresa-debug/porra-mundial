@@ -5,12 +5,10 @@ import {
   User,
   onAuthStateChanged,
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   signInWithPopup,
   signOut,
-  updateProfile,
 } from "firebase/auth";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db, googleProvider, isFirebaseConfigured } from "@/lib/firebase";
 
 interface AuthContextValue {
@@ -50,29 +48,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!auth) throw new Error("Firebase no configurado");
         await signInWithEmailAndPassword(auth, email, password);
       },
-      async registerEmail(email, password, displayName) {
-        if (!auth || !db) throw new Error("Firebase no configurado");
-        const cred = await createUserWithEmailAndPassword(auth, email, password);
-        await updateProfile(cred.user, { displayName });
-        await setDoc(doc(db, "users", cred.user.uid), {
-          uid: cred.user.uid,
-          displayName,
-          email,
-          photoURL: cred.user.photoURL ?? null,
-          createdAt: serverTimestamp(),
-        });
+      async registerEmail() {
+        // La inscripción está cerrada — el Mundial 2026 ya empezó.
+        throw new Error("Inscripción cerrada. No se admiten nuevos usuarios.");
       },
       async signInGoogle() {
         if (!auth || !db) throw new Error("Firebase no configurado");
         const cred = await signInWithPopup(auth, googleProvider);
+        const userRef = doc(db, "users", cred.user.uid);
+        const existing = await getDoc(userRef);
+        if (!existing.exists()) {
+          // Nuevo usuario: registro cerrado, cerrar sesión y avisar
+          await signOut(auth);
+          throw new Error(
+            "Inscripción cerrada. El Mundial ya está en marcha y no se admiten nuevos usuarios.",
+          );
+        }
+        // Usuario existente: refrescar metadatos por si cambiaron en Google
         await setDoc(
-          doc(db, "users", cred.user.uid),
+          userRef,
           {
             uid: cred.user.uid,
             displayName: cred.user.displayName,
             email: cred.user.email,
             photoURL: cred.user.photoURL,
-            createdAt: serverTimestamp(),
           },
           { merge: true },
         );

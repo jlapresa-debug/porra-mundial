@@ -1,109 +1,32 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
+import { AppShell } from "@/components/AppShell";
 import { Header } from "@/components/Header";
 
-export default function RegisterPage() {
-  const { registerEmail, signInGoogle, configured } = useAuth();
-  const router = useRouter();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    try {
-      await registerEmail(email, password, name);
-      router.replace("/matches");
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Error desconocido");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleGoogle() {
-    setLoading(true);
-    setError(null);
-    try {
-      await signInGoogle();
-      router.replace("/matches");
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Error desconocido");
-    } finally {
-      setLoading(false);
-    }
-  }
-
+// Los registros están cerrados — el Mundial ya empezó y la porra está cerrada.
+export default function RegisterClosedPage() {
   return (
-    <main className="min-h-screen pb-12">
-      <Header title="Crea tu cuenta" back="/" />
+    <AppShell>
+      <Header title="Inscripción cerrada" back="/login" />
 
-      <div className="container-app mt-8">
-        <form onSubmit={handleSubmit} className="grid gap-4">
-          <Input
-            label="Nombre"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Cómo te verán tus amigos"
-            required
-            minLength={2}
-          />
-          <Input
-            label="Email"
-            type="email"
-            inputMode="email"
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <Input
-            label="Contraseña"
-            type="password"
-            autoComplete="new-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={6}
-            hint="Mínimo 6 caracteres"
-          />
-          {error && (
-            <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">
-              {error}
-            </div>
-          )}
-          <Button type="submit" size="lg" loading={loading} disabled={!configured}>
-            Crear cuenta
-          </Button>
-        </form>
-
-        <div className="my-6 flex items-center gap-3">
-          <div className="flex-1 h-px bg-line" />
-          <span className="text-xs text-muted uppercase tracking-wider">o</span>
-          <div className="flex-1 h-px bg-line" />
+      <div className="container-app mt-10">
+        <div className="rounded-2xl bg-bg-card border border-line p-6 text-center">
+          <div className="text-4xl mb-3">🔒</div>
+          <h2 className="font-display font-bold text-lg mb-2">Porra cerrada</h2>
+          <p className="text-sm text-muted leading-relaxed">
+            El Mundial 2026 ya está en marcha y la inscripción a la porra está
+            cerrada. Si ya tienes cuenta puedes acceder con normalidad.
+          </p>
         </div>
 
-        <Button variant="secondary" size="lg" fullWidth onClick={handleGoogle} disabled={!configured || loading}>
-          Continuar con Google
-        </Button>
-
-        <p className="text-sm text-muted text-center mt-8">
-          ¿Ya tienes cuenta?{" "}
-          <Link href="/login" className="text-brand font-medium">
-            Inicia sesión
-          </Link>
-        </p>
+        <Link
+          href="/login"
+          className="block mt-6 text-center text-brand font-medium text-sm"
+        >
+          ← Volver al inicio de sesión
+        </Link>
       </div>
-    </main>
+    </AppShell>
   );
 }

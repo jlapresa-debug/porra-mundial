@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/Input";
@@ -87,11 +86,9 @@ export default function LoginPage() {
           Continuar con Google
         </Button>
 
-        <p className="text-sm text-muted text-center mt-8">
-          ¿No tienes cuenta?{" "}
-          <Link href="/register" className="text-brand font-medium">
-            Regístrate
-          </Link>
+        <p className="text-xs text-muted text-center mt-8 leading-relaxed">
+          🔒 La inscripción está cerrada — el Mundial ya empezó.<br />
+          Solo pueden acceder los usuarios ya registrados.
         </p>
       </div>
     </main>
