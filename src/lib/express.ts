@@ -3,7 +3,7 @@
 //
 // Cómo añadir una nueva apuesta express: añade un objeto a EXPRESS_BETS más abajo.
 
-import type { TeamCode } from "./types";
+import type { ExpressOutcome, TeamCode } from "./types";
 
 // Resultado posible en Q1 (perspectiva del equipo principal)
 export type ExpressResult = "win" | "draw" | "lose";
@@ -78,10 +78,39 @@ export const EXPRESS_BETS: ExpressBet[] = [
   },
 ];
 
+// Resultados reales de las apuestas Express (se rellenan tras cada partido).
+// Cuando se añade una entrada aquí, los puntos se aplican automáticamente
+// en el ranking y en el perfil de cada usuario.
+//
+// Formato:
+//   "<betId>": {
+//     q1: "win" | "draw" | "lose",
+//     q2: { teamGoals, opponentGoals },
+//     q3: ["Goleador 1", "Goleador 2", ...] // tantas entradas como goles marcó el equipo principal
+//   }
+//
+// Ejemplo (España gana 3-1 con doblete de Yamal y gol de Olmo):
+//   "ESP-SAU-J2": {
+//     q1: "win",
+//     q2: { teamGoals: 3, opponentGoals: 1 },
+//     q3: ["Lamine Yamal", "Lamine Yamal", "Dani Olmo"],
+//   }
+export const EXPRESS_OUTCOMES: Record<string, ExpressOutcome> = {
+  // Pendiente: ESP-SAU-J2 (partido del 21 jun)
+};
+
 export function getExpressBet(id: string): ExpressBet | undefined {
   return EXPRESS_BETS.find((b) => b.id === id);
 }
 
+export function getExpressOutcome(id: string): ExpressOutcome | undefined {
+  return EXPRESS_OUTCOMES[id];
+}
+
 export function isExpressLocked(bet: ExpressBet): boolean {
   return Date.now() >= new Date(bet.deadline).getTime();
+}
+
+export function isExpressResolved(id: string): boolean {
+  return !!EXPRESS_OUTCOMES[id];
 }

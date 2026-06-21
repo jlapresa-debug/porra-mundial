@@ -1,4 +1,4 @@
-import type { ExpressPrediction, Match, ScoringRules, SpecialBets } from "./types";
+import type { ExpressOutcome, ExpressPrediction, Match, ScoringRules, SpecialBets } from "./types";
 import { EXPRESS_BETS, type ExpressBet } from "./express";
 
 export const DEFAULT_RULES: ScoringRules = {
@@ -70,13 +70,6 @@ export function scoreSpecials(
       s.bestPlayer.toLowerCase() === outcome.bestPlayer.toLowerCase())
     pts += rules.special.bestPlayer;
   return pts;
-}
-
-// Resultado real de una apuesta Express (se rellena cuando termina el partido)
-export interface ExpressOutcome {
-  q1?: "win" | "draw" | "lose";
-  q2?: { teamGoals: number; opponentGoals: number };
-  q3?: string[]; // goleadores reales del equipo principal
 }
 
 export function scoreExpressBet(

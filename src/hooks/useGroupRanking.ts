@@ -6,6 +6,7 @@ import { db } from "@/lib/firebase";
 import type { ExpressPrediction, GroupMemberScore, SpecialBets } from "@/lib/types";
 import { ALL_MATCHES } from "@/lib/matches";
 import { DEFAULT_RULES, totalScore } from "@/lib/scoring";
+import { EXPRESS_OUTCOMES } from "@/lib/express";
 
 export function useGroupRanking(memberIds: string[]) {
   const [ranking, setRanking] = useState<GroupMemberScore[]>([]);
@@ -60,7 +61,7 @@ export function useGroupRanking(memberIds: string[]) {
             {},
             DEFAULT_RULES,
             expressPredictions,
-            {}, // resultados de express
+            EXPRESS_OUTCOMES,
           );
 
           return {

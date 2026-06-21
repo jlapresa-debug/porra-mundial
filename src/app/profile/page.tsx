@@ -15,7 +15,7 @@ import {
   isKnockoutLocked,
   formatDeadlineSpain,
 } from "@/lib/deadlines";
-import { EXPRESS_BETS, isExpressLocked } from "@/lib/express";
+import { EXPRESS_BETS, EXPRESS_OUTCOMES, isExpressLocked } from "@/lib/express";
 import { ALL_MATCHES } from "@/lib/matches";
 
 const ALL_GROUPS = ["A","B","C","D","E","F","G","H","I","J","K","L"];
@@ -51,7 +51,7 @@ export default function ProfilePage() {
       {},
       DEFAULT_RULES,
       expressPredictions,
-      {},
+      EXPRESS_OUTCOMES,
     );
     const groupsDone = ALL_GROUPS.filter((g) => !!groupPredictions[g]).length;
     const koDone = Object.keys(knockoutPredictions).length;

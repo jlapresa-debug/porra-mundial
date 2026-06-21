@@ -60,6 +60,13 @@ export interface ExpressPrediction {
   updatedAt: number;
 }
 
+// Resultado real de una apuesta Express (se rellena cuando termina el partido)
+export interface ExpressOutcome {
+  q1?: "win" | "draw" | "lose";
+  q2?: { teamGoals: number; opponentGoals: number };
+  q3?: string[]; // goleadores reales del equipo principal
+}
+
 export interface SpecialBets {
   champion?: TeamCode;
   runnerUp?: TeamCode;

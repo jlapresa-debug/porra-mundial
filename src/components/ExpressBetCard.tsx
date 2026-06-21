@@ -2,10 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { ExpressBet, ExpressResult } from "@/lib/express";
-import { RESULT_LABEL, isExpressLocked } from "@/lib/express";
+import { RESULT_LABEL, isExpressLocked, getExpressOutcome } from "@/lib/express";
 import type { ExpressPrediction } from "@/lib/types";
 import { getTeam } from "@/lib/teams";
 import { getMatch } from "@/lib/matches";
+import { scoreExpressBet } from "@/lib/scoring";
 import { TeamBadge } from "./TeamBadge";
 import { Button } from "./ui/Button";
 import { cn } from "@/lib/cn";
@@ -29,9 +30,11 @@ function formatDeadlineSpain(iso: string): string {
 
 export function ExpressBetCard({ bet, saved, onSave }: Props) {
   const locked = isExpressLocked(bet);
+  const outcome = getExpressOutcome(bet.id);
   const team = getTeam(bet.team);
   const opponent = getTeam(bet.opponent);
   const match = getMatch(bet.matchId);
+  const score = outcome ? scoreExpressBet(bet, saved, outcome) : null;
 
   // Q1 — resultado del equipo principal
   const [q1, setQ1] = useState<ExpressResult | "">("");
@@ -125,10 +128,43 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
           locked ? "text-amber-400" : "text-emerald-400",
         )}>
           {locked
-            ? "🔒 Plazo cerrado"
+            ? outcome ? "✅ Resultado conocido"  : "🔒 Plazo cerrado"
             : `Cierre: ${formatDeadlineSpain(bet.deadline)}h`}
         </div>
       </div>
+
+      {/* Resultado real (cuando el partido haya terminado) */}
+      {outcome && (
+        <div className="px-4 py-3 bg-emerald-500/5 border-b border-emerald-500/20">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] uppercase tracking-wider font-bold text-emerald-400">
+              Resultado real
+            </span>
+            {score && saved && (
+              <span className="text-xs font-bold text-emerald-400">
+                {score.total} pts
+              </span>
+            )}
+          </div>
+          <div className="grid gap-1.5 text-xs">
+            {outcome.q1 && (
+              <Row label={`${team?.name} ${RESULT_LABEL[outcome.q1].toLowerCase()}`}
+                   value={score ? `+${score.q1}` : ""}
+                   hit={!!score && score.q1 > 0} />
+            )}
+            {outcome.q2 && (
+              <Row label={`Resultado: ${team?.name} ${outcome.q2.teamGoals} – ${outcome.q2.opponentGoals} ${opponent?.name}`}
+                   value={score ? `+${score.q2}` : ""}
+                   hit={!!score && score.q2 > 0} />
+            )}
+            {outcome.q3 && outcome.q3.length > 0 && (
+              <Row label={`Goleadores: ${outcome.q3.join(", ")}`}
+                   value={score ? `+${score.q3}` : ""}
+                   hit={!!score && score.q3 > 0} />
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="p-4 grid gap-5">
         {/* Q1 */}
@@ -267,6 +303,25 @@ function Question({
         </span>
       </div>
       {children}
+    </div>
+  );
+}
+
+function Row({ label, value, hit }: { label: string; value: string; hit: boolean }) {
+  return (
+    <div className={cn(
+      "flex items-start justify-between gap-3",
+      hit ? "text-white" : "text-muted",
+    )}>
+      <span className={cn("text-xs leading-snug", hit && "font-medium")}>{label}</span>
+      {value && (
+        <span className={cn(
+          "text-[11px] font-bold tabular-nums shrink-0",
+          hit ? "text-emerald-400" : "text-muted/60",
+        )}>
+          {value}
+        </span>
+      )}
     </div>
   );
 }
