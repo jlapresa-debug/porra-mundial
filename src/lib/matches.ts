@@ -202,9 +202,15 @@ const koMatches: Match[] = KO_ROWS.map(([no, stage, date, time, hp, ap, city, ve
   city,
 }));
 
-export const ALL_MATCHES: Match[] = [...groupMatches, ...koMatches].sort((a, b) =>
+// Lista cruda (sin enriquecer) — uso interno
+const RAW_MATCHES: Match[] = [...groupMatches, ...koMatches].sort((a, b) =>
   a.kickoff.localeCompare(b.kickoff),
 );
+
+// Lista enriquecida con resultados reales, ganadores de KO y equipos resueltos
+// del cuadro (a partir de results.ts). Es lo que consume la app.
+import { enrichMatches } from "./bracket";
+export const ALL_MATCHES: Match[] = enrichMatches(RAW_MATCHES);
 
 export function getMatch(id: string): Match | undefined {
   return ALL_MATCHES.find((m) => m.id === id);

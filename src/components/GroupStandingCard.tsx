@@ -6,12 +6,15 @@ import { getTeam } from "@/lib/teams";
 import { TeamBadge } from "./TeamBadge";
 import { Button } from "./ui/Button";
 import { cn } from "@/lib/cn";
+import { computeGroupStandings, computeFinalGroupStandings } from "@/lib/standings";
+import { ALL_MATCHES } from "@/lib/matches";
+import { GROUP_MATCH_RESULTS } from "@/lib/results";
 
 interface Props {
-  group: string;      // "A"
-  teams: Team[];      // 4 equipos del grupo (orden inicial)
-  savedOrder?: string[]; // códigos guardados en Firestore (si ya hay apuesta)
-  locked: boolean;    // el torneo ha empezado
+  group: string;
+  teams: Team[];
+  savedOrder?: string[];
+  locked: boolean;
   onSave: (order: string[]) => Promise<void>;
 }
 
@@ -140,6 +143,70 @@ export function GroupStandingCard({ group, teams, savedOrder, locked, onSave }: 
           </Button>
         </div>
       )}
+
+      {/* Clasificación real (cuando hay resultados) */}
+      <LiveStandings group={group} userOrder={order} />
+    </div>
+  );
+}
+
+function LiveStandings({ group, userOrder }: { group: string; userOrder: string[] }) {
+  const computed = computeGroupStandings(group, ALL_MATCHES, GROUP_MATCH_RESULTS);
+  if (!computed) return null;
+
+  const isFinal = !!computeFinalGroupStandings(group, ALL_MATCHES, GROUP_MATCH_RESULTS);
+
+  return (
+    <div className="border-t border-line">
+      <div className="flex items-center justify-between px-4 py-2 bg-emerald-500/5">
+        <span className="text-[10px] uppercase tracking-wider font-bold text-emerald-400">
+          Clasificación {isFinal ? "final real" : "actual"}
+        </span>
+        {!isFinal && (
+          <span className="text-[10px] text-muted">faltan partidos</span>
+        )}
+      </div>
+      <table className="w-full text-xs">
+        <thead>
+          <tr className="text-[9px] uppercase tracking-wider text-muted">
+            <th className="text-left pl-4 py-1.5 font-medium">Pos</th>
+            <th className="text-left py-1.5 font-medium">Equipo</th>
+            <th className="text-center py-1.5 font-medium">PJ</th>
+            <th className="text-center py-1.5 font-medium">DG</th>
+            <th className="text-right pr-4 py-1.5 font-medium">Pts</th>
+          </tr>
+        </thead>
+        <tbody>
+          {computed.stats.map((s, i) => {
+            const team = getTeam(s.team);
+            const userPos = userOrder.indexOf(s.team);
+            const userGotIt = isFinal && userPos === i;
+            return (
+              <tr
+                key={s.team}
+                className={cn(
+                  "border-t border-line/40",
+                  userGotIt && "bg-emerald-500/10",
+                )}
+              >
+                <td className="pl-4 py-1.5 font-bold text-muted">{i + 1}°</td>
+                <td className="py-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <TeamBadge team={team} size="sm" showName={false} />
+                    <span className="text-xs">{team?.name ?? s.team}</span>
+                    {userGotIt && <span className="text-emerald-400 text-[10px]">✓</span>}
+                  </div>
+                </td>
+                <td className="text-center text-muted">{s.played}</td>
+                <td className="text-center text-muted tabular-nums">
+                  {s.goalsFor - s.goalsAgainst > 0 ? "+" : ""}{s.goalsFor - s.goalsAgainst}
+                </td>
+                <td className="text-right pr-4 font-bold tabular-nums">{s.points}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }

@@ -16,6 +16,8 @@ import {
   formatDeadlineSpain,
 } from "@/lib/deadlines";
 import { EXPRESS_BETS, EXPRESS_OUTCOMES, isExpressLocked } from "@/lib/express";
+import { getAllFinalStandings } from "@/lib/bracket";
+import { TOURNAMENT_OUTCOME } from "@/lib/results";
 import { ALL_MATCHES } from "@/lib/matches";
 
 const ALL_GROUPS = ["A","B","C","D","E","F","G","H","I","J","K","L"];
@@ -47,8 +49,8 @@ export default function ProfilePage() {
       knockoutPredictions,
       specials,
       ALL_MATCHES,
-      {},
-      {},
+      getAllFinalStandings(ALL_MATCHES),
+      TOURNAMENT_OUTCOME,
       DEFAULT_RULES,
       expressPredictions,
       EXPRESS_OUTCOMES,

@@ -7,6 +7,8 @@ import type { ExpressPrediction, GroupMemberScore, SpecialBets } from "@/lib/typ
 import { ALL_MATCHES } from "@/lib/matches";
 import { DEFAULT_RULES, totalScore } from "@/lib/scoring";
 import { EXPRESS_OUTCOMES } from "@/lib/express";
+import { getAllFinalStandings } from "@/lib/bracket";
+import { TOURNAMENT_OUTCOME } from "@/lib/results";
 
 export function useGroupRanking(memberIds: string[]) {
   const [ranking, setRanking] = useState<GroupMemberScore[]>([]);
@@ -57,8 +59,8 @@ export function useGroupRanking(memberIds: string[]) {
             knockoutPredictions,
             specials,
             ALL_MATCHES,
-            {}, // resultados de grupos (se añaden cuando haya resultados reales)
-            {},
+            getAllFinalStandings(ALL_MATCHES),
+            TOURNAMENT_OUTCOME,
             DEFAULT_RULES,
             expressPredictions,
             EXPRESS_OUTCOMES,
