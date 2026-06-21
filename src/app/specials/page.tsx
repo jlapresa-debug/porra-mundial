@@ -6,12 +6,14 @@ import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { TeamPicker } from "@/components/TeamPicker";
+import { ExpressBetCard } from "@/components/ExpressBetCard";
 import { usePredictions } from "@/hooks/usePredictions";
 import { DEFAULT_RULES } from "@/lib/scoring";
 import { isSpecialsLocked, formatDeadlineSpain, SPECIALS_DEADLINE } from "@/lib/deadlines";
+import { EXPRESS_BETS } from "@/lib/express";
 
 export default function SpecialsPage() {
-  const { specials, saveSpecials } = usePredictions();
+  const { specials, expressPredictions, saveSpecials, saveExpressPrediction } = usePredictions();
   const [champion, setChampion] = useState<string | undefined>();
   const [runnerUp, setRunnerUp] = useState<string | undefined>();
   const [topScorer, setTopScorer] = useState("");
@@ -44,15 +46,49 @@ export default function SpecialsPage() {
     <AppShell>
       <Header
         title="Apuestas especiales"
-        subtitle={locked
-          ? "🔒 Plazo cerrado"
-          : `Cierre: ${formatDeadlineSpain(SPECIALS_DEADLINE)}h`}
       />
 
-      <div className="container-app mt-4 grid gap-5">
+      <div className="container-app mt-4 grid gap-7">
+        {/* ── EXPRESS ─────────────────────────────────── */}
+        {EXPRESS_BETS.length > 0 && (
+          <section>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xl">⚡</span>
+              <div>
+                <h2 className="font-display font-bold text-base">Express</h2>
+                <p className="text-[11px] text-muted">Apuestas puntuales con plazo corto</p>
+              </div>
+            </div>
+            <div className="grid gap-4">
+              {EXPRESS_BETS.map((bet) => (
+                <ExpressBetCard
+                  key={bet.id}
+                  bet={bet}
+                  saved={expressPredictions[bet.id]}
+                  onSave={(data) => saveExpressPrediction(bet.id, data)}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ── GENERALES ───────────────────────────────── */}
+        <section className="grid gap-5">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">🌟</span>
+            <div>
+              <h2 className="font-display font-bold text-base">Generales</h2>
+              <p className="text-[11px] text-muted">
+                {locked
+                  ? "🔒 Plazo cerrado"
+                  : `Cierre: ${formatDeadlineSpain(SPECIALS_DEADLINE)}h`}
+              </p>
+            </div>
+          </div>
+
         {locked && (
           <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 px-4 py-3 text-xs text-amber-300">
-            🔒 El plazo ha terminado. Las apuestas especiales están cerradas.
+            🔒 El plazo ha terminado. Las apuestas generales están cerradas.
           </div>
         )}
 
@@ -115,10 +151,11 @@ export default function SpecialsPage() {
         {!locked && (
           <div className="pt-2">
             <Button size="lg" fullWidth onClick={handleSave} loading={saving}>
-              {saved ? "Guardado ✓" : "Guardar apuestas especiales"}
+              {saved ? "Guardado ✓" : "Guardar apuestas generales"}
             </Button>
           </div>
         )}
+        </section>
       </div>
     </AppShell>
   );

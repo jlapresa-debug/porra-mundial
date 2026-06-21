@@ -1,4 +1,5 @@
-import type { Match, ScoringRules, SpecialBets } from "./types";
+import type { ExpressPrediction, Match, ScoringRules, SpecialBets } from "./types";
+import { EXPRESS_BETS, type ExpressBet } from "./express";
 
 export const DEFAULT_RULES: ScoringRules = {
   // Puntos por posición exacta en grupo: 1°=5, 2°=3, 3°=2, 4°=1
@@ -71,6 +72,51 @@ export function scoreSpecials(
   return pts;
 }
 
+// Resultado real de una apuesta Express (se rellena cuando termina el partido)
+export interface ExpressOutcome {
+  q1?: "win" | "draw" | "lose";
+  q2?: { teamGoals: number; opponentGoals: number };
+  q3?: string[]; // goleadores reales del equipo principal
+}
+
+export function scoreExpressBet(
+  bet: ExpressBet,
+  prediction: ExpressPrediction | undefined,
+  outcome: ExpressOutcome | undefined,
+): { total: number; q1: number; q2: number; q3: number } {
+  if (!prediction || !outcome) return { total: 0, q1: 0, q2: 0, q3: 0 };
+
+  let q1Pts = 0;
+  let q2Pts = 0;
+  let q3Pts = 0;
+
+  if (prediction.q1 && outcome.q1 && prediction.q1 === outcome.q1) {
+    q1Pts = bet.q1.points;
+  }
+
+  if (
+    prediction.q2 && outcome.q2 &&
+    prediction.q2.teamGoals === outcome.q2.teamGoals &&
+    prediction.q2.opponentGoals === outcome.q2.opponentGoals
+  ) {
+    q2Pts = bet.q2.points;
+  }
+
+  if (prediction.q3 && outcome.q3 && prediction.q3.length > 0) {
+    // Multiset intersection: cada predicción cuenta una vez, hasta el número de aciertos disponibles
+    const actual = [...outcome.q3];
+    for (const guess of prediction.q3) {
+      const idx = actual.indexOf(guess);
+      if (idx !== -1) {
+        q3Pts += bet.q3.pointsPerHit;
+        actual.splice(idx, 1);
+      }
+    }
+  }
+
+  return { total: q1Pts + q2Pts + q3Pts, q1: q1Pts, q2: q2Pts, q3: q3Pts };
+}
+
 export function totalScore(
   groupPredictions: Record<string, string[]>,
   knockoutPredictions: Record<string, string>,
@@ -79,7 +125,9 @@ export function totalScore(
   groupResults: Record<string, string[]> = {},
   outcome: Parameters<typeof scoreSpecials>[1] = {},
   rules: ScoringRules = DEFAULT_RULES,
-): { total: number; groupHits: number; koHits: number } {
+  expressPredictions: Record<string, ExpressPrediction> = {},
+  expressOutcomes: Record<string, ExpressOutcome> = {},
+): { total: number; groupHits: number; koHits: number; expressHits: number } {
   let total = 0;
   let groupHits = 0;
   let koHits = 0;
@@ -104,5 +152,17 @@ export function totalScore(
   }
 
   total += scoreSpecials(specials, outcome, rules);
-  return { total, groupHits, koHits };
+
+  // Express bets
+  let expressHits = 0;
+  for (const bet of EXPRESS_BETS) {
+    const pred = expressPredictions[bet.id];
+    const out = expressOutcomes[bet.id];
+    if (!pred || !out) continue;
+    const { total: pts } = scoreExpressBet(bet, pred, out);
+    total += pts;
+    if (pts > 0) expressHits += 1;
+  }
+
+  return { total, groupHits, koHits, expressHits };
 }

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import type { SpecialBets } from "@/lib/types";
+import type { ExpressPrediction, SpecialBets } from "@/lib/types";
 
 export interface UserPredictionsData {
   displayName: string;
@@ -11,6 +11,7 @@ export interface UserPredictionsData {
   groupPredictions: Record<string, string[]>; // "A" → ["MEX","RSA","KOR","CZE"]
   knockoutPredictions: Record<string, string>; // "M73" → "MEX"
   specials: SpecialBets;
+  expressPredictions: Record<string, ExpressPrediction>;
 }
 
 export function useUserPredictions(uid: string) {
@@ -23,10 +24,11 @@ export function useUserPredictions(uid: string) {
 
     async function load() {
       setLoading(true);
-      const [profileSnap, predsSnap, specialsSnap] = await Promise.all([
+      const [profileSnap, predsSnap, specialsSnap, expressSnap] = await Promise.all([
         getDoc(doc(db!, "users", uid)),
         getDocs(collection(db!, "users", uid, "predictions")),
         getDoc(doc(db!, "users", uid, "meta", "specials")),
+        getDocs(collection(db!, "users", uid, "express")),
       ]);
 
       const profile = profileSnap.data() ?? {};
@@ -45,6 +47,11 @@ export function useUserPredictions(uid: string) {
         }
       });
 
+      const expressPredictions: Record<string, ExpressPrediction> = {};
+      expressSnap.forEach((d) => {
+        expressPredictions[d.id] = d.data() as ExpressPrediction;
+      });
+
       if (!cancelled) {
         setData({
           displayName: (profile.displayName as string) || "Anónimo",
@@ -52,6 +59,7 @@ export function useUserPredictions(uid: string) {
           groupPredictions,
           knockoutPredictions,
           specials: (specialsSnap.data() as SpecialBets) ?? {},
+          expressPredictions,
         });
         setLoading(false);
       }

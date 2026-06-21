@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import type { GroupMemberScore, SpecialBets } from "@/lib/types";
+import type { ExpressPrediction, GroupMemberScore, SpecialBets } from "@/lib/types";
 import { ALL_MATCHES } from "@/lib/matches";
 import { DEFAULT_RULES, totalScore } from "@/lib/scoring";
 
@@ -45,6 +45,12 @@ export function useGroupRanking(memberIds: string[]) {
           const specialsDoc = await getDoc(doc(db!, "users", uid, "meta", "specials"));
           const specials = (specialsDoc.data() as SpecialBets) ?? {};
 
+          const expressSnap = await getDocs(collection(db!, "users", uid, "express"));
+          const expressPredictions: Record<string, ExpressPrediction> = {};
+          expressSnap.forEach((d) => {
+            expressPredictions[d.id] = d.data() as ExpressPrediction;
+          });
+
           const { total, groupHits, koHits } = totalScore(
             groupPredictions,
             knockoutPredictions,
@@ -53,6 +59,8 @@ export function useGroupRanking(memberIds: string[]) {
             {}, // resultados de grupos (se añaden cuando haya resultados reales)
             {},
             DEFAULT_RULES,
+            expressPredictions,
+            {}, // resultados de express
           );
 
           return {

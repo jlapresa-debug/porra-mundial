@@ -15,6 +15,7 @@ import {
   isKnockoutLocked,
   formatDeadlineSpain,
 } from "@/lib/deadlines";
+import { EXPRESS_BETS, isExpressLocked } from "@/lib/express";
 import { ALL_MATCHES } from "@/lib/matches";
 
 const ALL_GROUPS = ["A","B","C","D","E","F","G","H","I","J","K","L"];
@@ -22,17 +23,23 @@ const KO_MATCHES = ALL_MATCHES.filter((m) => m.stage !== "group");
 
 // Próximo cierre de eliminatorias (primer partido KO cuyo plazo aún no ha pasado)
 function nextKODeadlineLabel(): string | null {
-  const now = Date.now();
   const next = KO_MATCHES.find((m) => !isKnockoutLocked(m.kickoff));
   if (!next) return null;
   const d = new Date(new Date(next.kickoff).getTime() - 3_600_000);
   return formatDeadlineSpain(d);
 }
 
+// Próxima apuesta Express con plazo abierto
+function nextExpressDeadlineLabel(): string | null {
+  const next = EXPRESS_BETS.find((b) => !isExpressLocked(b));
+  if (!next) return null;
+  return `${next.title} · ${formatDeadlineSpain(new Date(next.deadline))}`;
+}
+
 export default function ProfilePage() {
   const { user, logout } = useAuth();
   const router = useRouter();
-  const { groupPredictions, knockoutPredictions, specials } = usePredictions();
+  const { groupPredictions, knockoutPredictions, specials, expressPredictions } = usePredictions();
 
   const stats = useMemo(() => {
     const { total, groupHits, koHits } = totalScore(
@@ -43,11 +50,13 @@ export default function ProfilePage() {
       {},
       {},
       DEFAULT_RULES,
+      expressPredictions,
+      {},
     );
     const groupsDone = ALL_GROUPS.filter((g) => !!groupPredictions[g]).length;
     const koDone = Object.keys(knockoutPredictions).length;
     return { total, groupHits, koHits, groupsDone, koDone };
-  }, [groupPredictions, knockoutPredictions, specials]);
+  }, [groupPredictions, knockoutPredictions, specials, expressPredictions]);
 
   async function handleLogout() {
     await logout();
@@ -119,6 +128,18 @@ export default function ProfilePage() {
                 <Rule pts={DEFAULT_RULES.special.bestPlayer}>Mejor jugador</Rule>
               </ul>
             </div>
+            {EXPRESS_BETS.length > 0 && (
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-muted font-semibold mb-1.5">
+                  Apuestas express
+                </p>
+                <ul className="text-xs text-muted space-y-1">
+                  <Rule pts={2}>Resultado del equipo (ganar/empatar/perder)</Rule>
+                  <Rule pts={4}>Resultado exacto del partido</Rule>
+                  <Rule pts={2}>Por cada goleador acertado</Rule>
+                </ul>
+              </div>
+            )}
           </div>
         </div>
 
@@ -138,6 +159,13 @@ export default function ProfilePage() {
               deadline={nextKODeadlineLabel() ?? "Todos los partidos cerrados"}
               sublabel="Cierre 1h antes de cada partido"
               locked={false}
+            />
+            <DeadlineRow
+              icon="✨"
+              label="Apuestas Express"
+              deadline={nextExpressDeadlineLabel() ?? "No hay apuestas express abiertas"}
+              sublabel="Plazo variable por apuesta"
+              locked={EXPRESS_BETS.length > 0 && EXPRESS_BETS.every(isExpressLocked)}
             />
           </div>
         </div>

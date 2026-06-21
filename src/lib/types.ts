@@ -50,6 +50,16 @@ export interface KnockoutPrediction {
   updatedAt: number;
 }
 
+// Apuesta Express: respuestas a las 3 preguntas (todas opcionales)
+// Almacenada en users/{uid}/express/{betId}
+export interface ExpressPrediction {
+  betId: string;
+  q1?: "win" | "draw" | "lose";
+  q2?: { teamGoals: number; opponentGoals: number };
+  q3?: string[]; // jugadores elegidos (uno por gol predicho en Q2.teamGoals)
+  updatedAt: number;
+}
+
 export interface SpecialBets {
   champion?: TeamCode;
   runnerUp?: TeamCode;

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { collection, doc, onSnapshot, setDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./useAuth";
-import type { SpecialBets } from "@/lib/types";
+import type { ExpressPrediction, SpecialBets } from "@/lib/types";
 
 // Almacenamiento en Firestore (colección predictions ya tiene reglas):
 //   users/{uid}/predictions/GROUP_A  → { group, order: [t1,t2,t3,t4] }
@@ -19,6 +19,7 @@ export function usePredictions() {
   // matchId → winning team code
   const [knockoutPredictions, setKnockoutPredictions] = useState<Record<string, string>>({});
   const [specials, setSpecials] = useState<SpecialBets>({});
+  const [expressPredictions, setExpressPredictions] = useState<Record<string, ExpressPrediction>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -50,7 +51,18 @@ export function usePredictions() {
       (snap) => setSpecials((snap.data() as SpecialBets) || {}),
     );
 
-    return () => { unsubP(); unsubS(); };
+    const unsubE = onSnapshot(
+      collection(db, "users", user.uid, "express"),
+      (snap) => {
+        const map: Record<string, ExpressPrediction> = {};
+        snap.forEach((d) => {
+          map[d.id] = d.data() as ExpressPrediction;
+        });
+        setExpressPredictions(map);
+      },
+    );
+
+    return () => { unsubP(); unsubS(); unsubE(); };
   }, [user]);
 
   async function saveGroupPrediction(group: string, order: string[]) {
@@ -78,13 +90,24 @@ export function usePredictions() {
     );
   }
 
+  async function saveExpressPrediction(betId: string, data: Omit<ExpressPrediction, "betId" | "updatedAt">) {
+    if (!user || !db) return;
+    await setDoc(
+      doc(db, "users", user.uid, "express", betId),
+      { betId, ...data, updatedAt: serverTimestamp() },
+      { merge: true },
+    );
+  }
+
   return {
     groupPredictions,
     knockoutPredictions,
     specials,
+    expressPredictions,
     loading,
     saveGroupPrediction,
     saveKnockoutWinner,
     saveSpecials,
+    saveExpressPrediction,
   };
 }
