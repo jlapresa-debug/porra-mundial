@@ -184,3 +184,15 @@ export function getAllFinalStandings(allMatches: Match[]): Record<string, TeamCo
   }
   return out;
 }
+
+// Standings actuales — incluye grupos parcialmente jugados.
+// Útil para calcular puntos virtuales (proyección en tiempo real).
+import { computeGroupStandings } from "./standings";
+export function getAllCurrentStandings(allMatches: Match[]): Record<string, TeamCode[]> {
+  const out: Record<string, TeamCode[]> = {};
+  for (const g of ["A","B","C","D","E","F","G","H","I","J","K","L"]) {
+    const s = computeGroupStandings(g, allMatches, GROUP_MATCH_RESULTS);
+    if (s) out[g] = s.standings;
+  }
+  return out;
+}

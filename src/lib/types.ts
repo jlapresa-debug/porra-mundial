@@ -126,7 +126,8 @@ export interface GroupMemberScore {
   uid: string;
   displayName: string;
   photoURL?: string | null;
-  points: number;
-  groupHits: number; // posiciones exactas en grupos
-  koHits: number;    // ganadores correctos en eliminatorias
+  points: number;        // confirmados — grupos cerrados, KOs jugados, etc.
+  virtualPoints: number; // proyección con el estado actual en tiempo real
+  groupHits: number;     // posiciones exactas en grupos cerrados
+  koHits: number;        // ganadores correctos en eliminatorias
 }

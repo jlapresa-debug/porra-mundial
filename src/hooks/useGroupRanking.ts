@@ -7,7 +7,7 @@ import type { ExpressPrediction, GroupMemberScore, SpecialBets } from "@/lib/typ
 import { ALL_MATCHES } from "@/lib/matches";
 import { DEFAULT_RULES, totalScore } from "@/lib/scoring";
 import { EXPRESS_OUTCOMES } from "@/lib/express";
-import { getAllFinalStandings } from "@/lib/bracket";
+import { getAllFinalStandings, getAllCurrentStandings } from "@/lib/bracket";
 import { TOURNAMENT_OUTCOME } from "@/lib/results";
 
 export function useGroupRanking(memberIds: string[]) {
@@ -54,7 +54,7 @@ export function useGroupRanking(memberIds: string[]) {
             expressPredictions[d.id] = d.data() as ExpressPrediction;
           });
 
-          const { total, groupHits, koHits } = totalScore(
+          const real = totalScore(
             groupPredictions,
             knockoutPredictions,
             specials,
@@ -66,19 +66,38 @@ export function useGroupRanking(memberIds: string[]) {
             EXPRESS_OUTCOMES,
           );
 
+          const virtual = totalScore(
+            groupPredictions,
+            knockoutPredictions,
+            specials,
+            ALL_MATCHES,
+            getAllCurrentStandings(ALL_MATCHES),
+            TOURNAMENT_OUTCOME,
+            DEFAULT_RULES,
+            expressPredictions,
+            EXPRESS_OUTCOMES,
+          );
+
           return {
             uid,
             displayName: (profile.displayName as string) ?? "Anónimo",
             photoURL: (profile.photoURL as string | null) ?? null,
-            points: total,
-            groupHits,
-            koHits,
+            points: real.total,
+            virtualPoints: virtual.total,
+            groupHits: real.groupHits,
+            koHits: real.koHits,
           };
         }),
       );
 
       if (!cancelled) {
-        setRanking(results.sort((a, b) => b.points - a.points || b.groupHits - a.groupHits));
+        // Por defecto ordenar por virtual (más informativo en tiempo real);
+        // el componente RankingTable puede re-ordenar con la prop sortBy
+        setRanking(results.sort((a, b) =>
+          b.virtualPoints - a.virtualPoints ||
+          b.points - a.points ||
+          b.groupHits - a.groupHits
+        ));
         setLoading(false);
       }
     }
