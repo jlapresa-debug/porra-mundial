@@ -62,6 +62,12 @@ export const GROUP_MATCH_RESULTS: Record<string, { home: number; away: number }>
   "GG-J2-BEL-IRN": { home: 0, away: 0 },
   "GG-J2-NZL-EGY": { home: 1, away: 3 },
   "GH-J2-URU-CPV": { home: 2, away: 2 },
+
+  // ── MD2 (22 jun) ──────────────────────────────────────────────
+  "GI-J2-FRA-IRQ": { home: 3, away: 0 },
+  "GI-J2-NOR-SEN": { home: 3, away: 2 },
+  "GJ-J2-ARG-AUT": { home: 2, away: 0 },
+  // GJ-J2-JOR-ALG: en juego — pendiente
 };
 
 // ───────────── ELIMINATORIAS ─────────────
@@ -100,7 +106,7 @@ export const TOURNAMENT_OUTCOME: {
 // ───────────── METADATOS ─────────────
 // Última actualización por humano/Claude — para auditoría
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-06-22T00:00:00Z",
-  by: "Claude (resto del 21 jun: BEL-IRN, NZL-EGY, URU-CPV)",
-  source: "ESPN, Yahoo Sports",
+  iso: "2026-06-23T18:00:00Z",
+  by: "Claude (3 de 4 partidos del 22 jun; JOR-ALG en juego)",
+  source: "ESPN, NBC News",
 };
