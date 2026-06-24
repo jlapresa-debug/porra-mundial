@@ -67,7 +67,13 @@ export const GROUP_MATCH_RESULTS: Record<string, { home: number; away: number }>
   "GI-J2-FRA-IRQ": { home: 3, away: 0 },
   "GI-J2-NOR-SEN": { home: 3, away: 2 },
   "GJ-J2-ARG-AUT": { home: 2, away: 0 },
-  // GJ-J2-JOR-ALG: en juego — pendiente
+  "GJ-J2-JOR-ALG": { home: 1, away: 2 }, // Argelia remonta 1-0 → 1-2
+
+  // ── MD2 (23 jun) — MD2 completa ──────────────────────────────
+  "GK-J2-POR-UZB": { home: 5, away: 0 }, // Doblete de Cristiano
+  "GK-J2-COL-COD": { home: 1, away: 0 },
+  "GL-J2-ENG-GHA": { home: 0, away: 0 },
+  "GL-J2-PAN-CRO": { home: 0, away: 1 },
 };
 
 // ───────────── ELIMINATORIAS ─────────────
@@ -106,7 +112,7 @@ export const TOURNAMENT_OUTCOME: {
 // ───────────── METADATOS ─────────────
 // Última actualización por humano/Claude — para auditoría
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-06-23T18:00:00Z",
-  by: "Claude (3 de 4 partidos del 22 jun; JOR-ALG en juego)",
-  source: "ESPN, NBC News",
+  iso: "2026-06-23T23:30:00Z",
+  by: "Claude (JOR-ALG cerrado + 4 partidos del 23 jun → MD2 completa)",
+  source: "ESPN, NBC News, Olympics.com",
 };
