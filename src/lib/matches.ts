@@ -147,7 +147,7 @@ type KORow = [
 
 const KO_ROWS: KORow[] = [
   // ── Dieciseisavos (Round of 32) — 16 partidos
-  [73, "round32", "2026-06-28", "15:00", "1A", "2B",            "Los Angeles",            "SoFi Stadium"],
+  [73, "round32", "2026-06-28", "15:00", "2A", "2B",            "Los Angeles",            "SoFi Stadium"],
   [74, "round32", "2026-06-29", "16:30", "1E", "3 A/B/C/D/F",   "Boston",                 "Gillette Stadium"],
   [75, "round32", "2026-06-29", "21:00", "1F", "2C",            "Monterrey",              "Estadio BBVA"],
   [76, "round32", "2026-06-29", "13:00", "1C", "2F",            "Houston",                "NRG Stadium"],

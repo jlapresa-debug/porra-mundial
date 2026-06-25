@@ -16,18 +16,19 @@ const ALL_GROUPS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
 
 type MainTab = "grupos" | "eliminatorias";
 
-const KO_SECTIONS: { stage: Match["stage"]; label: string }[] = [
-  { stage: "round32",    label: "Dieciseisavos de final" },
-  { stage: "round16",   label: "Octavos de final" },
-  { stage: "quarter",   label: "Cuartos de final" },
-  { stage: "semi",      label: "Semifinales" },
-  { stage: "thirdplace", label: "Tercer puesto" },
-  { stage: "final",     label: "FINAL" },
+const KO_SECTIONS: { stage: Match["stage"]; short: string; label: string }[] = [
+  { stage: "round32",    short: "16avos",   label: "Dieciseisavos de final" },
+  { stage: "round16",    short: "Octavos",  label: "Octavos de final" },
+  { stage: "quarter",    short: "Cuartos",  label: "Cuartos de final" },
+  { stage: "semi",       short: "Semis",    label: "Semifinales" },
+  { stage: "thirdplace", short: "3er pto",  label: "Tercer puesto" },
+  { stage: "final",      short: "Final",    label: "FINAL" },
 ];
 
 export default function MatchesPage() {
   const [mainTab, setMainTab] = useState<MainTab>("grupos");
   const [activeGroup, setActiveGroup] = useState("A");
+  const [activeStage, setActiveStage] = useState<Match["stage"]>("round32");
 
   const {
     groupPredictions,
@@ -133,33 +134,58 @@ export default function MatchesPage() {
 
       {/* ── TAB ELIMINATORIAS ──────────────────────── */}
       {mainTab === "eliminatorias" && (
-        <div className="container-app mt-5 pb-6 grid gap-7 animate-fade-in">
-          {KO_SECTIONS.map(({ stage, label }) => {
-            const matches = koByStage.get(stage) ?? [];
-            if (!matches.length) return null;
-            return (
-              <section key={stage}>
-                <h2 className="text-[11px] uppercase tracking-widest text-muted font-semibold mb-3">
-                  {label}
-                </h2>
-                <div className="grid gap-3">
-                  {matches.map((m) => {
-                    const locked = isKnockoutLocked(m.kickoff);
-                    return (
-                      <KnockoutMatchCard
-                        key={m.id}
-                        match={m}
-                        savedWinner={knockoutPredictions[m.id]}
-                        locked={locked}
-                        onPick={(winner) => saveKnockoutWinner(m.id, winner)}
-                      />
-                    );
-                  })}
-                </div>
-              </section>
-            );
-          })}
-        </div>
+        <>
+          {/* Selector de ronda */}
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide px-4 pb-2 mt-4">
+            {KO_SECTIONS.map(({ stage, short }) => {
+              const matches = koByStage.get(stage) ?? [];
+              const total = matches.length;
+              const apostados = matches.filter((m) => knockoutPredictions[m.id]).length;
+              const active = activeStage === stage;
+              return (
+                <button
+                  key={stage}
+                  onClick={() => setActiveStage(stage)}
+                  className={cn(
+                    "shrink-0 px-3.5 h-9 rounded-full text-xs font-medium transition whitespace-nowrap relative",
+                    active
+                      ? "bg-gradient-brand text-white shadow-md shadow-brand/20"
+                      : "bg-bg-card text-muted border border-line hover:text-white",
+                  )}
+                >
+                  {short}
+                  {apostados > 0 && (
+                    <span className={cn(
+                      "ml-1.5 text-[10px] tabular-nums",
+                      active ? "opacity-80" : "text-brand",
+                    )}>
+                      {apostados}/{total}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Tarjetas del nivel activo */}
+          <div className="container-app mt-3 pb-6 grid gap-3 animate-fade-in">
+            <h2 className="text-[11px] uppercase tracking-widest text-muted font-semibold">
+              {KO_SECTIONS.find((s) => s.stage === activeStage)?.label}
+            </h2>
+            {(koByStage.get(activeStage) ?? []).map((m) => {
+              const locked = isKnockoutLocked(m.kickoff);
+              return (
+                <KnockoutMatchCard
+                  key={m.id}
+                  match={m}
+                  savedWinner={knockoutPredictions[m.id]}
+                  locked={locked}
+                  onPick={(winner) => saveKnockoutWinner(m.id, winner)}
+                />
+              );
+            })}
+          </div>
+        </>
       )}
     </AppShell>
   );

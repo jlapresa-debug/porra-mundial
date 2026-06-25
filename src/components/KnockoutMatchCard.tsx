@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Match } from "@/lib/types";
 import { getTeam } from "@/lib/teams";
 import { TeamBadge } from "./TeamBadge";
-import { stageLabel } from "@/lib/matches";
+import { Button } from "./ui/Button";
 import { cn } from "@/lib/cn";
 
 interface Props {
@@ -25,7 +25,15 @@ function fmtDate(iso: string) {
 }
 
 export function KnockoutMatchCard({ match, savedWinner, locked, onPick }: Props) {
-  const [saving, setSaving] = useState<"home" | "away" | null>(null);
+  // Selección local — cambia al pulsar un equipo, NO guarda en Firestore aún
+  const [pending, setPending] = useState<string | undefined>(savedWinner);
+  const [saving, setSaving] = useState(false);
+  const [justSaved, setJustSaved] = useState(false);
+
+  // Sincronizar cuando lleguen datos guardados (carga inicial)
+  useEffect(() => {
+    setPending(savedWinner);
+  }, [savedWinner]);
 
   const homeTeam = getTeam(match.home);
   const awayTeam = getTeam(match.away);
@@ -34,25 +42,43 @@ export function KnockoutMatchCard({ match, savedWinner, locked, onPick }: Props)
   const homeName = homeTeam?.name ?? match.homePlaceholder ?? "—";
   const awayName = awayTeam?.name ?? match.awayPlaceholder ?? "—";
 
-  const homeSelected = !!match.home && savedWinner === match.home;
-  const awaySelected = !!match.away && savedWinner === match.away;
+  const isHomeSelected = !!match.home && pending === match.home;
+  const isAwaySelected = !!match.away && pending === match.away;
 
-  async function pick(side: "home" | "away") {
+  const dirty = pending !== savedWinner;
+  const canSave = !locked && teamsKnown && !!pending && dirty;
+
+  function pickLocally(side: "home" | "away") {
     if (!teamsKnown || locked) return;
     const winner = side === "home" ? match.home! : match.away!;
-    if (winner === savedWinner) return;
-    setSaving(side);
+    setPending(winner);
+    setJustSaved(false);
+  }
+
+  async function handleSave() {
+    if (!canSave || !pending) return;
+    setSaving(true);
     try {
-      await onPick(winner);
+      await onPick(pending);
+      setJustSaved(true);
+      setTimeout(() => setJustSaved(false), 2000);
     } finally {
-      setSaving(null);
+      setSaving(false);
     }
   }
+
+  // Etiqueta del botón
+  let buttonLabel: string;
+  if (justSaved) buttonLabel = "Guardado ✓";
+  else if (!pending) buttonLabel = "Elige un equipo";
+  else if (savedWinner && dirty) buttonLabel = "Guardar cambios";
+  else if (savedWinner) buttonLabel = "Guardado";
+  else buttonLabel = "Apostar";
 
   return (
     <div className={cn(
       "rounded-2xl bg-bg-card border overflow-hidden transition-colors",
-      (homeSelected || awaySelected) ? "border-brand/30" : "border-line",
+      (isHomeSelected || isAwaySelected) ? "border-brand/30" : "border-line",
       !teamsKnown && "opacity-60",
     )}>
       {/* Cabecera */}
@@ -67,66 +93,71 @@ export function KnockoutMatchCard({ match, savedWinner, locked, onPick }: Props)
 
       {/* Selección de ganador */}
       <div className="grid grid-cols-2">
-        {/* Local */}
         <button
           type="button"
-          onClick={() => pick("home")}
+          onClick={() => pickLocally("home")}
           disabled={!teamsKnown || locked}
           className={cn(
             "flex flex-col items-center gap-2 px-4 py-5 border-r border-line transition-colors",
             teamsKnown && !locked && "hover:bg-bg-hover active:scale-[0.98] cursor-pointer",
-            homeSelected && "bg-brand/10",
+            isHomeSelected && "bg-brand/10",
             !teamsKnown && "cursor-default",
           )}
         >
-          {saving === "home" ? (
-            <div className="w-9 h-9 rounded-full bg-bg-elevated animate-pulse" />
-          ) : (
-            <TeamBadge team={homeTeam} size="md" showName={false} />
-          )}
+          <TeamBadge team={homeTeam} size="md" showName={false} />
           <span className={cn(
             "text-xs font-medium text-center leading-snug",
-            homeSelected ? "text-brand" : "text-white",
+            isHomeSelected ? "text-brand" : "text-white",
           )}>
             {homeName}
           </span>
-          {homeSelected && (
+          {isHomeSelected && (
             <span className="text-[9px] uppercase tracking-widest text-brand font-bold">
               ✓ Elegido
             </span>
           )}
         </button>
 
-        {/* Visitante */}
         <button
           type="button"
-          onClick={() => pick("away")}
+          onClick={() => pickLocally("away")}
           disabled={!teamsKnown || locked}
           className={cn(
             "flex flex-col items-center gap-2 px-4 py-5 transition-colors",
             teamsKnown && !locked && "hover:bg-bg-hover active:scale-[0.98] cursor-pointer",
-            awaySelected && "bg-brand/10",
+            isAwaySelected && "bg-brand/10",
             !teamsKnown && "cursor-default",
           )}
         >
-          {saving === "away" ? (
-            <div className="w-9 h-9 rounded-full bg-bg-elevated animate-pulse" />
-          ) : (
-            <TeamBadge team={awayTeam} size="md" showName={false} />
-          )}
+          <TeamBadge team={awayTeam} size="md" showName={false} />
           <span className={cn(
             "text-xs font-medium text-center leading-snug",
-            awaySelected ? "text-brand" : "text-white",
+            isAwaySelected ? "text-brand" : "text-white",
           )}>
             {awayName}
           </span>
-          {awaySelected && (
+          {isAwaySelected && (
             <span className="text-[9px] uppercase tracking-widest text-brand font-bold">
               ✓ Elegido
             </span>
           )}
         </button>
       </div>
+
+      {/* Botón de guardar */}
+      {teamsKnown && !locked && (
+        <div className="px-4 py-3 border-t border-line">
+          <Button
+            size="sm"
+            fullWidth
+            onClick={handleSave}
+            loading={saving}
+            disabled={!canSave}
+          >
+            {buttonLabel}
+          </Button>
+        </div>
+      )}
 
       {!teamsKnown && (
         <div className="px-4 py-2 border-t border-line text-center text-[11px] text-muted">
