@@ -74,6 +74,14 @@ export const GROUP_MATCH_RESULTS: Record<string, { home: number; away: number }>
   "GK-J2-COL-COD": { home: 1, away: 0 },
   "GL-J2-ENG-GHA": { home: 0, away: 0 },
   "GL-J2-PAN-CRO": { home: 0, away: 1 },
+
+  // ── MD3 (24 jun) — Grupos A, B y C CERRADOS ──────────────────
+  "GA-J3-CZE-MEX": { home: 0, away: 3 }, // México gana y termina 1º
+  "GA-J3-RSA-KOR": { home: 1, away: 0 }, // Sudáfrica sorpresa, KO Corea
+  "GB-J3-SUI-CAN": { home: 3, away: 1 }, // Suiza 1ª, Canadá fuera del top-2
+  "GB-J3-BIH-QAT": { home: 3, away: 1 },
+  "GC-J3-SCO-BRA": { home: 0, away: 3 }, // Vini Jr doblete, Brasil 1º
+  "GC-J3-MAR-HAI": { home: 4, away: 2 }, // Marruecos remonta y queda 2º
 };
 
 // ───────────── ELIMINATORIAS ─────────────
@@ -112,7 +120,7 @@ export const TOURNAMENT_OUTCOME: {
 // ───────────── METADATOS ─────────────
 // Última actualización por humano/Claude — para auditoría
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-06-23T23:30:00Z",
-  by: "Claude (JOR-ALG cerrado + 4 partidos del 23 jun → MD2 completa)",
-  source: "ESPN, NBC News, Olympics.com",
+  iso: "2026-06-25T10:00:00Z",
+  by: "Claude (MD3 grupos A, B, C — cierre del 24 jun)",
+  source: "ESPN, Olympics.com, Al Jazeera",
 };
