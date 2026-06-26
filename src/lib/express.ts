@@ -72,18 +72,8 @@ export const SPAIN_SQUAD_2026 = [
   "Yeremy Pino",
 ];
 
+// Ordenadas por relevancia: la apuesta más reciente arriba.
 export const EXPRESS_BETS: ExpressBet[] = [
-  {
-    id: "ESP-SAU-J2",
-    title: "España vs Arabia Saudí",
-    matchId: "GH-J2-ESP-SAU",
-    deadline: "2026-06-21T14:00:00Z",
-    team: "ESP",
-    opponent: "SAU",
-    q1: { points: 2 },
-    q2: { points: 4, maxGoals: 8 },
-    q3: { pointsPerHit: 2, squad: SPAIN_SQUAD_2026 },
-  },
   {
     id: "URU-ESP-J3",
     title: "Uruguay vs España",
@@ -129,6 +119,17 @@ export const EXPRESS_BETS: ExpressBet[] = [
         points: 2,
       },
     ],
+  },
+  {
+    id: "ESP-SAU-J2",
+    title: "España vs Arabia Saudí",
+    matchId: "GH-J2-ESP-SAU",
+    deadline: "2026-06-21T14:00:00Z",
+    team: "ESP",
+    opponent: "SAU",
+    q1: { points: 2 },
+    q2: { points: 4, maxGoals: 8 },
+    q3: { pointsPerHit: 2, squad: SPAIN_SQUAD_2026 },
   },
 ];
 
