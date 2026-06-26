@@ -88,7 +88,7 @@ export const EXPRESS_BETS: ExpressBet[] = [
     id: "URU-ESP-J3",
     title: "Uruguay vs España",
     matchId: "GH-J3-URU-ESP",
-    deadline: "2026-06-27T01:00:00Z", // 03:00 ES, 1h antes del pitido
+    deadline: "2026-06-26T18:00:00Z", // 20:00 ES del 26 jun
     team: "ESP",
     opponent: "URU",
     binaryQuestions: [
