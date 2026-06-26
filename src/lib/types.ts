@@ -50,13 +50,22 @@ export interface KnockoutPrediction {
   updatedAt: number;
 }
 
-// Apuesta Express: respuestas a las 3 preguntas (todas opcionales)
-// Almacenada en users/{uid}/express/{betId}
+// Apuesta Express: respuestas a las preguntas del bet.
+// Almacenada en users/{uid}/express/{betId}.
+//
+// Soporta dos formatos por compatibilidad:
+// - Apuestas "template-1" (ESP-SAU): q1, q2, q3 en la raíz (legacy)
+// - Apuestas genéricas (URU-ESP en adelante): binaryAnswers map
+//
+// Ambos pueden coexistir en el mismo doc (no recomendable, pero válido).
 export interface ExpressPrediction {
   betId: string;
+  // Legacy ESP-SAU
   q1?: "win" | "draw" | "lose";
   q2?: { teamGoals: number; opponentGoals: number };
-  q3?: string[]; // jugadores elegidos (uno por gol predicho en Q2.teamGoals)
+  q3?: string[];
+  // Genérico: id de pregunta binaria → opción elegida (índice 0 ó 1 como string)
+  binaryAnswers?: Record<string, "0" | "1">;
   updatedAt: number;
 }
 
@@ -64,7 +73,8 @@ export interface ExpressPrediction {
 export interface ExpressOutcome {
   q1?: "win" | "draw" | "lose";
   q2?: { teamGoals: number; opponentGoals: number };
-  q3?: string[]; // goleadores reales del equipo principal
+  q3?: string[];
+  binaryAnswers?: Record<string, "0" | "1">;
 }
 
 export interface SpecialBets {

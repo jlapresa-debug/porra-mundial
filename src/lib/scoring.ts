@@ -76,27 +76,27 @@ export function scoreExpressBet(
   bet: ExpressBet,
   prediction: ExpressPrediction | undefined,
   outcome: ExpressOutcome | undefined,
-): { total: number; q1: number; q2: number; q3: number } {
-  if (!prediction || !outcome) return { total: 0, q1: 0, q2: 0, q3: 0 };
+): { total: number; q1: number; q2: number; q3: number; binary: Record<string, number> } {
+  const empty = { total: 0, q1: 0, q2: 0, q3: 0, binary: {} as Record<string, number> };
+  if (!prediction || !outcome) return empty;
 
   let q1Pts = 0;
   let q2Pts = 0;
   let q3Pts = 0;
+  const binary: Record<string, number> = {};
 
-  if (prediction.q1 && outcome.q1 && prediction.q1 === outcome.q1) {
+  // Template-1: Q1 / Q2 / Q3
+  if (bet.q1 && prediction.q1 && outcome.q1 && prediction.q1 === outcome.q1) {
     q1Pts = bet.q1.points;
   }
-
   if (
-    prediction.q2 && outcome.q2 &&
+    bet.q2 && prediction.q2 && outcome.q2 &&
     prediction.q2.teamGoals === outcome.q2.teamGoals &&
     prediction.q2.opponentGoals === outcome.q2.opponentGoals
   ) {
     q2Pts = bet.q2.points;
   }
-
-  if (prediction.q3 && outcome.q3 && prediction.q3.length > 0) {
-    // Multiset intersection: cada predicción cuenta una vez, hasta el número de aciertos disponibles
+  if (bet.q3 && prediction.q3 && outcome.q3 && prediction.q3.length > 0) {
     const actual = [...outcome.q3];
     for (const guess of prediction.q3) {
       const idx = actual.indexOf(guess);
@@ -107,7 +107,27 @@ export function scoreExpressBet(
     }
   }
 
-  return { total: q1Pts + q2Pts + q3Pts, q1: q1Pts, q2: q2Pts, q3: q3Pts };
+  // Genérico: preguntas binarias
+  if (bet.binaryQuestions) {
+    for (const q of bet.binaryQuestions) {
+      const guess = prediction.binaryAnswers?.[q.id];
+      const truth = outcome.binaryAnswers?.[q.id];
+      if (guess !== undefined && truth !== undefined && guess === truth) {
+        binary[q.id] = q.points;
+      } else {
+        binary[q.id] = 0;
+      }
+    }
+  }
+
+  const binarySum = Object.values(binary).reduce((a, b) => a + b, 0);
+  return {
+    total: q1Pts + q2Pts + q3Pts + binarySum,
+    q1: q1Pts,
+    q2: q2Pts,
+    q3: q3Pts,
+    binary,
+  };
 }
 
 export function totalScore(

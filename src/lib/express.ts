@@ -14,19 +14,27 @@ export const RESULT_LABEL: Record<ExpressResult, string> = {
   lose:  "Perder",
 };
 
+// Pregunta binaria simple: dos opciones excluyentes, una de las dos es correcta.
+export interface BinaryQuestion {
+  id: string;                       // ej. "uru-corners"
+  text: string;                     // pregunta visible
+  options: [string, string];        // opción A (índice 0) / opción B (índice 1)
+  points: number;
+}
+
 export interface ExpressBet {
   id: string;
   title: string;
   matchId: string;        // ID del partido al que está vinculada (de matches.ts)
   deadline: string;       // ISO UTC
-  team: TeamCode;         // Equipo principal (España, en este caso)
+  team: TeamCode;         // Equipo principal
   opponent: TeamCode;
-  // Q1: resultado del equipo principal
-  q1: { points: number };
-  // Q2: resultado exacto del partido
-  q2: { points: number; maxGoals: number };
-  // Q3: goleadores del equipo principal (1 selector por gol predicho en Q2)
-  q3: { pointsPerHit: number; squad: string[] };
+  // Template-1: bloque clásico Q1+Q2+Q3 (resultado/marcador/goleadores)
+  q1?: { points: number };
+  q2?: { points: number; maxGoals: number };
+  q3?: { pointsPerHit: number; squad: string[] };
+  // Genérico: lista de preguntas binarias arbitrarias
+  binaryQuestions?: BinaryQuestion[];
 }
 
 // Convocatoria oficial de España para el Mundial 2026 (26 jugadores)
@@ -69,12 +77,58 @@ export const EXPRESS_BETS: ExpressBet[] = [
     id: "ESP-SAU-J2",
     title: "España vs Arabia Saudí",
     matchId: "GH-J2-ESP-SAU",
-    deadline: "2026-06-21T14:00:00Z", // 21 jun, 16:00 España (CEST = UTC+2)
+    deadline: "2026-06-21T14:00:00Z",
     team: "ESP",
     opponent: "SAU",
     q1: { points: 2 },
     q2: { points: 4, maxGoals: 8 },
     q3: { pointsPerHit: 2, squad: SPAIN_SQUAD_2026 },
+  },
+  {
+    id: "URU-ESP-J3",
+    title: "Uruguay vs España",
+    matchId: "GH-J3-URU-ESP",
+    deadline: "2026-06-27T01:00:00Z", // 03:00 ES, 1h antes del pitido
+    team: "ESP",
+    opponent: "URU",
+    binaryQuestions: [
+      {
+        id: "uru-corners",
+        text: "¿Cuántos saques de esquina hará Uruguay?",
+        options: ["3 o menos", "4 o más"],
+        points: 2,
+      },
+      {
+        id: "valverde-clean",
+        text: "¿Acabará Valverde el partido sin tarjetas?",
+        options: ["Sí", "No"],
+        points: 2,
+      },
+      {
+        id: "oyarzabal-goal",
+        text: "¿Meterá gol Oyarzábal?",
+        options: ["Sí", "No"],
+        points: 2,
+      },
+      {
+        id: "esp-win",
+        text: "¿Ganará España?",
+        options: ["Sí", "No"],
+        points: 2,
+      },
+      {
+        id: "zubimendi-plays",
+        text: "¿Jugará Zubimendi?",
+        options: ["Sí", "No"],
+        points: 3,
+      },
+      {
+        id: "esp-yellows",
+        text: "¿Cuántas amarillas sacarán a España?",
+        options: ["1 o menos", "2 o más"],
+        points: 2,
+      },
+    ],
   },
 ];
 

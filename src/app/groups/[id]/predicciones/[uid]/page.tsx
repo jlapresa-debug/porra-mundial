@@ -274,32 +274,46 @@ export default function UserPredictionsPage() {
                   </div>
                   {pred ? (
                     <div className="divide-y divide-line">
-                      <div className="px-4 py-2.5 flex items-center justify-between">
-                        <span className="text-xs text-muted">1. Resultado de {team?.name}</span>
-                        <span className="text-xs font-semibold">
-                          {pred.q1 ? RESULT_LABEL[pred.q1] : "—"}
-                        </span>
-                      </div>
-                      <div className="px-4 py-2.5 flex items-center justify-between">
-                        <span className="text-xs text-muted">2. Resultado exacto</span>
-                        <span className="text-sm font-bold tabular-nums">
-                          {pred.q2
-                            ? `${pred.q2.teamGoals} – ${pred.q2.opponentGoals}`
-                            : "—"}
-                        </span>
-                      </div>
-                      <div className="px-4 py-2.5">
-                        <div className="text-xs text-muted mb-1.5">3. Goleadores de {team?.name}</div>
-                        {pred.q3 && pred.q3.length > 0 ? (
-                          <ul className="text-xs space-y-0.5">
-                            {pred.q3.map((p, i) => (
-                              <li key={i} className="font-medium">⚽ {p || <span className="text-muted italic">(vacío)</span>}</li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <span className="text-xs text-muted italic">Sin goles predichos</span>
-                        )}
-                      </div>
+                      {bet.q1 && (
+                        <div className="px-4 py-2.5 flex items-center justify-between">
+                          <span className="text-xs text-muted">Resultado de {team?.name}</span>
+                          <span className="text-xs font-semibold">
+                            {pred.q1 ? RESULT_LABEL[pred.q1] : "—"}
+                          </span>
+                        </div>
+                      )}
+                      {bet.q2 && (
+                        <div className="px-4 py-2.5 flex items-center justify-between">
+                          <span className="text-xs text-muted">Resultado exacto</span>
+                          <span className="text-sm font-bold tabular-nums">
+                            {pred.q2 ? `${pred.q2.teamGoals} – ${pred.q2.opponentGoals}` : "—"}
+                          </span>
+                        </div>
+                      )}
+                      {bet.q3 && (
+                        <div className="px-4 py-2.5">
+                          <div className="text-xs text-muted mb-1.5">Goleadores de {team?.name}</div>
+                          {pred.q3 && pred.q3.length > 0 ? (
+                            <ul className="text-xs space-y-0.5">
+                              {pred.q3.map((p, i) => (
+                                <li key={i} className="font-medium">⚽ {p || <span className="text-muted italic">(vacío)</span>}</li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <span className="text-xs text-muted italic">Sin goles predichos</span>
+                          )}
+                        </div>
+                      )}
+                      {bet.binaryQuestions && bet.binaryQuestions.map((q) => {
+                        const ans = pred.binaryAnswers?.[q.id];
+                        const label = ans !== undefined ? q.options[Number(ans)] : "—";
+                        return (
+                          <div key={q.id} className="px-4 py-2.5 flex items-start justify-between gap-3">
+                            <span className="text-xs text-muted flex-1 leading-snug">{q.text}</span>
+                            <span className="text-xs font-semibold shrink-0">{label}</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   ) : (
                     <div className="px-4 py-3 text-xs text-muted italic">

@@ -36,30 +36,31 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
   const match = getMatch(bet.matchId);
   const score = outcome ? scoreExpressBet(bet, saved, outcome) : null;
 
-  // Q1 — resultado del equipo principal
+  // Estado local de respuestas
   const [q1, setQ1] = useState<ExpressResult | "">("");
-  // Q2 — goles
   const [teamGoals, setTeamGoals] = useState<number | "">("");
   const [opponentGoals, setOpponentGoals] = useState<number | "">("");
-  // Q3 — array de goleadores (longitud = teamGoals)
   const [scorers, setScorers] = useState<string[]>([]);
+  const [binaryAnswers, setBinaryAnswers] = useState<Record<string, "0" | "1">>({});
 
   const [saving, setSaving] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Sincronizar con datos guardados al cargar / cambiar
+  // Sincronizar con datos guardados
   useEffect(() => {
     if (!saved) return;
     setQ1(saved.q1 ?? "");
     setTeamGoals(saved.q2?.teamGoals ?? "");
     setOpponentGoals(saved.q2?.opponentGoals ?? "");
     setScorers(saved.q3 ?? []);
+    setBinaryAnswers(saved.binaryAnswers ?? {});
   }, [saved]);
 
-  // Q3 reactivo a Q2: ajustar longitud del array de goleadores cuando cambien los goles
+  // Q3 reactivo a Q2: ajustar longitud cuando cambian goles del equipo principal
   useEffect(() => {
     if (typeof teamGoals !== "number") return;
+    if (!bet.q3) return;
     setScorers((prev) => {
       if (prev.length === teamGoals) return prev;
       if (prev.length < teamGoals) {
@@ -67,29 +68,28 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
       }
       return prev.slice(0, teamGoals);
     });
-  }, [teamGoals]);
+  }, [teamGoals, bet.q3]);
 
   const goalsOptions = useMemo(
-    () => Array.from({ length: bet.q2.maxGoals + 1 }, (_, i) => i),
-    [bet.q2.maxGoals],
+    () => bet.q2 ? Array.from({ length: bet.q2.maxGoals + 1 }, (_, i) => i) : [],
+    [bet.q2],
   );
 
-  // Lo que está suficientemente respondido para puntuar
-  const hasQ1 = q1 !== "";
-  const hasQ2 = typeof teamGoals === "number" && typeof opponentGoals === "number";
-  const hasQ3 = hasQ2 && (teamGoals as number) > 0 && scorers.length > 0 && scorers.every((s) => s !== "");
-  const allowSave = !locked && (hasQ1 || hasQ2 || hasQ3);
+  // Estado de cada bloque
+  const hasQ1 = bet.q1 && q1 !== "";
+  const hasQ2 = bet.q2 && typeof teamGoals === "number" && typeof opponentGoals === "number";
+  const hasQ3 = hasQ2 && bet.q3 && (teamGoals as number) > 0 && scorers.length > 0 && scorers.every((s) => s !== "");
+  const hasAnyBinary = !!bet.binaryQuestions && Object.keys(binaryAnswers).length > 0;
+  const hasAny = !!(hasQ1 || hasQ2 || hasQ3 || hasAnyBinary);
+  const allowSave = !locked && hasAny;
 
-  // Construye el objeto a guardar omitiendo claves vacías
-  // (Firestore rechaza valores `undefined`, así que no las incluimos)
-  function buildPayload(): Partial<{ q1: ExpressResult; q2: { teamGoals: number; opponentGoals: number }; q3: string[] }> {
+  // Construir payload omitiendo claves vacías
+  function buildPayload(): Partial<Omit<ExpressPrediction, "betId" | "updatedAt">> {
     const data: any = {};
-    if (hasQ1) data.q1 = q1;
-    if (hasQ2) data.q2 = { teamGoals: teamGoals as number, opponentGoals: opponentGoals as number };
-    if (hasQ2 && (teamGoals as number) > 0) {
-      // Guardamos lo que haya, aunque algún hueco esté vacío
-      data.q3 = scorers;
-    }
+    if (bet.q1 && hasQ1) data.q1 = q1;
+    if (bet.q2 && hasQ2) data.q2 = { teamGoals: teamGoals as number, opponentGoals: opponentGoals as number };
+    if (bet.q3 && hasQ2 && (teamGoals as number) > 0) data.q3 = scorers;
+    if (bet.binaryQuestions && hasAnyBinary) data.binaryAnswers = binaryAnswers;
     return data;
   }
 
@@ -103,8 +103,8 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
       setTimeout(() => setJustSaved(false), 2500);
     } catch (e: any) {
       const msg = e?.code === "permission-denied"
-        ? "Falta publicar las reglas de Firestore para 'express'. Mira el último mensaje en el chat."
-        : e?.message ?? "No se pudo guardar. Vuelve a intentarlo.";
+        ? "Falta publicar las reglas de Firestore para 'express'."
+        : e?.message ?? "No se pudo guardar.";
       setError(msg);
       // eslint-disable-next-line no-console
       console.error("[Express] Error al guardar:", e);
@@ -142,12 +142,12 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
           locked ? "text-amber-400" : "text-emerald-400",
         )}>
           {locked
-            ? outcome ? "✅ Resultado conocido"  : "🔒 Plazo cerrado"
+            ? outcome ? "✅ Resultado conocido" : "🔒 Plazo cerrado"
             : `Cierre: ${formatDeadlineSpain(bet.deadline)}h`}
         </div>
       </div>
 
-      {/* Resultado real (cuando el partido haya terminado) */}
+      {/* Resultado real */}
       {outcome && (
         <div className="px-4 py-3 bg-emerald-500/5 border-b border-emerald-500/20">
           <div className="flex items-center justify-between mb-2">
@@ -161,85 +161,94 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
             )}
           </div>
           <div className="grid gap-1.5 text-xs">
-            {outcome.q1 && (
-              <Row label={`${team?.name} ${RESULT_LABEL[outcome.q1].toLowerCase()}`}
-                   value={score ? `+${score.q1}` : ""}
-                   hit={!!score && score.q1 > 0} />
+            {bet.q1 && outcome.q1 && (
+              <Row
+                label={`${team?.name} ${RESULT_LABEL[outcome.q1].toLowerCase()}`}
+                value={score ? `+${score.q1}` : ""}
+                hit={!!score && score.q1 > 0}
+              />
             )}
-            {outcome.q2 && (
-              <Row label={`Resultado: ${team?.name} ${outcome.q2.teamGoals} – ${outcome.q2.opponentGoals} ${opponent?.name}`}
-                   value={score ? `+${score.q2}` : ""}
-                   hit={!!score && score.q2 > 0} />
+            {bet.q2 && outcome.q2 && (
+              <Row
+                label={`Resultado: ${team?.name} ${outcome.q2.teamGoals} – ${outcome.q2.opponentGoals} ${opponent?.name}`}
+                value={score ? `+${score.q2}` : ""}
+                hit={!!score && score.q2 > 0}
+              />
             )}
-            {outcome.q3 && outcome.q3.length > 0 && (
-              <Row label={`Goleadores: ${outcome.q3.join(", ")}`}
-                   value={score ? `+${score.q3}` : ""}
-                   hit={!!score && score.q3 > 0} />
+            {bet.q3 && outcome.q3 && outcome.q3.length > 0 && (
+              <Row
+                label={`Goleadores: ${outcome.q3.join(", ")}`}
+                value={score ? `+${score.q3}` : ""}
+                hit={!!score && score.q3 > 0}
+              />
             )}
+            {bet.binaryQuestions && bet.binaryQuestions.map((q) => {
+              const truth = outcome.binaryAnswers?.[q.id];
+              if (truth === undefined) return null;
+              const truthLabel = q.options[Number(truth)];
+              const points = score?.binary[q.id] ?? 0;
+              return (
+                <Row
+                  key={q.id}
+                  label={`${q.text} → ${truthLabel}`}
+                  value={score ? `+${points}` : ""}
+                  hit={points > 0}
+                />
+              );
+            })}
           </div>
         </div>
       )}
 
       <div className="p-4 grid gap-5">
-        {/* Q1 */}
-        <Question
-          n={1}
-          title={`¿Qué resultado obtendrá ${team?.name ?? bet.team}?`}
-          points={bet.q1.points}
-        >
-          <div className="grid grid-cols-3 gap-2">
-            {(Object.keys(RESULT_LABEL) as ExpressResult[]).map((r) => (
-              <button
-                key={r}
-                type="button"
+        {/* Template-1: Q1 */}
+        {bet.q1 && (
+          <Question n={1} title={`¿Qué resultado obtendrá ${team?.name ?? bet.team}?`} points={bet.q1.points}>
+            <div className="grid grid-cols-3 gap-2">
+              {(Object.keys(RESULT_LABEL) as ExpressResult[]).map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  disabled={locked}
+                  onClick={() => setQ1(r)}
+                  className={cn(
+                    "h-11 rounded-xl text-sm font-medium border transition-colors",
+                    q1 === r ? "bg-brand text-white border-brand" : "bg-bg-elevated border-line text-muted hover:text-white",
+                    locked && "opacity-50 cursor-not-allowed",
+                  )}
+                >
+                  {RESULT_LABEL[r]}
+                </button>
+              ))}
+            </div>
+          </Question>
+        )}
+
+        {/* Template-1: Q2 */}
+        {bet.q2 && (
+          <Question n={2} title="¿Cuál será el resultado del partido?" points={bet.q2.points}>
+            <div className="grid grid-cols-2 gap-3">
+              <NumberPicker
+                label={team?.name ?? bet.team}
+                value={teamGoals}
+                options={goalsOptions}
+                onChange={setTeamGoals}
                 disabled={locked}
-                onClick={() => setQ1(r)}
-                className={cn(
-                  "h-11 rounded-xl text-sm font-medium border transition-colors",
-                  q1 === r
-                    ? "bg-brand text-white border-brand"
-                    : "bg-bg-elevated border-line text-muted hover:text-white",
-                  locked && "opacity-50 cursor-not-allowed",
-                )}
-              >
-                {RESULT_LABEL[r]}
-              </button>
-            ))}
-          </div>
-        </Question>
+              />
+              <NumberPicker
+                label={opponent?.name ?? bet.opponent}
+                value={opponentGoals}
+                options={goalsOptions}
+                onChange={setOpponentGoals}
+                disabled={locked}
+              />
+            </div>
+          </Question>
+        )}
 
-        {/* Q2 */}
-        <Question
-          n={2}
-          title="¿Cuál será el resultado del partido?"
-          points={bet.q2.points}
-        >
-          <div className="grid grid-cols-2 gap-3">
-            <NumberPicker
-              label={team?.name ?? bet.team}
-              value={teamGoals}
-              options={goalsOptions}
-              onChange={setTeamGoals}
-              disabled={locked}
-            />
-            <NumberPicker
-              label={opponent?.name ?? bet.opponent}
-              value={opponentGoals}
-              options={goalsOptions}
-              onChange={setOpponentGoals}
-              disabled={locked}
-            />
-          </div>
-        </Question>
-
-        {/* Q3 */}
-        {typeof teamGoals === "number" && teamGoals > 0 && (
-          <Question
-            n={3}
-            title={`¿Quiénes meterán los goles de ${team?.name ?? bet.team}?`}
-            points={bet.q3.pointsPerHit}
-            pointsSuffix={` por cada acierto`}
-          >
+        {/* Template-1: Q3 */}
+        {bet.q3 && typeof teamGoals === "number" && teamGoals > 0 && (
+          <Question n={3} title={`¿Quiénes meterán los goles de ${team?.name ?? bet.team}?`} points={bet.q3.pointsPerHit} pointsSuffix=" por acierto">
             <div className="grid gap-2">
               {Array.from({ length: teamGoals }, (_, i) => (
                 <select
@@ -257,7 +266,7 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
                   )}
                 >
                   <option value="">Gol {i + 1} · elige jugador</option>
-                  {bet.q3.squad.map((player) => (
+                  {bet.q3!.squad.map((player) => (
                     <option key={player} value={player}>{player}</option>
                   ))}
                 </select>
@@ -269,6 +278,32 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
           </Question>
         )}
 
+        {/* Genérico: preguntas binarias */}
+        {bet.binaryQuestions && bet.binaryQuestions.map((q, i) => (
+          <Question key={q.id} n={i + 1} title={q.text} points={q.points}>
+            <div className="grid grid-cols-2 gap-2">
+              {q.options.map((opt, idx) => {
+                const selected = binaryAnswers[q.id] === String(idx);
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    disabled={locked}
+                    onClick={() => setBinaryAnswers((prev) => ({ ...prev, [q.id]: String(idx) as "0" | "1" }))}
+                    className={cn(
+                      "h-11 rounded-xl text-sm font-medium border transition-colors px-3",
+                      selected ? "bg-brand text-white border-brand" : "bg-bg-elevated border-line text-muted hover:text-white",
+                      locked && "opacity-50 cursor-not-allowed",
+                    )}
+                  >
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+          </Question>
+        ))}
+
         {/* Acción */}
         {!locked && (
           <div className="pt-1 grid gap-2">
@@ -277,20 +312,10 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
                 ⚠️ {error}
               </div>
             )}
-            <Button
-              size="lg"
-              fullWidth
-              onClick={handleSave}
-              loading={saving}
-              disabled={!allowSave}
-            >
-              {justSaved
-                ? "Guardado ✓"
-                : saved
-                  ? "Actualizar apuesta"
-                  : "Guardar apuesta"}
+            <Button size="lg" fullWidth onClick={handleSave} loading={saving} disabled={!allowSave}>
+              {justSaved ? "Guardado ✓" : saved ? "Actualizar apuesta" : "Guardar apuesta"}
             </Button>
-            {!hasQ1 && !hasQ2 && !hasQ3 && (
+            {!hasAny && (
               <p className="text-[10px] text-muted text-center">
                 Responde al menos una pregunta para guardar
               </p>
@@ -303,18 +328,8 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
 }
 
 function Question({
-  n,
-  title,
-  points,
-  pointsSuffix = "",
-  children,
-}: {
-  n: number;
-  title: string;
-  points: number;
-  pointsSuffix?: string;
-  children: React.ReactNode;
-}) {
+  n, title, points, pointsSuffix = "", children,
+}: { n: number; title: string; points: number; pointsSuffix?: string; children: React.ReactNode }) {
   return (
     <div>
       <div className="flex items-start justify-between gap-2 mb-2">
@@ -351,18 +366,8 @@ function Row({ label, value, hit }: { label: string; value: string; hit: boolean
 }
 
 function NumberPicker({
-  label,
-  value,
-  options,
-  onChange,
-  disabled,
-}: {
-  label: string;
-  value: number | "";
-  options: number[];
-  onChange: (n: number) => void;
-  disabled: boolean;
-}) {
+  label, value, options, onChange, disabled,
+}: { label: string; value: number | ""; options: number[]; onChange: (n: number) => void; disabled: boolean }) {
   return (
     <div>
       <div className="text-[10px] uppercase tracking-wider text-muted mb-1 truncate">{label}</div>
