@@ -76,12 +76,20 @@ export const GROUP_MATCH_RESULTS: Record<string, { home: number; away: number }>
   "GL-J2-PAN-CRO": { home: 0, away: 1 },
 
   // ── MD3 (24 jun) — Grupos A, B y C CERRADOS ──────────────────
-  "GA-J3-CZE-MEX": { home: 0, away: 3 }, // México gana y termina 1º
-  "GA-J3-RSA-KOR": { home: 1, away: 0 }, // Sudáfrica sorpresa, KO Corea
-  "GB-J3-SUI-CAN": { home: 3, away: 1 }, // Suiza 1ª, Canadá fuera del top-2
+  "GA-J3-CZE-MEX": { home: 0, away: 3 },
+  "GA-J3-RSA-KOR": { home: 1, away: 0 },
+  "GB-J3-SUI-CAN": { home: 3, away: 1 },
   "GB-J3-BIH-QAT": { home: 3, away: 1 },
-  "GC-J3-SCO-BRA": { home: 0, away: 3 }, // Vini Jr doblete, Brasil 1º
-  "GC-J3-MAR-HAI": { home: 4, away: 2 }, // Marruecos remonta y queda 2º
+  "GC-J3-SCO-BRA": { home: 0, away: 3 },
+  "GC-J3-MAR-HAI": { home: 4, away: 2 },
+
+  // ── MD3 (25 jun) — Grupos D, E y F CERRADOS ──────────────────
+  "GD-J3-TUR-USA": { home: 3, away: 2 }, // Turquía sorprende a USA
+  "GD-J3-PAR-AUS": { home: 0, away: 0 },
+  "GE-J3-ECU-GER": { home: 2, away: 1 }, // Ecuador batacazo a Alemania
+  "GE-J3-CUW-CIV": { home: 0, away: 2 },
+  "GF-J3-JPN-SWE": { home: 1, away: 1 },
+  "GF-J3-TUN-NED": { home: 1, away: 3 }, // NED 1ª del F
 };
 
 // ───────────── ELIMINATORIAS ─────────────
@@ -120,7 +128,7 @@ export const TOURNAMENT_OUTCOME: {
 // ───────────── METADATOS ─────────────
 // Última actualización por humano/Claude — para auditoría
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-06-25T10:00:00Z",
-  by: "Claude (MD3 grupos A, B, C — cierre del 24 jun)",
-  source: "ESPN, Olympics.com, Al Jazeera",
+  iso: "2026-06-26T16:00:00Z",
+  by: "Claude (MD3 grupos D, E, F — cierre del 25 jun)",
+  source: "Yahoo Sports, ESPN, CBS Sports",
 };
