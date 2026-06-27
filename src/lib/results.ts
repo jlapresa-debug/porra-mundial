@@ -84,12 +84,20 @@ export const GROUP_MATCH_RESULTS: Record<string, { home: number; away: number }>
   "GC-J3-MAR-HAI": { home: 4, away: 2 },
 
   // ── MD3 (25 jun) — Grupos D, E y F CERRADOS ──────────────────
-  "GD-J3-TUR-USA": { home: 3, away: 2 }, // Turquía sorprende a USA
+  "GD-J3-TUR-USA": { home: 3, away: 2 },
   "GD-J3-PAR-AUS": { home: 0, away: 0 },
-  "GE-J3-ECU-GER": { home: 2, away: 1 }, // Ecuador batacazo a Alemania
+  "GE-J3-ECU-GER": { home: 2, away: 1 },
   "GE-J3-CUW-CIV": { home: 0, away: 2 },
   "GF-J3-JPN-SWE": { home: 1, away: 1 },
-  "GF-J3-TUN-NED": { home: 1, away: 3 }, // NED 1ª del F
+  "GF-J3-TUN-NED": { home: 1, away: 3 },
+
+  // ── MD3 (26 jun) — Grupos G, H e I CERRADOS ──────────────────
+  "GG-J3-EGY-IRN": { home: 1, away: 1 },
+  "GG-J3-NZL-BEL": { home: 1, away: 5 }, // Bélgica goleada
+  "GH-J3-CPV-SAU": { home: 0, away: 0 },
+  "GH-J3-URU-ESP": { home: 0, away: 1 }, // España gana al 90'
+  "GI-J3-NOR-FRA": { home: 4, away: 1 }, // Noruega golea a Francia
+  "GI-J3-SEN-IRQ": { home: 5, away: 0 },
 };
 
 // ───────────── ELIMINATORIAS ─────────────
@@ -128,7 +136,7 @@ export const TOURNAMENT_OUTCOME: {
 // ───────────── METADATOS ─────────────
 // Última actualización por humano/Claude — para auditoría
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-06-26T16:00:00Z",
-  by: "Claude (MD3 grupos D, E, F — cierre del 25 jun)",
-  source: "Yahoo Sports, ESPN, CBS Sports",
+  iso: "2026-06-27T06:00:00Z",
+  by: "Claude (MD3 grupos G, H, I + Express URU-ESP)",
+  source: "Olympics.com, ESPN, Yahoo Sports + reporte usuario",
 };
