@@ -96,7 +96,7 @@ export const GROUP_MATCH_RESULTS: Record<string, { home: number; away: number }>
   "GG-J3-NZL-BEL": { home: 1, away: 5 }, // Bélgica goleada
   "GH-J3-CPV-SAU": { home: 0, away: 0 },
   "GH-J3-URU-ESP": { home: 0, away: 1 }, // España gana al 90'
-  "GI-J3-NOR-FRA": { home: 4, away: 1 }, // Noruega golea a Francia
+  "GI-J3-NOR-FRA": { home: 1, away: 4 }, // FRANCIA golea a Noruega (no al revés)
   "GI-J3-SEN-IRQ": { home: 5, away: 0 },
 };
 
