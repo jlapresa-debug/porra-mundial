@@ -123,7 +123,17 @@ export const KO_WINNERS: Record<string, TeamCode> = {
 // principalmente los 8 mejores terceros ("3 A/B/C/D/F"), donde la
 // asignación a cada llave depende de qué grupos clasifican sus terceros.
 export const KO_TEAMS_OVERRIDE: Record<string, { home?: TeamCode; away?: TeamCode }> = {
-  // "M79": { away: "URU" },
+  // ── Asignación de los 8 mejores terceros (FIFA — tras MD3) ───
+  // Grupos cuyo tercero clasifica: B, D, E, F, I, J, K, L
+  // Fuente: Wikipedia 2026 FIFA World Cup knockout stage + agregador
+  "M74": { away: "PAR" }, // GER (1E) vs PAR (3D)
+  "M77": { away: "SWE" }, // FRA (1I) vs SWE (3F)
+  "M79": { away: "ECU" }, // MEX (1A) vs ECU (3E)
+  "M80": { away: "COD" }, // ENG (1L) vs COD (3K)
+  "M81": { away: "BIH" }, // USA (1D) vs BIH (3B)
+  "M82": { away: "SEN" }, // BEL (1G) vs SEN (3I)
+  "M85": { away: "ALG" }, // SUI (1B) vs ALG (3J)
+  "M87": { away: "GHA" }, // COL (1K) vs GHA (3L)
 };
 
 // Resultado opcional con marcador exacto del partido KO (informativo).
@@ -144,7 +154,7 @@ export const TOURNAMENT_OUTCOME: {
 // ───────────── METADATOS ─────────────
 // Última actualización por humano/Claude — para auditoría
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-06-28T00:00:00Z",
-  by: "Claude (MD3 grupos J, K, L — FASE DE GRUPOS COMPLETA)",
-  source: "Wikipedia + Yahoo Sports (verificado con 2 fuentes)",
+  iso: "2026-06-28T08:00:00Z",
+  by: "Claude (cuadro KO con 8 mejores terceros — bracket completo)",
+  source: "Wikipedia + Yahoo Sports + CBS Sports (3 fuentes)",
 };
