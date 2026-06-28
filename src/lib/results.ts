@@ -93,11 +93,19 @@ export const GROUP_MATCH_RESULTS: Record<string, { home: number; away: number }>
 
   // ── MD3 (26 jun) — Grupos G, H e I CERRADOS ──────────────────
   "GG-J3-EGY-IRN": { home: 1, away: 1 },
-  "GG-J3-NZL-BEL": { home: 1, away: 5 }, // Bélgica goleada
+  "GG-J3-NZL-BEL": { home: 1, away: 5 },
   "GH-J3-CPV-SAU": { home: 0, away: 0 },
-  "GH-J3-URU-ESP": { home: 0, away: 1 }, // España gana al 90'
-  "GI-J3-NOR-FRA": { home: 1, away: 4 }, // FRANCIA golea a Noruega (no al revés)
+  "GH-J3-URU-ESP": { home: 0, away: 1 },
+  "GI-J3-NOR-FRA": { home: 1, away: 4 },
   "GI-J3-SEN-IRQ": { home: 5, away: 0 },
+
+  // ── MD3 (27 jun) — Grupos J, K y L CERRADOS — FASE DE GRUPOS COMPLETA ──
+  "GJ-J3-ALG-AUT": { home: 3, away: 3 }, // Doblete de Mahrez para empatar
+  "GJ-J3-JOR-ARG": { home: 1, away: 3 }, // Messi cierra goleada
+  "GK-J3-COL-POR": { home: 0, away: 0 },
+  "GK-J3-COD-UZB": { home: 3, away: 1 },
+  "GL-J3-PAN-ENG": { home: 0, away: 2 },
+  "GL-J3-CRO-GHA": { home: 2, away: 1 },
 };
 
 // ───────────── ELIMINATORIAS ─────────────
@@ -136,7 +144,7 @@ export const TOURNAMENT_OUTCOME: {
 // ───────────── METADATOS ─────────────
 // Última actualización por humano/Claude — para auditoría
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-06-27T06:00:00Z",
-  by: "Claude (MD3 grupos G, H, I + Express URU-ESP)",
-  source: "Olympics.com, ESPN, Yahoo Sports + reporte usuario",
+  iso: "2026-06-28T00:00:00Z",
+  by: "Claude (MD3 grupos J, K, L — FASE DE GRUPOS COMPLETA)",
+  source: "Wikipedia + Yahoo Sports (verificado con 2 fuentes)",
 };
