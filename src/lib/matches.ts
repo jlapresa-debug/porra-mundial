@@ -3,36 +3,119 @@ import type { Match } from "./types";
 // Mundial 2026 — 104 partidos: 72 fase de grupos + 16 R32 + 8 octavos + 4 cuartos + 2 semis + 3º puesto + final.
 // Calendario oficial de FIFA + sorteo del 5 de diciembre de 2025.
 //
-// Horarios: hora local de la sede (México no aplica DST desde 2022, USA/Canadá sí en verano).
-// Fuente: NBC Sports / FIFA. Las horas y sedes pueden sufrir cambios oficiales; verificar antes de cada jornada.
+// Horas de pitido en UTC oficiales según Wikipedia 2026 FIFA WC (verificado partido a partido).
+// La UI las muestra en hora de Madrid via Intl.toLocaleString("Europe/Madrid").
+// El campo "time" en GROUP_ROWS / KO_ROWS es informativo (hora local en la sede)
+// pero NO se usa para calcular el kickoff: prevalece UTC_KICKOFFS.
 
-// Husos horarios estándar de verano (DST activo en USA/Canadá; México fijo UTC-6).
-const CITY_TZ_OFFSET: Record<string, number> = {
-  "Mexico City": -6,
-  "Guadalajara": -6,
-  "Monterrey": -6,
-  "Toronto": -4,
-  "Vancouver": -7,
-  "Los Angeles": -7,
-  "San Francisco Bay Area": -7,
-  "Seattle": -7,
-  "Dallas": -5,
-  "Houston": -5,
-  "Kansas City": -5,
-  "Atlanta": -4,
-  "Miami": -4,
-  "New York/New Jersey": -4,
-  "Philadelphia": -4,
-  "Boston": -4,
+const UTC_KICKOFFS: Record<number, string> = {
+  // ── Fase de grupos (M1-M72) ────────────────────────────────────
+  1:  "2026-06-11T19:00:00Z", // MEX-RSA
+  2:  "2026-06-12T02:00:00Z", // KOR-CZE
+  3:  "2026-06-12T19:00:00Z", // CAN-BIH
+  4:  "2026-06-12T01:00:00Z", // USA-PAR
+  5:  "2026-06-13T19:00:00Z", // QAT-SUI
+  6:  "2026-06-13T22:00:00Z", // BRA-MAR
+  7:  "2026-06-14T01:00:00Z", // HAI-SCO
+  8:  "2026-06-14T02:00:00Z", // AUS-TUR
+  9:  "2026-06-14T17:00:00Z", // GER-CUW
+  10: "2026-06-14T23:00:00Z", // CIV-ECU
+  11: "2026-06-14T20:00:00Z", // NED-JPN
+  12: "2026-06-15T02:00:00Z", // SWE-TUN
+  13: "2026-06-16T01:00:00Z", // IRN-NZL
+  14: "2026-06-15T19:00:00Z", // BEL-EGY
+  15: "2026-06-15T16:00:00Z", // ESP-CPV
+  16: "2026-06-15T22:00:00Z", // SAU-URU
+  17: "2026-06-16T19:00:00Z", // FRA-SEN
+  18: "2026-06-16T22:00:00Z", // IRQ-NOR
+  19: "2026-06-17T01:00:00Z", // ARG-ALG
+  20: "2026-06-17T04:00:00Z", // AUT-JOR
+  21: "2026-06-17T17:00:00Z", // POR-COD
+  22: "2026-06-18T02:00:00Z", // UZB-COL
+  23: "2026-06-17T20:00:00Z", // ENG-CRO
+  24: "2026-06-17T23:00:00Z", // GHA-PAN
+  25: "2026-06-18T16:00:00Z", // CZE-RSA
+  26: "2026-06-19T01:00:00Z", // MEX-KOR
+  27: "2026-06-18T19:00:00Z", // SUI-BIH
+  28: "2026-06-18T22:00:00Z", // CAN-QAT
+  29: "2026-06-19T22:00:00Z", // SCO-MAR
+  30: "2026-06-20T00:30:00Z", // BRA-HAI
+  31: "2026-06-19T19:00:00Z", // USA-AUS
+  32: "2026-06-20T03:00:00Z", // TUR-PAR
+  33: "2026-06-20T20:00:00Z", // GER-CIV
+  34: "2026-06-21T00:00:00Z", // ECU-CUW
+  35: "2026-06-20T17:00:00Z", // NED-SWE
+  36: "2026-06-21T04:00:00Z", // TUN-JPN
+  37: "2026-06-21T19:00:00Z", // BEL-IRN
+  38: "2026-06-22T01:00:00Z", // NZL-EGY
+  39: "2026-06-21T16:00:00Z", // ESP-SAU
+  40: "2026-06-21T22:00:00Z", // URU-CPV
+  41: "2026-06-22T21:00:00Z", // FRA-IRQ
+  42: "2026-06-23T00:00:00Z", // NOR-SEN
+  43: "2026-06-22T17:00:00Z", // ARG-AUT
+  44: "2026-06-23T03:00:00Z", // JOR-ALG
+  45: "2026-06-23T17:00:00Z", // POR-UZB
+  46: "2026-06-24T02:00:00Z", // COL-COD
+  47: "2026-06-23T20:00:00Z", // ENG-GHA
+  48: "2026-06-23T23:00:00Z", // PAN-CRO
+  49: "2026-06-25T01:00:00Z", // CZE-MEX
+  50: "2026-06-25T01:00:00Z", // RSA-KOR
+  51: "2026-06-24T19:00:00Z", // SUI-CAN
+  52: "2026-06-24T19:00:00Z", // BIH-QAT
+  53: "2026-06-24T22:00:00Z", // SCO-BRA
+  54: "2026-06-24T22:00:00Z", // MAR-HAI
+  55: "2026-06-26T02:00:00Z", // TUR-USA
+  56: "2026-06-26T02:00:00Z", // PAR-AUS
+  57: "2026-06-25T20:00:00Z", // ECU-GER
+  58: "2026-06-25T20:00:00Z", // CUW-CIV
+  59: "2026-06-25T23:00:00Z", // JPN-SWE
+  60: "2026-06-25T23:00:00Z", // TUN-NED
+  61: "2026-06-27T03:00:00Z", // EGY-IRN
+  62: "2026-06-27T03:00:00Z", // NZL-BEL
+  63: "2026-06-27T00:00:00Z", // CPV-SAU
+  64: "2026-06-27T00:00:00Z", // URU-ESP
+  65: "2026-06-26T19:00:00Z", // NOR-FRA
+  66: "2026-06-26T19:00:00Z", // SEN-IRQ
+  67: "2026-06-28T02:00:00Z", // ALG-AUT
+  68: "2026-06-28T02:00:00Z", // JOR-ARG
+  69: "2026-06-27T23:30:00Z", // COL-POR
+  70: "2026-06-27T23:30:00Z", // COD-UZB
+  71: "2026-06-27T21:00:00Z", // PAN-ENG
+  72: "2026-06-27T21:00:00Z", // CRO-GHA
+  // ── Eliminatorias (M73-M104) ───────────────────────────────────
+  73:  "2026-06-28T19:00:00Z",
+  74:  "2026-06-29T20:30:00Z",
+  75:  "2026-06-30T01:00:00Z",
+  76:  "2026-06-29T17:00:00Z",
+  77:  "2026-06-30T21:00:00Z",
+  78:  "2026-06-30T17:00:00Z",
+  79:  "2026-07-01T01:00:00Z",
+  80:  "2026-07-01T16:00:00Z",
+  81:  "2026-07-02T00:00:00Z",
+  82:  "2026-07-01T20:00:00Z",
+  83:  "2026-07-02T23:00:00Z",
+  84:  "2026-07-02T19:00:00Z",
+  85:  "2026-07-03T03:00:00Z",
+  86:  "2026-07-03T22:00:00Z",
+  87:  "2026-07-04T01:30:00Z",
+  88:  "2026-07-03T18:00:00Z",
+  89:  "2026-07-04T21:00:00Z",
+  90:  "2026-07-04T17:00:00Z",
+  91:  "2026-07-05T20:00:00Z",
+  92:  "2026-07-06T00:00:00Z",
+  93:  "2026-07-06T19:00:00Z",
+  94:  "2026-07-07T00:00:00Z",
+  95:  "2026-07-07T16:00:00Z",
+  96:  "2026-07-07T20:00:00Z",
+  97:  "2026-07-09T20:00:00Z",
+  98:  "2026-07-10T19:00:00Z",
+  99:  "2026-07-11T21:00:00Z",
+  100: "2026-07-12T01:00:00Z",
+  101: "2026-07-14T19:00:00Z",
+  102: "2026-07-15T19:00:00Z",
+  103: "2026-07-18T21:00:00Z",
+  104: "2026-07-19T19:00:00Z",
 };
-
-function toUTCISO(dateLocal: string, timeLocal: string, city: string): string {
-  const offset = CITY_TZ_OFFSET[city] ?? -5;
-  const [y, mo, d] = dateLocal.split("-").map(Number);
-  const [h, mn] = timeLocal.split(":").map(Number);
-  // UTC = local - offset (offset es negativo, así que restar implica sumar)
-  return new Date(Date.UTC(y, mo - 1, d, h - offset, mn)).toISOString();
-}
 
 // ───────────────────────────── FASE DE GRUPOS (72) ─────────────────────────────
 // Tuplas: [matchNo, date, time, home, away, city, venue, group, matchday]
@@ -118,13 +201,13 @@ const GROUP_ROWS: GroupRow[] = [
   [72, "2026-06-27", "17:00", "CRO", "GHA", "Philadelphia",           "Lincoln Financial Field",   "L", 3],
 ];
 
-const groupMatches: Match[] = GROUP_ROWS.map(([no, date, time, home, away, city, venue, group, md]) => ({
+const groupMatches: Match[] = GROUP_ROWS.map(([no, _date, _time, home, away, city, venue, group, md]) => ({
   id: `G${group}-J${md}-${home}-${away}`,
   matchNumber: no,
   stage: "group",
   group,
   matchday: md,
-  kickoff: toUTCISO(date, time, city),
+  kickoff: UTC_KICKOFFS[no],
   home,
   away,
   venue,
@@ -189,11 +272,11 @@ const KO_ROWS: KORow[] = [
   [104, "final",      "2026-07-19", "15:00", "Gan. M-101",  "Gan. M-102",  "New York/New Jersey", "MetLife Stadium"],
 ];
 
-const koMatches: Match[] = KO_ROWS.map(([no, stage, date, time, hp, ap, city, venue]) => ({
+const koMatches: Match[] = KO_ROWS.map(([no, stage, _date, _time, hp, ap, city, venue]) => ({
   id: `M${no}`,
   matchNumber: no,
   stage,
-  kickoff: toUTCISO(date, time, city),
+  kickoff: UTC_KICKOFFS[no],
   home: null,
   away: null,
   homePlaceholder: hp,
