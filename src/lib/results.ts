@@ -115,7 +115,7 @@ export const GROUP_MATCH_RESULTS: Record<string, { home: number; away: number }>
 // key = match.id (ej: "M73")
 // value = código del equipo ganador
 export const KO_WINNERS: Record<string, TeamCode> = {
-  // "M73": "MEX",
+  "M73": "CAN", // RSA 0-1 CAN (28 jun, SoFi). Gol de Eustáquio en el 90+
 };
 
 // Override manual de equipos en partidos KO.
@@ -139,7 +139,7 @@ export const KO_TEAMS_OVERRIDE: Record<string, { home?: TeamCode; away?: TeamCod
 // Resultado opcional con marcador exacto del partido KO (informativo).
 // El que cuenta para puntuar siempre es KO_WINNERS.
 export const KO_MATCH_RESULTS: Record<string, { home: number; away: number; penalties?: { home: number; away: number } }> = {
-  // "M73": { home: 1, away: 1, penalties: { home: 4, away: 3 } },
+  "M73": { home: 0, away: 1 },
 };
 
 // ───────────── APUESTAS GENERALES ─────────────
@@ -154,7 +154,7 @@ export const TOURNAMENT_OUTCOME: {
 // ───────────── METADATOS ─────────────
 // Última actualización por humano/Claude — para auditoría
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-06-28T08:00:00Z",
-  by: "Claude (cuadro KO con 8 mejores terceros — bracket completo)",
-  source: "Wikipedia + Yahoo Sports + CBS Sports (3 fuentes)",
+  iso: "2026-06-29T08:00:00Z",
+  by: "Claude (M73 R32: RSA 0-1 CAN)",
+  source: "Wikipedia + Yahoo Sports",
 };
