@@ -115,7 +115,10 @@ export const GROUP_MATCH_RESULTS: Record<string, { home: number; away: number }>
 // key = match.id (ej: "M73")
 // value = código del equipo ganador
 export const KO_WINNERS: Record<string, TeamCode> = {
-  "M73": "CAN", // RSA 0-1 CAN (28 jun, SoFi). Gol de Eustáquio en el 90+
+  "M73": "CAN", // RSA 0-1 CAN (28 jun). Gol de Eustáquio en el 90+
+  "M74": "PAR", // GER 1-1 PAR (29 jun), Paraguay 4-3 en penaltis
+  "M75": "MAR", // NED 1-1 MAR (29 jun), Marruecos 3-2 en penaltis
+  "M76": "BRA", // BRA 2-1 JPN (29 jun). Casemiro + Martinelli al 90+
 };
 
 // Override manual de equipos en partidos KO.
@@ -140,6 +143,9 @@ export const KO_TEAMS_OVERRIDE: Record<string, { home?: TeamCode; away?: TeamCod
 // El que cuenta para puntuar siempre es KO_WINNERS.
 export const KO_MATCH_RESULTS: Record<string, { home: number; away: number; penalties?: { home: number; away: number } }> = {
   "M73": { home: 0, away: 1 },
+  "M74": { home: 1, away: 1, penalties: { home: 3, away: 4 } },
+  "M75": { home: 1, away: 1, penalties: { home: 2, away: 3 } },
+  "M76": { home: 2, away: 1 },
 };
 
 // ───────────── APUESTAS GENERALES ─────────────
@@ -154,7 +160,7 @@ export const TOURNAMENT_OUTCOME: {
 // ───────────── METADATOS ─────────────
 // Última actualización por humano/Claude — para auditoría
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-06-29T08:00:00Z",
-  by: "Claude (M73 R32: RSA 0-1 CAN)",
-  source: "Wikipedia + Yahoo Sports",
+  iso: "2026-06-30T00:00:00Z",
+  by: "Claude (R32 del 29 jun: GER-PAR, NED-MAR, BRA-JPN)",
+  source: "Wikipedia + Yahoo Sports (verificado)",
 };
