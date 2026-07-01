@@ -119,6 +119,9 @@ export const KO_WINNERS: Record<string, TeamCode> = {
   "M74": "PAR", // GER 1-1 PAR (29 jun), Paraguay 4-3 en penaltis
   "M75": "MAR", // NED 1-1 MAR (29 jun), Marruecos 3-2 en penaltis
   "M76": "BRA", // BRA 2-1 JPN (29 jun). Casemiro + Martinelli al 90+
+  "M77": "FRA", // FRA 3-0 SWE (30 jun). Doblete Mbappé + Barcola
+  "M78": "NOR", // CIV 1-2 NOR (30 jun). Nusa + Haaland
+  "M79": "MEX", // MEX 2-0 ECU (30 jun). Quiñones + Jiménez, rompe maleficio de 40 años
 };
 
 // Override manual de equipos en partidos KO.
@@ -146,6 +149,9 @@ export const KO_MATCH_RESULTS: Record<string, { home: number; away: number; pena
   "M74": { home: 1, away: 1, penalties: { home: 3, away: 4 } },
   "M75": { home: 1, away: 1, penalties: { home: 2, away: 3 } },
   "M76": { home: 2, away: 1 },
+  "M77": { home: 3, away: 0 },
+  "M78": { home: 1, away: 2 },
+  "M79": { home: 2, away: 0 },
 };
 
 // ───────────── APUESTAS GENERALES ─────────────
@@ -160,7 +166,7 @@ export const TOURNAMENT_OUTCOME: {
 // ───────────── METADATOS ─────────────
 // Última actualización por humano/Claude — para auditoría
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-06-30T00:00:00Z",
-  by: "Claude (R32 del 29 jun: GER-PAR, NED-MAR, BRA-JPN)",
-  source: "Wikipedia + Yahoo Sports (verificado)",
+  iso: "2026-07-01T10:00:00Z",
+  by: "Claude (R32 del 30 jun: FRA-SWE, CIV-NOR, MEX-ECU)",
+  source: "Wikipedia + FIFA + Yahoo Sports (3 fuentes)",
 };
