@@ -122,6 +122,9 @@ export const KO_WINNERS: Record<string, TeamCode> = {
   "M77": "FRA", // FRA 3-0 SWE (30 jun). Doblete Mbappé + Barcola
   "M78": "NOR", // CIV 1-2 NOR (30 jun). Nusa + Haaland
   "M79": "MEX", // MEX 2-0 ECU (30 jun). Quiñones + Jiménez, rompe maleficio de 40 años
+  "M80": "ENG", // ENG 2-1 COD (1 jul). Doblete Kane
+  "M81": "USA", // USA 2-0 BIH (1 jul). Balogun + Tillman
+  "M82": "BEL", // BEL 3-2 SEN aet (1 jul). Remontada épica, Tielemans 124'
 };
 
 // Override manual de equipos en partidos KO.
@@ -152,6 +155,9 @@ export const KO_MATCH_RESULTS: Record<string, { home: number; away: number; pena
   "M77": { home: 3, away: 0 },
   "M78": { home: 1, away: 2 },
   "M79": { home: 2, away: 0 },
+  "M80": { home: 2, away: 1 },
+  "M81": { home: 2, away: 0 },
+  "M82": { home: 3, away: 2 }, // AET, sin penaltis
 };
 
 // ───────────── APUESTAS GENERALES ─────────────
@@ -166,7 +172,7 @@ export const TOURNAMENT_OUTCOME: {
 // ───────────── METADATOS ─────────────
 // Última actualización por humano/Claude — para auditoría
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-07-01T10:00:00Z",
-  by: "Claude (R32 del 30 jun: FRA-SWE, CIV-NOR, MEX-ECU)",
-  source: "Wikipedia + FIFA + Yahoo Sports (3 fuentes)",
+  iso: "2026-07-02T10:00:00Z",
+  by: "Claude (R32 del 1 jul: ENG-COD, USA-BIH, BEL-SEN aet)",
+  source: "ESPN + NPR + Yahoo Sports (3 fuentes)",
 };
