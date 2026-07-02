@@ -41,7 +41,7 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
   const [teamGoals, setTeamGoals] = useState<number | "">("");
   const [opponentGoals, setOpponentGoals] = useState<number | "">("");
   const [scorers, setScorers] = useState<string[]>([]);
-  const [binaryAnswers, setBinaryAnswers] = useState<Record<string, "0" | "1">>({});
+  const [answers, setAnswers] = useState<Record<string, string>>({});
 
   const [saving, setSaving] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
@@ -54,7 +54,7 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
     setTeamGoals(saved.q2?.teamGoals ?? "");
     setOpponentGoals(saved.q2?.opponentGoals ?? "");
     setScorers(saved.q3 ?? []);
-    setBinaryAnswers(saved.binaryAnswers ?? {});
+    setAnswers(saved.binaryAnswers ?? {});
   }, [saved]);
 
   // Q3 reactivo a Q2: ajustar longitud cuando cambian goles del equipo principal
@@ -79,8 +79,8 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
   const hasQ1 = bet.q1 && q1 !== "";
   const hasQ2 = bet.q2 && typeof teamGoals === "number" && typeof opponentGoals === "number";
   const hasQ3 = hasQ2 && bet.q3 && (teamGoals as number) > 0 && scorers.length > 0 && scorers.every((s) => s !== "");
-  const hasAnyBinary = !!bet.binaryQuestions && Object.keys(binaryAnswers).length > 0;
-  const hasAny = !!(hasQ1 || hasQ2 || hasQ3 || hasAnyBinary);
+  const hasAnyGeneric = !!bet.questions && Object.keys(answers).length > 0;
+  const hasAny = !!(hasQ1 || hasQ2 || hasQ3 || hasAnyGeneric);
   const allowSave = !locked && hasAny;
 
   // Construir payload omitiendo claves vacías
@@ -89,7 +89,7 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
     if (bet.q1 && hasQ1) data.q1 = q1;
     if (bet.q2 && hasQ2) data.q2 = { teamGoals: teamGoals as number, opponentGoals: opponentGoals as number };
     if (bet.q3 && hasQ2 && (teamGoals as number) > 0) data.q3 = scorers;
-    if (bet.binaryQuestions && hasAnyBinary) data.binaryAnswers = binaryAnswers;
+    if (bet.questions && hasAnyGeneric) data.binaryAnswers = answers;
     return data;
   }
 
@@ -112,6 +112,9 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
       setSaving(false);
     }
   }
+
+  // Numeración continua: primero el bloque template (si existe), luego las genéricas
+  const templateCount = (bet.q1 ? 1 : 0) + (bet.q2 ? 1 : 0) + (bet.q3 && typeof teamGoals === "number" && teamGoals > 0 ? 1 : 0);
 
   return (
     <div className={cn(
@@ -182,10 +185,10 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
                 hit={!!score && score.q3 > 0}
               />
             )}
-            {bet.binaryQuestions && bet.binaryQuestions.map((q) => {
+            {bet.questions && bet.questions.map((q) => {
               const truth = outcome.binaryAnswers?.[q.id];
               if (truth === undefined) return null;
-              const truthLabel = q.options[Number(truth)];
+              const truthLabel = q.kind === "player" ? truth : q.options[Number(truth)];
               const points = score?.binary[q.id] ?? 0;
               return (
                 <Row
@@ -278,29 +281,46 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
           </Question>
         )}
 
-        {/* Genérico: preguntas binarias */}
-        {bet.binaryQuestions && bet.binaryQuestions.map((q, i) => (
-          <Question key={q.id} n={i + 1} title={q.text} points={q.points}>
-            <div className="grid grid-cols-2 gap-2">
-              {q.options.map((opt, idx) => {
-                const selected = binaryAnswers[q.id] === String(idx);
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    disabled={locked}
-                    onClick={() => setBinaryAnswers((prev) => ({ ...prev, [q.id]: String(idx) as "0" | "1" }))}
-                    className={cn(
-                      "h-11 rounded-xl text-sm font-medium border transition-colors px-3",
-                      selected ? "bg-brand text-white border-brand" : "bg-bg-elevated border-line text-muted hover:text-white",
-                      locked && "opacity-50 cursor-not-allowed",
-                    )}
-                  >
-                    {opt}
-                  </button>
-                );
-              })}
-            </div>
+        {/* Genérico: preguntas de opciones y de jugador, en orden */}
+        {bet.questions && bet.questions.map((q, i) => (
+          <Question key={q.id} n={templateCount + i + 1} title={q.text} points={q.points}>
+            {q.kind === "player" ? (
+              <select
+                disabled={locked}
+                value={answers[q.id] ?? ""}
+                onChange={(e) => setAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))}
+                className={cn(
+                  "w-full h-11 px-3 rounded-xl bg-bg-elevated border border-line text-white text-sm focus:outline-none focus:border-brand",
+                  locked && "opacity-50 cursor-not-allowed",
+                )}
+              >
+                <option value="">Elige jugador</option>
+                {q.squad.map((player) => (
+                  <option key={player} value={player}>{player}</option>
+                ))}
+              </select>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                {q.options.map((opt, idx) => {
+                  const selected = answers[q.id] === String(idx);
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      disabled={locked}
+                      onClick={() => setAnswers((prev) => ({ ...prev, [q.id]: String(idx) }))}
+                      className={cn(
+                        "h-11 rounded-xl text-sm font-medium border transition-colors px-3",
+                        selected ? "bg-brand text-white border-brand" : "bg-bg-elevated border-line text-muted hover:text-white",
+                        locked && "opacity-50 cursor-not-allowed",
+                      )}
+                    >
+                      {opt}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </Question>
         ))}
 

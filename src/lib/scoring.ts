@@ -107,16 +107,15 @@ export function scoreExpressBet(
     }
   }
 
-  // Genérico: preguntas binarias
-  if (bet.binaryQuestions) {
-    for (const q of bet.binaryQuestions) {
-      const guess = prediction.binaryAnswers?.[q.id];
-      const truth = outcome.binaryAnswers?.[q.id];
-      if (guess !== undefined && truth !== undefined && guess === truth) {
-        binary[q.id] = q.points;
-      } else {
-        binary[q.id] = 0;
-      }
+  // Genérico: preguntas de opciones y de jugador
+  // (todas comparten el mismo almacén prediction/outcome.binaryAnswers)
+  for (const q of bet.questions ?? []) {
+    const guess = prediction.binaryAnswers?.[q.id];
+    const truth = outcome.binaryAnswers?.[q.id];
+    if (guess !== undefined && truth !== undefined && guess === truth) {
+      binary[q.id] = q.points;
+    } else {
+      binary[q.id] = 0;
     }
   }
 

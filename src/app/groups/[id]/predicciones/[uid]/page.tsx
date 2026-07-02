@@ -304,9 +304,11 @@ export default function UserPredictionsPage() {
                           )}
                         </div>
                       )}
-                      {bet.binaryQuestions && bet.binaryQuestions.map((q) => {
+                      {bet.questions && bet.questions.map((q) => {
                         const ans = pred.binaryAnswers?.[q.id];
-                        const label = ans !== undefined ? q.options[Number(ans)] : "—";
+                        const label = ans === undefined
+                          ? "—"
+                          : q.kind === "player" ? ans : q.options[Number(ans)];
                         return (
                           <div key={q.id} className="px-4 py-2.5 flex items-start justify-between gap-3">
                             <span className="text-xs text-muted flex-1 leading-snug">{q.text}</span>

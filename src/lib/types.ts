@@ -57,6 +57,10 @@ export interface KnockoutPrediction {
 // - Apuestas "template-1" (ESP-SAU): q1, q2, q3 en la raíz (legacy)
 // - Apuestas genéricas (URU-ESP en adelante): binaryAnswers map
 //
+// binaryAnswers guarda, por id de pregunta, la respuesta como string:
+// - Preguntas binarias/multi-opción: el índice de la opción elegida ("0","1","2"...)
+// - Preguntas de jugador (selector de convocados): el nombre del jugador tal cual
+//
 // Ambos pueden coexistir en el mismo doc (no recomendable, pero válido).
 export interface ExpressPrediction {
   betId: string;
@@ -64,8 +68,8 @@ export interface ExpressPrediction {
   q1?: "win" | "draw" | "lose";
   q2?: { teamGoals: number; opponentGoals: number };
   q3?: string[];
-  // Genérico: id de pregunta binaria → opción elegida (índice 0 ó 1 como string)
-  binaryAnswers?: Record<string, "0" | "1">;
+  // Genérico: id de pregunta → respuesta (índice de opción o nombre de jugador)
+  binaryAnswers?: Record<string, string>;
   updatedAt: number;
 }
 
@@ -74,7 +78,7 @@ export interface ExpressOutcome {
   q1?: "win" | "draw" | "lose";
   q2?: { teamGoals: number; opponentGoals: number };
   q3?: string[];
-  binaryAnswers?: Record<string, "0" | "1">;
+  binaryAnswers?: Record<string, string>;
 }
 
 export interface SpecialBets {

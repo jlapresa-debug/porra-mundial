@@ -1,7 +1,11 @@
 // Apuestas Express: apuestas concretas y puntuales para un partido específico,
-// con plazo limitado. Cada apuesta se compone de 3 preguntas opcionales (Q1, Q2, Q3).
+// con plazo limitado.
 //
 // Cómo añadir una nueva apuesta express: añade un objeto a EXPRESS_BETS más abajo.
+// Cada pregunta genérica (no-template) va en el array `questions`, en el orden
+// exacto en que debe mostrarse. Todas comparten el mismo almacén de respuestas
+// (ExpressPrediction.binaryAnswers / ExpressOutcome.binaryAnswers), indexado
+// por el `id` de cada pregunta.
 
 import type { ExpressOutcome, TeamCode } from "./types";
 
@@ -14,13 +18,27 @@ export const RESULT_LABEL: Record<ExpressResult, string> = {
   lose:  "Perder",
 };
 
-// Pregunta binaria simple: dos opciones excluyentes, una de las dos es correcta.
-export interface BinaryQuestion {
-  id: string;                       // ej. "uru-corners"
-  text: string;                     // pregunta visible
-  options: [string, string];        // opción A (índice 0) / opción B (índice 1)
+// Pregunta binaria (2 opciones) o de opción múltiple (3+ opciones).
+// La respuesta guardada es el índice de la opción elegida, como string ("0","1",...).
+export interface OptionsQuestion {
+  kind: "options";
+  id: string;
+  text: string;
+  options: string[]; // 2 o más opciones excluyentes
   points: number;
 }
+
+// Pregunta cuya respuesta es un jugador de una convocatoria concreta.
+// La respuesta guardada es el nombre del jugador tal cual aparece en `squad`.
+export interface PlayerQuestion {
+  kind: "player";
+  id: string;
+  text: string;
+  squad: string[];
+  points: number;
+}
+
+export type AnswerQuestion = OptionsQuestion | PlayerQuestion;
 
 export interface ExpressBet {
   id: string;
@@ -33,8 +51,8 @@ export interface ExpressBet {
   q1?: { points: number };
   q2?: { points: number; maxGoals: number };
   q3?: { pointsPerHit: number; squad: string[] };
-  // Genérico: lista de preguntas binarias arbitrarias
-  binaryQuestions?: BinaryQuestion[];
+  // Genérico: preguntas en el orden exacto de visualización
+  questions?: AnswerQuestion[];
 }
 
 // Convocatoria oficial de España para el Mundial 2026 (26 jugadores)
@@ -75,44 +93,109 @@ export const SPAIN_SQUAD_2026 = [
 // Ordenadas por relevancia: la apuesta más reciente arriba.
 export const EXPRESS_BETS: ExpressBet[] = [
   {
+    id: "ESP-AUT-R32",
+    title: "España vs Austria · Dieciseisavos",
+    matchId: "M84",
+    deadline: "2026-07-02T19:00:00Z", // 21:00 ES, pitido inicial
+    team: "ESP",
+    opponent: "AUT",
+    questions: [
+      {
+        kind: "player",
+        id: "esp-first-sub-out",
+        text: "¿Quién será el primer jugador sustituido en España?",
+        squad: SPAIN_SQUAD_2026,
+        points: 2,
+      },
+      {
+        kind: "player",
+        id: "esp-first-sub-in",
+        text: "¿Quién será el primer suplente en entrar por España?",
+        squad: SPAIN_SQUAD_2026,
+        points: 2,
+      },
+      {
+        kind: "options",
+        id: "cards-1h",
+        text: "¿Cuántas tarjetas habrá en el primer tiempo?",
+        options: ["0", "1", "2", "Más de dos"],
+        points: 2,
+      },
+      {
+        kind: "options",
+        id: "goals-2h",
+        text: "¿Cuántos goles habrá en el segundo tiempo?",
+        options: ["0", "1", "2", "Más de dos"],
+        points: 2,
+      },
+      {
+        kind: "options",
+        id: "any-penalty",
+        text: "¿Habrá algún penalty lanzado en el partido?",
+        options: ["Sí", "No"],
+        points: 2,
+      },
+      {
+        kind: "options",
+        id: "delafuente-outfit",
+        text: "¿Se cambiará de ropa De la Fuente en el descanso?",
+        options: ["Sí", "No"],
+        points: 2,
+      },
+      {
+        kind: "options",
+        id: "yamal-goals",
+        text: "¿Cuántos goles meterá Lamine Yamal?",
+        options: ["0", "1", "2", "Más de dos"],
+        points: 2,
+      },
+    ],
+  },
+  {
     id: "URU-ESP-J3",
     title: "Uruguay vs España",
     matchId: "GH-J3-URU-ESP",
     deadline: "2026-06-26T18:00:00Z", // 20:00 ES del 26 jun
     team: "ESP",
     opponent: "URU",
-    binaryQuestions: [
+    questions: [
       {
+        kind: "options",
         id: "uru-corners",
         text: "¿Cuántos saques de esquina hará Uruguay?",
         options: ["3 o menos", "4 o más"],
         points: 2,
       },
       {
+        kind: "options",
         id: "valverde-clean",
         text: "¿Acabará Valverde el partido sin tarjetas?",
         options: ["Sí", "No"],
         points: 2,
       },
       {
+        kind: "options",
         id: "oyarzabal-goal",
         text: "¿Meterá gol Oyarzábal?",
         options: ["Sí", "No"],
         points: 2,
       },
       {
+        kind: "options",
         id: "esp-win",
         text: "¿Ganará España?",
         options: ["Sí", "No"],
         points: 2,
       },
       {
+        kind: "options",
         id: "zubimendi-plays",
         text: "¿Jugará Zubimendi?",
         options: ["Sí", "No"],
         points: 3,
       },
       {
+        kind: "options",
         id: "esp-yellows",
         text: "¿Cuántas amarillas sacarán a España?",
         options: ["1 o menos", "2 o más"],
@@ -142,6 +225,7 @@ export const EXPRESS_BETS: ExpressBet[] = [
 //     q1: "win" | "draw" | "lose",
 //     q2: { teamGoals, opponentGoals },
 //     q3: ["Goleador 1", "Goleador 2", ...] // tantas entradas como goles marcó el equipo principal
+//     binaryAnswers: { "<questionId>": "<índice o nombre de jugador>" }
 //   }
 //
 // Ejemplo (España gana 3-1 con doblete de Yamal y gol de Olmo):
@@ -168,6 +252,7 @@ export const EXPRESS_OUTCOMES: Record<string, ExpressOutcome> = {
       "esp-yellows":     "0", // 1 o menos
     },
   },
+  // Pendiente: ESP-AUT-R32 (2 jul)
 };
 
 export function getExpressBet(id: string): ExpressBet | undefined {
