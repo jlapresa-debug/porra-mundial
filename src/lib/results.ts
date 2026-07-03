@@ -125,6 +125,9 @@ export const KO_WINNERS: Record<string, TeamCode> = {
   "M80": "ENG", // ENG 2-1 COD (1 jul). Doblete Kane
   "M81": "USA", // USA 2-0 BIH (1 jul). Balogun + Tillman
   "M82": "BEL", // BEL 3-2 SEN aet (1 jul). Remontada épica, Tielemans 124'
+  "M83": "POR", // POR 2-1 CRO (2 jul). Ronaldo penalty + Ramos 94'
+  "M84": "ESP", // ESP 3-0 AUT (2 jul). Doblete Oyarzábal + Porro
+  "M85": "SUI", // SUI 2-0 ALG (3 jul). Embolo + Ndoye, 1ª vez en 88 años
 };
 
 // Override manual de equipos en partidos KO.
@@ -158,6 +161,9 @@ export const KO_MATCH_RESULTS: Record<string, { home: number; away: number; pena
   "M80": { home: 2, away: 1 },
   "M81": { home: 2, away: 0 },
   "M82": { home: 3, away: 2 }, // AET, sin penaltis
+  "M83": { home: 2, away: 1 },
+  "M84": { home: 3, away: 0 },
+  "M85": { home: 2, away: 0 },
 };
 
 // ───────────── APUESTAS GENERALES ─────────────
@@ -172,7 +178,7 @@ export const TOURNAMENT_OUTCOME: {
 // ───────────── METADATOS ─────────────
 // Última actualización por humano/Claude — para auditoría
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-07-02T10:00:00Z",
-  by: "Claude (R32 del 1 jul: ENG-COD, USA-BIH, BEL-SEN aet)",
-  source: "ESPN + NPR + Yahoo Sports (3 fuentes)",
+  iso: "2026-07-03T20:00:00Z",
+  by: "Claude (R32: M83-M85 + Express ESP-AUT resuelto por el usuario)",
+  source: "FIFA + ESPN + Al Jazeera + Yahoo (verificado)",
 };

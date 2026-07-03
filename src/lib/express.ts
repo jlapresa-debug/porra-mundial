@@ -252,7 +252,18 @@ export const EXPRESS_OUTCOMES: Record<string, ExpressOutcome> = {
       "esp-yellows":     "0", // 1 o menos
     },
   },
-  // Pendiente: ESP-AUT-R32 (2 jul)
+  // España 3 - Austria 0 (2 jul, Los Ángeles). Doblete Oyarzábal + gol Porro.
+  "ESP-AUT-R32": {
+    binaryAnswers: {
+      "esp-first-sub-out": "Álex Baena",
+      "esp-first-sub-in":  "Ferran Torres",
+      "cards-1h":          "0", // 0 tarjetas
+      "goals-2h":          "2", // 2 goles
+      "any-penalty":       "1", // No
+      "delafuente-outfit": "0", // Sí
+      "yamal-goals":       "0", // 0 goles
+    },
+  },
 };
 
 export function getExpressBet(id: string): ExpressBet | undefined {
