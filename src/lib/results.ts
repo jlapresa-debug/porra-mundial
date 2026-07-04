@@ -128,6 +128,9 @@ export const KO_WINNERS: Record<string, TeamCode> = {
   "M83": "POR", // POR 2-1 CRO (2 jul). Ronaldo penalty + Ramos 94'
   "M84": "ESP", // ESP 3-0 AUT (2 jul). Doblete Oyarzábal + Porro
   "M85": "SUI", // SUI 2-0 ALG (3 jul). Embolo + Ndoye, 1ª vez en 88 años
+  "M86": "ARG", // ARG 3-2 CPV aet (3 jul). Messi + Martínez + o.g., 20º gol Mundial de Messi
+  "M87": "COL", // COL 1-0 GHA (3 jul). Gol de Jhon Arias
+  "M88": "EGY", // AUS 1-1 EGY, Egipto 4-2 en penaltis (3 jul). 1ª victoria KO histórica de Egipto
 };
 
 // Override manual de equipos en partidos KO.
@@ -164,6 +167,9 @@ export const KO_MATCH_RESULTS: Record<string, { home: number; away: number; pena
   "M83": { home: 2, away: 1 },
   "M84": { home: 3, away: 0 },
   "M85": { home: 2, away: 0 },
+  "M86": { home: 3, away: 2 }, // AET
+  "M87": { home: 1, away: 0 },
+  "M88": { home: 1, away: 1, penalties: { home: 2, away: 4 } },
 };
 
 // ───────────── APUESTAS GENERALES ─────────────
@@ -178,7 +184,7 @@ export const TOURNAMENT_OUTCOME: {
 // ───────────── METADATOS ─────────────
 // Última actualización por humano/Claude — para auditoría
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-07-03T20:00:00Z",
-  by: "Claude (R32: M83-M85 + Express ESP-AUT resuelto por el usuario)",
-  source: "FIFA + ESPN + Al Jazeera + Yahoo (verificado)",
+  iso: "2026-07-04T08:00:00Z",
+  by: "Claude (M86-M88 — R32 COMPLETA, 16/16)",
+  source: "ESPN + CNN + Al Jazeera + Sky Sports + India.com (verificado)",
 };
