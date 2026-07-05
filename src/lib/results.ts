@@ -131,6 +131,8 @@ export const KO_WINNERS: Record<string, TeamCode> = {
   "M86": "ARG", // ARG 3-2 CPV aet (3 jul). Messi + Martínez + o.g., 20º gol Mundial de Messi
   "M87": "COL", // COL 1-0 GHA (3 jul). Gol de Jhon Arias
   "M88": "EGY", // AUS 1-1 EGY, Egipto 4-2 en penaltis (3 jul). 1ª victoria KO histórica de Egipto
+  "M89": "FRA", // PAR 0-1 FRA (4 jul). Penalty de Mbappé al 70'
+  "M90": "MAR", // CAN 0-3 MAR (4 jul). Doblete Ounahi + Rahimi. Canadá eliminada
 };
 
 // Override manual de equipos en partidos KO.
@@ -170,6 +172,8 @@ export const KO_MATCH_RESULTS: Record<string, { home: number; away: number; pena
   "M86": { home: 3, away: 2 }, // AET
   "M87": { home: 1, away: 0 },
   "M88": { home: 1, away: 1, penalties: { home: 2, away: 4 } },
+  "M89": { home: 0, away: 1 },
+  "M90": { home: 0, away: 3 },
 };
 
 // ───────────── APUESTAS GENERALES ─────────────
@@ -184,7 +188,7 @@ export const TOURNAMENT_OUTCOME: {
 // ───────────── METADATOS ─────────────
 // Última actualización por humano/Claude — para auditoría
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-07-04T08:00:00Z",
-  by: "Claude (M86-M88 — R32 COMPLETA, 16/16)",
-  source: "ESPN + CNN + Al Jazeera + Sky Sports + India.com (verificado)",
+  iso: "2026-07-04T20:00:00Z",
+  by: "Claude (M89-M90, octavos del 4 jul)",
+  source: "ESPN + FIFA + NBC Sports + Al Jazeera (verificado tras contradicción inicial de Wikipedia)",
 };
