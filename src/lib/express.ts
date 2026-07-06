@@ -93,6 +93,72 @@ export const SPAIN_SQUAD_2026 = [
 // Ordenadas por relevancia: la apuesta más reciente arriba.
 export const EXPRESS_BETS: ExpressBet[] = [
   {
+    id: "POR-ESP-R16",
+    title: "Portugal vs España · Octavos",
+    matchId: "M93",
+    deadline: "2026-07-06T18:00:00Z", // 20:00 ES, 1h antes del pitido
+    team: "ESP",
+    opponent: "POR",
+    questions: [
+      {
+        kind: "options",
+        id: "cr7-shots-on-target",
+        text: "¿Cuántos tiros a puerta hará CR7?",
+        options: ["0", "1", "2", "Más de dos"],
+        points: 3,
+      },
+      {
+        kind: "options",
+        id: "cr7-yellow",
+        text: "¿Le sacarán tarjeta amarilla a CR7?",
+        options: ["Sí", "No"],
+        points: 3,
+      },
+      {
+        kind: "options",
+        id: "yamal-fouls",
+        text: "¿Cuántas faltas cometerán sobre Lamine Yamal?",
+        options: ["0", "1", "2", "3", "Más de 3"],
+        points: 3,
+      },
+      {
+        kind: "options",
+        id: "baena-goals",
+        text: "¿Cuántos goles meterá Baena?",
+        options: ["0", "1", "2", "Más de dos"],
+        points: 3,
+      },
+      {
+        kind: "options",
+        id: "ramos-goals",
+        text: "¿Cuántos goles meterá Gonçalo Ramos?",
+        options: ["0", "1", "2", "Más de dos"],
+        points: 3,
+      },
+      {
+        kind: "options",
+        id: "vitinha-yellow",
+        text: "¿Le sacarán tarjeta amarilla a Vitinha?",
+        options: ["Sí", "No"],
+        points: 3,
+      },
+      {
+        kind: "options",
+        id: "extra-time",
+        text: "¿Habrá prórroga?",
+        options: ["Sí", "No"],
+        points: 3,
+      },
+      {
+        kind: "options",
+        id: "penalty-shootout",
+        text: "¿Habrá tanda de penaltis?",
+        options: ["Sí", "No"],
+        points: 3,
+      },
+    ],
+  },
+  {
     id: "ESP-AUT-R32",
     title: "España vs Austria · Dieciseisavos",
     matchId: "M84",

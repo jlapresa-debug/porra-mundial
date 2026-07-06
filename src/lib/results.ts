@@ -133,6 +133,8 @@ export const KO_WINNERS: Record<string, TeamCode> = {
   "M88": "EGY", // AUS 1-1 EGY, Egipto 4-2 en penaltis (3 jul). 1ª victoria KO histórica de Egipto
   "M89": "FRA", // PAR 0-1 FRA (4 jul). Penalty de Mbappé al 70'
   "M90": "MAR", // CAN 0-3 MAR (4 jul). Doblete Ounahi + Rahimi. Canadá eliminada
+  "M91": "NOR", // BRA 1-2 NOR (5 jul). Doblete Haaland, Neymar penalty 100'. Brasil eliminada
+  "M92": "ENG", // MEX 2-3 ENG (5 jul). Doblete Bellingham + Kane penalty. Inglaterra con 10
 };
 
 // Override manual de equipos en partidos KO.
@@ -174,6 +176,8 @@ export const KO_MATCH_RESULTS: Record<string, { home: number; away: number; pena
   "M88": { home: 1, away: 1, penalties: { home: 2, away: 4 } },
   "M89": { home: 0, away: 1 },
   "M90": { home: 0, away: 3 },
+  "M91": { home: 1, away: 2 },
+  "M92": { home: 2, away: 3 },
 };
 
 // ───────────── APUESTAS GENERALES ─────────────
@@ -188,7 +192,7 @@ export const TOURNAMENT_OUTCOME: {
 // ───────────── METADATOS ─────────────
 // Última actualización por humano/Claude — para auditoría
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-07-04T20:00:00Z",
-  by: "Claude (M89-M90, octavos del 4 jul)",
-  source: "ESPN + FIFA + NBC Sports + Al Jazeera (verificado tras contradicción inicial de Wikipedia)",
+  iso: "2026-07-06T12:00:00Z",
+  by: "Claude (M91-M92, octavos del 5 jul)",
+  source: "ESPN + Al Jazeera + Sky Sports + CBS (verificado). M93 y M94 aún no jugados",
 };
