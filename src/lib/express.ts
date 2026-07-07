@@ -330,6 +330,22 @@ export const EXPRESS_OUTCOMES: Record<string, ExpressOutcome> = {
       "yamal-goals":       "0", // 0 goles
     },
   },
+  // Portugal 0 - España 1 (6 jul, Dallas). Gol de Merino al 91'.
+  // Nota: "Baena goals" se recibió como "No" — interpretado como 0 goles,
+  // consistente con el reporte del partido (Diogo Costa le paró dos
+  // disparos a Baena, que no llegó a marcar).
+  "POR-ESP-R16": {
+    binaryAnswers: {
+      "cr7-shots-on-target": "2",  // 2
+      "cr7-yellow":          "1",  // No
+      "yamal-fouls":         "2",  // 2
+      "baena-goals":         "0",  // 0 (interpretado de "No")
+      "ramos-goals":         "0",  // 0
+      "vitinha-yellow":      "1",  // No
+      "extra-time":          "1",  // No
+      "penalty-shootout":    "1",  // No
+    },
+  },
 };
 
 export function getExpressBet(id: string): ExpressBet | undefined {
