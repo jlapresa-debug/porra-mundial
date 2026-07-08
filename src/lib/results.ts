@@ -137,6 +137,8 @@ export const KO_WINNERS: Record<string, TeamCode> = {
   "M92": "ENG", // MEX 2-3 ENG (5 jul). Doblete Bellingham + Kane penalty. Inglaterra con 10
   "M93": "ESP", // POR 0-1 ESP (6 jul). Gol de Merino al 91'. Última Copa del Mundo de CR7
   "M94": "BEL", // USA 1-4 BEL (6 jul). Doblete De Ketelaere + Vanaken + Lukaku
+  "M95": "ARG", // ARG 3-2 EGY (7 jul). Argentina remonta 0-2 con Romero+Messi+Enzo en el tramo final
+  "M96": "SUI", // SUI 0-0 COL, Suiza 4-3 en penaltis (7 jul). Vargas anota el definitivo
 };
 
 // Override manual de equipos en partidos KO.
@@ -182,6 +184,8 @@ export const KO_MATCH_RESULTS: Record<string, { home: number; away: number; pena
   "M92": { home: 2, away: 3 },
   "M93": { home: 0, away: 1 },
   "M94": { home: 1, away: 4 },
+  "M95": { home: 3, away: 2 },
+  "M96": { home: 0, away: 0, penalties: { home: 4, away: 3 } },
 };
 
 // ───────────── APUESTAS GENERALES ─────────────
@@ -196,7 +200,7 @@ export const TOURNAMENT_OUTCOME: {
 // ───────────── METADATOS ─────────────
 // Última actualización por humano/Claude — para auditoría
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-07-06T22:00:00Z",
-  by: "Claude (M93-M94, octavos COMPLETOS 8/8 + Express POR-ESP resuelta)",
-  source: "ESPN + FIFA + CBS + Al Jazeera + CNN + NPR (verificado)",
+  iso: "2026-07-08T08:00:00Z",
+  by: "Claude (M95-M96 — OCTAVOS COMPLETOS, cuadro de cuartos cerrado)",
+  source: "ESPN + FIFA + CBS + Yahoo (verificado)",
 };
