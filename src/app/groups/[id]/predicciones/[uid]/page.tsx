@@ -308,7 +308,9 @@ export default function UserPredictionsPage() {
                         const ans = pred.binaryAnswers?.[q.id];
                         const label = ans === undefined
                           ? "—"
-                          : q.kind === "player" ? ans : q.options[Number(ans)];
+                          : q.kind === "options" ? q.options[Number(ans)]
+                          : q.kind === "number" ? (q.maxLabel && Number(ans) >= q.max ? q.maxLabel : ans)
+                          : ans;
                         return (
                           <div key={q.id} className="px-4 py-2.5 flex items-start justify-between gap-3">
                             <span className="text-xs text-muted flex-1 leading-snug">{q.text}</span>

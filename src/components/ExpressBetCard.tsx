@@ -188,7 +188,10 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
             {bet.questions && bet.questions.map((q) => {
               const truth = outcome.binaryAnswers?.[q.id];
               if (truth === undefined) return null;
-              const truthLabel = q.kind === "player" ? truth : q.options[Number(truth)];
+              const truthLabel =
+                q.kind === "options" ? q.options[Number(truth)]
+                : q.kind === "number" ? (q.maxLabel && Number(truth) >= q.max ? q.maxLabel : truth)
+                : truth;
               const points = score?.binary[q.id] ?? 0;
               return (
                 <Row
@@ -281,7 +284,7 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
           </Question>
         )}
 
-        {/* Genérico: preguntas de opciones y de jugador, en orden */}
+        {/* Genérico: preguntas de opciones, jugador y numéricas, en orden */}
         {bet.questions && bet.questions.map((q, i) => (
           <Question key={q.id} n={templateCount + i + 1} title={q.text} points={q.points}>
             {q.kind === "player" ? (
@@ -297,6 +300,23 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
                 <option value="">Elige jugador</option>
                 {q.squad.map((player) => (
                   <option key={player} value={player}>{player}</option>
+                ))}
+              </select>
+            ) : q.kind === "number" ? (
+              <select
+                disabled={locked}
+                value={answers[q.id] ?? ""}
+                onChange={(e) => setAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))}
+                className={cn(
+                  "w-full h-11 px-3 rounded-xl bg-bg-elevated border border-line text-white text-base font-semibold tabular-nums focus:outline-none focus:border-brand",
+                  locked && "opacity-50 cursor-not-allowed",
+                )}
+              >
+                <option value="">—</option>
+                {Array.from({ length: q.max - q.min + 1 }, (_, idx) => q.min + idx).map((n) => (
+                  <option key={n} value={n}>
+                    {q.maxLabel && n === q.max ? q.maxLabel : n}
+                  </option>
                 ))}
               </select>
             ) : (

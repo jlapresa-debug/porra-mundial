@@ -38,7 +38,23 @@ export interface PlayerQuestion {
   points: number;
 }
 
-export type AnswerQuestion = OptionsQuestion | PlayerQuestion;
+// Pregunta numérica: selector de un valor entero entre min y max.
+// La respuesta guardada es el número como string. Si `maxLabel` está
+// definido, la última opción del selector se muestra con ese texto
+// (ej. "10 o más") aunque el valor almacenado sea `max`. Al aplicar el
+// resultado real, cualquier valor ≥ max debe guardarse también como `max`
+// para que coincida con lo que pudo elegir el usuario.
+export interface NumberQuestion {
+  kind: "number";
+  id: string;
+  text: string;
+  min: number;
+  max: number;
+  maxLabel?: string;
+  points: number;
+}
+
+export type AnswerQuestion = OptionsQuestion | PlayerQuestion | NumberQuestion;
 
 export interface ExpressBet {
   id: string;
@@ -90,8 +106,133 @@ export const SPAIN_SQUAD_2026 = [
   "Yeremy Pino",
 ];
 
+// Convocatoria oficial de Bélgica para el Mundial 2026 (26 jugadores)
+// Fuente: Rudi García — mayo 2026
+export const BELGIUM_SQUAD_2026 = [
+  // Porteros
+  "Thibaut Courtois",
+  "Senne Lammens",
+  "Mike Penders",
+  // Defensas
+  "Timothy Castagne",
+  "Zeno Debast",
+  "Maxim De Cuyper",
+  "Koni De Winter",
+  "Brandon Mechele",
+  "Thomas Meunier",
+  "Nathan Ngoy",
+  "Joaquin Seys",
+  "Arthur Theate",
+  // Centrocampistas
+  "Kevin De Bruyne",
+  "Amadou Onana",
+  "Nicolas Raskin",
+  "Youri Tielemans",
+  "Hans Vanaken",
+  "Axel Witsel",
+  // Delanteros
+  "Charles De Ketelaere",
+  "Jeremy Doku",
+  "Matias Fernandez-Pardo",
+  "Romelu Lukaku",
+  "Dodi Lukebakio",
+  "Diego Moreira",
+  "Alexis Saelemaekers",
+  "Leandro Trossard",
+];
+
 // Ordenadas por relevancia: la apuesta más reciente arriba.
 export const EXPRESS_BETS: ExpressBet[] = [
+  {
+    id: "ESP-BEL-QF",
+    title: "España vs Bélgica · Cuartos",
+    matchId: "M98",
+    deadline: "2026-07-10T18:00:00Z", // 20:00 ES, 1h antes del pitido
+    team: "ESP",
+    opponent: "BEL",
+    questions: [
+      {
+        kind: "number",
+        id: "first-goal-minute",
+        text: "¿En qué minuto se marcará el primer gol?",
+        min: 1,
+        max: 120,
+        points: 3,
+      },
+      {
+        kind: "options",
+        id: "first-scoring-team",
+        text: "¿Qué equipo marcará primero?",
+        options: ["España", "Bélgica", "Ninguno (0-0)"],
+        points: 3,
+      },
+      {
+        kind: "options",
+        id: "total-goals",
+        text: "¿Cuántos goles habrá en total en el partido?",
+        options: ["0", "1", "2", "3", "4 o más"],
+        points: 3,
+      },
+      {
+        kind: "options",
+        id: "goal-first-15",
+        text: "¿Habrá gol en los primeros 15 minutos?",
+        options: ["Sí", "No"],
+        points: 3,
+      },
+      {
+        kind: "player",
+        id: "first-scorer",
+        text: "¿Quién marcará el primer gol?",
+        squad: [...SPAIN_SQUAD_2026, ...BELGIUM_SQUAD_2026],
+        points: 3,
+      },
+      {
+        kind: "options",
+        id: "any-penalty",
+        text: "¿Habrá algún penalti en el partido?",
+        options: ["Sí", "No"],
+        points: 3,
+      },
+      {
+        kind: "number",
+        id: "total-cards",
+        text: "¿Cuántas tarjetas habrá en total (amarillas + rojas)?",
+        min: 0,
+        max: 10,
+        maxLabel: "10 o más",
+        points: 3,
+      },
+      {
+        kind: "options",
+        id: "any-brace",
+        text: "¿Algún jugador marcará doblete?",
+        options: ["Sí", "No"],
+        points: 3,
+      },
+      {
+        kind: "options",
+        id: "goal-outside-box",
+        text: "¿Se marcará algún gol desde fuera del área?",
+        options: ["Sí", "No"],
+        points: 3,
+      },
+      {
+        kind: "options",
+        id: "goal-stoppage-time",
+        text: "¿Habrá gol en el descuento de alguna parte?",
+        options: ["Sí", "No"],
+        points: 3,
+      },
+      {
+        kind: "options",
+        id: "spain-possession",
+        text: "Posesión final aproximada de España",
+        options: ["<50%", "50–60%", "60–70%", ">70%"],
+        points: 3,
+      },
+    ],
+  },
   {
     id: "POR-ESP-R16",
     title: "Portugal vs España · Octavos",
