@@ -139,6 +139,7 @@ export const KO_WINNERS: Record<string, TeamCode> = {
   "M94": "BEL", // USA 1-4 BEL (6 jul). Doblete De Ketelaere + Vanaken + Lukaku
   "M95": "ARG", // ARG 3-2 EGY (7 jul). Argentina remonta 0-2 con Romero+Messi+Enzo en el tramo final
   "M96": "SUI", // SUI 0-0 COL, Suiza 4-3 en penaltis (7 jul). Vargas anota el definitivo
+  "M98": "ESP", // ESP 2-1 BEL (10 jul). Fabián Ruiz (30') + Merino tras entrar de banquillo
 };
 
 // Override manual de equipos en partidos KO.
@@ -186,6 +187,7 @@ export const KO_MATCH_RESULTS: Record<string, { home: number; away: number; pena
   "M94": { home: 1, away: 4 },
   "M95": { home: 3, away: 2 },
   "M96": { home: 0, away: 0, penalties: { home: 4, away: 3 } },
+  "M98": { home: 2, away: 1 },
 };
 
 // ───────────── APUESTAS GENERALES ─────────────
@@ -200,7 +202,7 @@ export const TOURNAMENT_OUTCOME: {
 // ───────────── METADATOS ─────────────
 // Última actualización por humano/Claude — para auditoría
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-07-08T08:00:00Z",
-  by: "Claude (M95-M96 — OCTAVOS COMPLETOS, cuadro de cuartos cerrado)",
-  source: "ESPN + FIFA + CBS + Yahoo (verificado)",
+  iso: "2026-07-10T22:00:00Z",
+  by: "Claude (M98 España-Bélgica + Express ESP-BEL-QF resuelta)",
+  source: "ESPN + CNN + Al Jazeera + NBC + FOX (verificado)",
 };

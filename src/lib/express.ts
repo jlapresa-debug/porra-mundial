@@ -487,6 +487,23 @@ export const EXPRESS_OUTCOMES: Record<string, ExpressOutcome> = {
       "penalty-shootout":    "1",  // No
     },
   },
+  // España 2 - Bélgica 1 (10 jul, Los Ángeles). Fabián Ruiz (30') empata
+  // De Ketelaere; Merino marca el definitivo tras entrar de banquillo.
+  "ESP-BEL-QF": {
+    binaryAnswers: {
+      "first-goal-minute":  "30",            // minuto 30
+      "first-scoring-team": "0",             // España
+      "total-goals":        "3",             // 3 goles (2-1)
+      "goal-first-15":      "1",             // No
+      "first-scorer":       "Fabián Ruiz",   // gol del 30'
+      "any-penalty":        "1",             // No
+      "total-cards":        "4",             // 4 tarjetas
+      "any-brace":          "1",             // No
+      "goal-outside-box":   "1",             // No
+      "goal-stoppage-time": "1",             // No
+      "spain-possession":   "2",             // 60–70% (61%)
+    },
+  },
 };
 
 export function getExpressBet(id: string): ExpressBet | undefined {
