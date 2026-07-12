@@ -140,6 +140,9 @@ export const KO_WINNERS: Record<string, TeamCode> = {
   "M95": "ARG", // ARG 3-2 EGY (7 jul). Argentina remonta 0-2 con Romero+Messi+Enzo en el tramo final
   "M96": "SUI", // SUI 0-0 COL, Suiza 4-3 en penaltis (7 jul). Vargas anota el definitivo
   "M98": "ESP", // ESP 2-1 BEL (10 jul). Fabián Ruiz (30') + Merino tras entrar de banquillo
+  "M97": "FRA", // FRA 2-0 MAR (9 jul). Mbappé (20º gol Mundial) + Dembélé
+  "M99": "ENG", // NOR 1-2 ENG aet (11 jul). Doblete Bellingham, decisivo en la prórroga
+  "M100": "ARG", // ARG 3-1 SUI aet (11 jul). Álvarez + Lautaro en la prórroga, Suiza con 10
 };
 
 // Override manual de equipos en partidos KO.
@@ -188,6 +191,9 @@ export const KO_MATCH_RESULTS: Record<string, { home: number; away: number; pena
   "M95": { home: 3, away: 2 },
   "M96": { home: 0, away: 0, penalties: { home: 4, away: 3 } },
   "M98": { home: 2, away: 1 },
+  "M97": { home: 2, away: 0 },
+  "M99": { home: 1, away: 2 }, // AET
+  "M100": { home: 3, away: 1 }, // AET
 };
 
 // ───────────── APUESTAS GENERALES ─────────────
@@ -202,7 +208,7 @@ export const TOURNAMENT_OUTCOME: {
 // ───────────── METADATOS ─────────────
 // Última actualización por humano/Claude — para auditoría
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-07-10T22:00:00Z",
-  by: "Claude (M98 España-Bélgica + Express ESP-BEL-QF resuelta)",
-  source: "ESPN + CNN + Al Jazeera + NBC + FOX (verificado)",
+  iso: "2026-07-12T08:00:00Z",
+  by: "Claude (M97, M99, M100 — CUARTOS COMPLETOS, semis resueltas)",
+  source: "FIFA + ESPN + CNN + Al Jazeera + NPR + NBC (verificado)",
 };
