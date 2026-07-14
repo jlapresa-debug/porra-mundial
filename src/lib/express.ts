@@ -141,8 +141,142 @@ export const BELGIUM_SQUAD_2026 = [
   "Leandro Trossard",
 ];
 
+// Convocatoria oficial de Francia para el Mundial 2026 (26 jugadores)
+// Fuente: Didier Deschamps — mayo 2026
+export const FRANCE_SQUAD_2026 = [
+  // Porteros
+  "Mike Maignan",
+  "Robin Risser",
+  "Brice Samba",
+  // Defensas
+  "Lucas Digne",
+  "Malo Gusto",
+  "Lucas Hernandez",
+  "Theo Hernandez",
+  "Ibrahima Konaté",
+  "Jules Koundé",
+  "Maxence Lacroix",
+  "William Saliba",
+  "Dayot Upamecano",
+  // Centrocampistas
+  "N'Golo Kanté",
+  "Manu Koné",
+  "Adrien Rabiot",
+  "Aurélien Tchouaméni",
+  "Warren Zaïre-Emery",
+  // Delanteros
+  "Maghnes Akliouche",
+  "Bradley Barcola",
+  "Rayan Cherki",
+  "Ousmane Dembélé",
+  "Désiré Doué",
+  "Jean-Philippe Mateta",
+  "Kylian Mbappé",
+  "Michael Olise",
+  "Marcus Thuram",
+];
+
 // Ordenadas por relevancia: la apuesta más reciente arriba.
 export const EXPRESS_BETS: ExpressBet[] = [
+  {
+    id: "FRA-ESP-SF",
+    title: "Francia vs España · Semifinal",
+    matchId: "M101",
+    deadline: "2026-07-14T18:00:00Z", // 20:00 ES, 1h antes del pitido
+    team: "ESP",
+    opponent: "FRA",
+    questions: [
+      {
+        kind: "options",
+        id: "first-shot-on-target",
+        text: "¿Qué selección hará el primer tiro a puerta?",
+        options: ["España", "Francia"],
+        points: 6,
+      },
+      {
+        kind: "number",
+        id: "first-corner-minute",
+        text: "¿En qué minuto se pitará el primer córner del partido?",
+        min: 1,
+        max: 120,
+        points: 15,
+      },
+      {
+        kind: "number",
+        id: "total-offsides",
+        text: "¿Cuántos fueras de juego habrá en total?",
+        min: 0,
+        max: 15,
+        maxLabel: "15 o más",
+        points: 6,
+      },
+      {
+        kind: "options",
+        id: "header-goal",
+        text: "¿Habrá algún gol de cabeza?",
+        options: ["Sí", "No"],
+        points: 3,
+      },
+      {
+        kind: "options",
+        id: "most-fouls",
+        text: "¿Qué selección hará más faltas?",
+        options: ["España", "Francia", "Empate"],
+        points: 4,
+      },
+      {
+        kind: "options",
+        id: "var-key-play",
+        text: "¿Se consultará el VAR para alguna jugada clave?",
+        options: ["Sí", "No"],
+        points: 5,
+      },
+      {
+        kind: "options",
+        id: "first-substitution",
+        text: "¿Qué selección hará sustituciones antes?",
+        options: ["España", "Francia"],
+        points: 3,
+      },
+      {
+        kind: "options",
+        id: "set-piece-goal",
+        text: "¿Habrá algún gol a balón parado (falta o córner)?",
+        options: ["Sí", "No"],
+        points: 5,
+      },
+      {
+        kind: "number",
+        id: "spain-keeper-saves",
+        text: "¿Cuántas paradas hará el portero de España?",
+        min: 0,
+        max: 10,
+        maxLabel: "10 o más",
+        points: 7,
+      },
+      {
+        kind: "options",
+        id: "goal-and-assist-same-player",
+        text: "¿Algún jugador marcará y asistirá en el mismo partido?",
+        options: ["Sí", "No"],
+        points: 5,
+      },
+      {
+        kind: "options",
+        id: "hit-post-or-bar",
+        text: "¿Habrá algún disparo al palo o al larguero?",
+        options: ["Sí", "No"],
+        points: 5,
+      },
+      {
+        kind: "player",
+        id: "match-mvp",
+        text: "¿Quién será elegido MVP del partido?",
+        squad: [...SPAIN_SQUAD_2026, ...FRANCE_SQUAD_2026],
+        points: 5,
+      },
+    ],
+  },
   {
     id: "ESP-BEL-QF",
     title: "España vs Bélgica · Cuartos",
