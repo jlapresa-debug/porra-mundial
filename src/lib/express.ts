@@ -638,6 +638,24 @@ export const EXPRESS_OUTCOMES: Record<string, ExpressOutcome> = {
       "spain-possession":   "2",             // 60–70% (61%)
     },
   },
+  // Francia 0 - España 2 (14 jul, Dallas). Penalty de Oyarzábal (22')
+  // + gol de Porro (58'). España a la final.
+  "FRA-ESP-SF": {
+    binaryAnswers: {
+      "first-shot-on-target":       "0",            // España
+      "first-corner-minute":        "5",             // minuto 5
+      "total-offsides":             "9",             // 9
+      "header-goal":                "1",             // No
+      "most-fouls":                 "0",             // España
+      "var-key-play":               "0",             // Sí
+      "first-substitution":         "1",             // Francia
+      "set-piece-goal":             "1",             // No
+      "spain-keeper-saves":         "3",             // 3
+      "goal-and-assist-same-player":"1",             // No
+      "hit-post-or-bar":            "1",             // No
+      "match-mvp":                  "Pedro Porro",   // autor del 2º gol
+    },
+  },
 };
 
 export function getExpressBet(id: string): ExpressBet | undefined {
