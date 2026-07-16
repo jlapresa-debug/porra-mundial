@@ -144,6 +144,8 @@ export const KO_WINNERS: Record<string, TeamCode> = {
   "M99": "ENG", // NOR 1-2 ENG aet (11 jul). Doblete Bellingham, decisivo en la prórroga
   "M100": "ARG", // ARG 3-1 SUI aet (11 jul). Álvarez + Lautaro en la prórroga, Suiza con 10
   "M101": "ESP", // FRA 0-2 ESP (14 jul). Penalty Oyarzábal (22') + Porro (58'). España a la final
+  "M102": "ARG", // ENG 1-2 ARG (15 jul). Gordon adelanta a Inglaterra; Enzo (85') y Lautaro (92',
+                 // asistencia de Messi en ambos) remontan. Argentina a la final
 };
 
 // Override manual de equipos en partidos KO.
@@ -196,6 +198,7 @@ export const KO_MATCH_RESULTS: Record<string, { home: number; away: number; pena
   "M99": { home: 1, away: 2 }, // AET
   "M100": { home: 3, away: 1 }, // AET
   "M101": { home: 0, away: 2 },
+  "M102": { home: 1, away: 2 },
 };
 
 // ───────────── APUESTAS GENERALES ─────────────
@@ -210,7 +213,7 @@ export const TOURNAMENT_OUTCOME: {
 // ───────────── METADATOS ─────────────
 // Última actualización por humano/Claude — para auditoría
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-07-14T23:00:00Z",
-  by: "Claude (M101 Francia-España + Express FRA-ESP-SF resuelta)",
-  source: "ESPN + FIFA + CNN + Al Jazeera + NBC + FOX (verificado)",
+  iso: "2026-07-15T23:00:00Z",
+  by: "Claude (M102 Inglaterra-Argentina — SEMIS COMPLETAS, final fijada)",
+  source: "ESPN + FIFA + CNN + NPR + FOX + NBC (verificado)",
 };
