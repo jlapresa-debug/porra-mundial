@@ -26,6 +26,7 @@ export interface OptionsQuestion {
   text: string;
   options: string[]; // 2 o más opciones excluyentes
   points: number;
+  display?: "buttons" | "select"; // "buttons" (por defecto) o desplegable
 }
 
 // Pregunta cuya respuesta es un jugador de una convocatoria concreta.
@@ -356,7 +357,8 @@ export const EXPRESS_BETS: ExpressBet[] = [
         kind: "options",
         id: "dr-arruga-joke",
         text: "¿Será el Dr. Arruga objetivo en sus divagaciones?",
-        options: ["Error de procesamiento"],
+        options: ["Sí", "No", "Error de procesamiento"],
+        display: "select",
         points: 0,
       },
     ],

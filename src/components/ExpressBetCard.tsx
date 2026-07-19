@@ -319,6 +319,21 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
                   </option>
                 ))}
               </select>
+            ) : q.display === "select" ? (
+              <select
+                disabled={locked}
+                value={answers[q.id] ?? ""}
+                onChange={(e) => setAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))}
+                className={cn(
+                  "w-full h-11 px-3 rounded-xl bg-bg-elevated border border-line text-white text-sm focus:outline-none focus:border-brand",
+                  locked && "opacity-50 cursor-not-allowed",
+                )}
+              >
+                <option value="">—</option>
+                {q.options.map((opt, idx) => (
+                  <option key={idx} value={idx}>{opt}</option>
+                ))}
+              </select>
             ) : (
               <div className={cn("grid gap-2", q.options.length === 1 ? "grid-cols-1" : "grid-cols-2")}>
                 {q.options.map((opt, idx) => {
