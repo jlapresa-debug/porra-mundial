@@ -176,8 +176,191 @@ export const FRANCE_SQUAD_2026 = [
   "Marcus Thuram",
 ];
 
+// Convocatoria oficial de Argentina para el Mundial 2026 (26 jugadores)
+// Fuente: Lionel Scaloni — mayo 2026
+export const ARGENTINA_SQUAD_2026 = [
+  // Porteros
+  "Emiliano Martínez",
+  "Gerónimo Rulli",
+  "Juan Musso",
+  // Defensas
+  "Gonzalo Montiel",
+  "Nahuel Molina",
+  "Lisandro Martínez",
+  "Nicolás Otamendi",
+  "Leonardo Balerdi",
+  "Cristian Romero",
+  "Nicolás Tagliafico",
+  "Facundo Medina",
+  // Centrocampistas
+  "Giovani Lo Celso",
+  "Leandro Paredes",
+  "Rodrigo De Paul",
+  "Exequiel Palacios",
+  "Enzo Fernández",
+  "Alexis Mac Allister",
+  "Valentín Barco",
+  // Delanteros
+  "Lionel Messi",
+  "Nicolás González",
+  "Giuliano Simeone",
+  "Lautaro Martínez",
+  "José Manuel López",
+  "Julián Álvarez",
+  "Thiago Almada",
+  "Nico Paz",
+];
+
 // Ordenadas por relevancia: la apuesta más reciente arriba.
 export const EXPRESS_BETS: ExpressBet[] = [
+  {
+    id: "ESP-ARG-FINAL",
+    title: "España vs Argentina · FINAL",
+    matchId: "M104",
+    deadline: "2026-07-19T18:00:00Z", // 20:00 ES, 1h antes del pitido
+    team: "ESP",
+    opponent: "ARG",
+    q2: { points: 5, maxGoals: 7 }, // resultado exacto
+    questions: [
+      {
+        kind: "options",
+        id: "both-score",
+        text: "¿Marcan los dos equipos?",
+        options: ["Sí", "No"],
+        points: 5,
+      },
+      {
+        kind: "options",
+        id: "messi-scores",
+        text: "¿Marcará Messi?",
+        options: ["Sí", "No"],
+        points: 5,
+      },
+      {
+        kind: "options",
+        id: "oyarzabal-scores",
+        text: "¿Marcará Oyarzábal?",
+        options: ["Sí", "No"],
+        points: 5,
+      },
+      {
+        kind: "options",
+        id: "pino-plays",
+        text: "¿Jugará Yeremy Pino?",
+        options: ["Sí", "No"],
+        points: 5,
+      },
+      {
+        kind: "options",
+        id: "enzo-card",
+        text: "¿Acabará Enzo Fernández con al menos una tarjeta?",
+        options: ["Sí", "No"],
+        points: 5,
+      },
+      {
+        kind: "options",
+        id: "last-goal-team",
+        text: "¿Qué selección marca el último gol?",
+        options: ["España", "Argentina", "Ninguno (0-0)"],
+        points: 5,
+      },
+      {
+        kind: "options",
+        id: "first-half-winner",
+        text: "¿Qué selección gana la primera parte?",
+        options: ["España", "Argentina", "Empate"],
+        points: 5,
+      },
+      {
+        kind: "options",
+        id: "second-half-winner",
+        text: "¿Qué selección gana la segunda parte?",
+        options: ["España", "Argentina", "Empate"],
+        points: 5,
+      },
+      {
+        kind: "number",
+        id: "first-card-minute",
+        text: "¿En qué minuto saca el árbitro la primera tarjeta?",
+        min: 1,
+        max: 120,
+        points: 20,
+      },
+      {
+        kind: "options",
+        id: "extra-time",
+        text: "¿Habrá prórroga?",
+        options: ["Sí", "No"],
+        points: 5,
+      },
+      {
+        kind: "options",
+        id: "penalty-shootout",
+        text: "¿Habrá tanda de penaltis?",
+        options: ["Sí", "No"],
+        points: 5,
+      },
+      {
+        kind: "options",
+        id: "header-goal",
+        text: "¿Habrá gol de cabeza?",
+        options: ["Sí", "No"],
+        points: 5,
+      },
+      {
+        kind: "options",
+        id: "penalty-goal",
+        text: "¿Habrá gol de penalti?",
+        options: ["Sí", "No"],
+        points: 5,
+      },
+      {
+        kind: "options",
+        id: "direct-freekick-goal",
+        text: "¿Habrá gol de falta directa?",
+        options: ["Sí", "No"],
+        points: 5,
+      },
+      {
+        kind: "options",
+        id: "most-corners",
+        text: "¿Qué selección sacará más córners?",
+        options: ["España", "Argentina", "Empate"],
+        points: 5,
+      },
+      {
+        kind: "number",
+        id: "total-cards",
+        text: "¿Cuántas tarjetas habrá en total en el partido?",
+        min: 0,
+        max: 12,
+        maxLabel: "12 o más",
+        points: 5,
+      },
+      {
+        kind: "options",
+        id: "any-red-card",
+        text: "¿Habrá algún jugador expulsado?",
+        options: ["Sí", "No"],
+        points: 5,
+      },
+      {
+        kind: "player",
+        id: "match-mvp",
+        text: "MVP de la final",
+        squad: [...SPAIN_SQUAD_2026, ...ARGENTINA_SQUAD_2026],
+        points: 5,
+      },
+      // Pregunta broma, sin puntuación — no cuenta para el ranking.
+      {
+        kind: "options",
+        id: "dr-arruga-joke",
+        text: "¿Será el Dr. Arruga objetivo en sus divagaciones?",
+        options: ["Error de procesamiento"],
+        points: 0,
+      },
+    ],
+  },
   {
     id: "FRA-ESP-SF",
     title: "Francia vs España · Semifinal",

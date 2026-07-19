@@ -320,7 +320,7 @@ export function ExpressBetCard({ bet, saved, onSave }: Props) {
                 ))}
               </select>
             ) : (
-              <div className="grid grid-cols-2 gap-2">
+              <div className={cn("grid gap-2", q.options.length === 1 ? "grid-cols-1" : "grid-cols-2")}>
                 {q.options.map((opt, idx) => {
                   const selected = answers[q.id] === String(idx);
                   return (
