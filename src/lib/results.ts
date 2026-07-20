@@ -147,6 +147,8 @@ export const KO_WINNERS: Record<string, TeamCode> = {
   "M102": "ARG", // ENG 1-2 ARG (15 jul). Gordon adelanta a Inglaterra; Enzo (85') y Lautaro (92',
                  // asistencia de Messi en ambos) remontan. Argentina a la final
   "M103": "ENG", // FRA 4-6 ENG (18 jul). Tercer puesto, partidazo de 10 goles
+  "M104": "ESP", // ESP 1-0 ARG aet (19 jul). Ferran Torres, 2ª parte de la prórroga.
+                 // Enzo Fernández expulsado (2ª amarilla) en el descuento. ¡ESPAÑA CAMPEONA!
 };
 
 // Override manual de equipos en partidos KO.
@@ -201,6 +203,7 @@ export const KO_MATCH_RESULTS: Record<string, { home: number; away: number; pena
   "M101": { home: 0, away: 2 },
   "M102": { home: 1, away: 2 },
   "M103": { home: 4, away: 6 },
+  "M104": { home: 1, away: 0 },
 };
 
 // ───────────── APUESTAS GENERALES ─────────────
@@ -210,12 +213,17 @@ export const TOURNAMENT_OUTCOME: {
   runnerUp?: TeamCode;
   topScorer?: string;
   bestPlayer?: string;
-} = {};
+} = {
+  champion: "ESP",
+  runnerUp: "ARG",
+  topScorer: "Kylian Mbappé", // Bota de Oro, 10 goles
+  bestPlayer: "Rodri",        // Balón de Oro
+};
 
 // ───────────── METADATOS ─────────────
 // Última actualización por humano/Claude — para auditoría
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-07-19T10:00:00Z",
-  by: "Claude (M103 tercer puesto + Express ESP-ARG-FINAL creada)",
-  source: "ESPN + FOX + Yahoo + FIFA (verificado)",
+  iso: "2026-07-19T23:30:00Z",
+  by: "Claude (M104 FINAL + apuestas especiales + Express ESP-ARG-FINAL — TORNEO COMPLETO)",
+  source: "ESPN + FIFA + FOX + Yahoo + NBC (verificado)",
 };

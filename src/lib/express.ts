@@ -823,6 +823,33 @@ export const EXPRESS_OUTCOMES: Record<string, ExpressOutcome> = {
       "spain-possession":   "2",             // 60–70% (61%)
     },
   },
+  // España 1 - Argentina 0 aet (19 jul, MetLife). Ferran Torres marca
+  // en la 2ª parte de la prórroga. Enzo Fernández expulsado (2ª amarilla)
+  // en el descuento. ¡ESPAÑA CAMPEONA DEL MUNDO!
+  "ESP-ARG-FINAL": {
+    q2: { teamGoals: 1, opponentGoals: 0 },
+    binaryAnswers: {
+      "both-score":            "1",              // No
+      "messi-scores":          "1",              // No
+      "oyarzabal-scores":      "1",              // No
+      "pino-plays":            "1",              // No
+      "enzo-card":             "0",              // Sí (roja por 2ª amarilla)
+      "last-goal-team":        "0",              // España
+      "first-half-winner":     "2",              // Empate (0-0 al descanso)
+      "second-half-winner":    "2",              // Empate (gol llegó en la prórroga)
+      "first-card-minute":     "40",             // minuto 40
+      "extra-time":            "0",              // Sí
+      "penalty-shootout":      "1",              // No
+      "header-goal":           "1",              // No
+      "penalty-goal":          "1",              // No
+      "direct-freekick-goal":  "1",              // No
+      "most-corners":          "0",              // España
+      "total-cards":           "7",              // 7
+      "any-red-card":          "0",              // Sí
+      "match-mvp":             "Ferran Torres",  // autor del gol decisivo
+      "dr-arruga-joke":        "2",              // Error de procesamiento
+    },
+  },
   // Francia 0 - España 2 (14 jul, Dallas). Penalty de Oyarzábal (22')
   // + gol de Porro (58'). España a la final.
   "FRA-ESP-SF": {
