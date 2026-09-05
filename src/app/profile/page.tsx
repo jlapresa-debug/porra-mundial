@@ -27,14 +27,14 @@ function nextMatchDeadlineLabel(): string | null {
   const next = ALL_MATCHES.find((m) => !isMatchLocked(m.kickoff));
   if (!next) return null;
   const d = new Date(new Date(next.kickoff).getTime() - 3_600_000);
-  return formatDeadlineSpain(d);
+  return `${formatDeadlineSpain(d)}h`;
 }
 
 // Próxima apuesta Express con plazo abierto
 function nextExpressDeadlineLabel(): string | null {
   const next = EXPRESS_BETS.find((b) => !isExpressLocked(b));
   if (!next) return null;
-  return `${next.title} · ${formatDeadlineSpain(new Date(next.deadline))}`;
+  return `${next.title} · ${formatDeadlineSpain(new Date(next.deadline))}h`;
 }
 
 export default function ProfilePage() {
@@ -141,7 +141,7 @@ export default function ProfilePage() {
             <DeadlineRow
               icon="🗓"
               label="Apuestas especiales"
-              deadline={formatDeadlineSpain(SPECIALS_DEADLINE)}
+              deadline={`${formatDeadlineSpain(SPECIALS_DEADLINE)}h`}
               sublabel="Campeón, subcampeón y máximo goleador"
               locked={isSpecialsLocked()}
             />
@@ -204,7 +204,7 @@ function DeadlineRow({
       <div className="flex-1 min-w-0">
         <div className="text-xs font-medium">{label}</div>
         {sublabel && <div className="text-[10px] text-muted mt-0.5">{sublabel}</div>}
-        <div className="text-[11px] text-muted mt-0.5">{deadline}h</div>
+        <div className="text-[11px] text-muted mt-0.5">{deadline}</div>
       </div>
       <span
         className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 mt-0.5 ${
