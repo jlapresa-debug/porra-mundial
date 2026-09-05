@@ -1,20 +1,15 @@
-// Plazos oficiales de la porra
-// España usa CEST (UTC+2) en junio de 2026
+// Plazos de la porra de Champions League 2026/27.
 
-// Grupos y apuestas especiales: viernes 12 de junio a las 20:00h (España)
-export const GROUP_DEADLINE = new Date("2026-06-12T18:00:00Z"); // 20:00 CEST = 18:00 UTC
-export const SPECIALS_DEADLINE = GROUP_DEADLINE;
-
-export function isGroupsLocked(): boolean {
-  return Date.now() >= GROUP_DEADLINE.getTime();
-}
+// Las apuestas especiales (campeón/subcampeón/máximo goleador) cierran al
+// pitido inicial del primer partido de la fase de liga.
+export const SPECIALS_DEADLINE = new Date("2026-09-08T16:45:00Z"); // 18:45 CEST, J1
 
 export function isSpecialsLocked(): boolean {
   return Date.now() >= SPECIALS_DEADLINE.getTime();
 }
 
-// Eliminatorias: cierre 1 hora antes del pitido inicial
-export function isKnockoutLocked(kickoffISO: string): boolean {
+// Cualquier partido (fase de liga o eliminatoria) cierra 1 hora antes del pitido
+export function isMatchLocked(kickoffISO: string): boolean {
   return Date.now() >= new Date(kickoffISO).getTime() - 3_600_000;
 }
 
@@ -30,8 +25,8 @@ export function formatDeadlineSpain(date: Date): string {
   });
 }
 
-// Próximo partido KO cuyo plazo aún no ha pasado
-export function nextKnockoutDeadline(kickoffs: string[]): string | null {
+// Próximo cierre entre una lista de kickoffs (para mostrar "próximo plazo")
+export function nextMatchDeadline(kickoffs: string[]): string | null {
   const now = Date.now();
   const upcoming = kickoffs
     .map((k) => new Date(k))

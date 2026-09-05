@@ -20,14 +20,14 @@ export default function Landing() {
         <div className="relative mb-8">
           <div className="absolute inset-0 bg-gradient-brand blur-3xl opacity-30" />
           <div className="relative w-24 h-24 rounded-3xl bg-gradient-brand grid place-items-center shadow-2xl shadow-brand/30">
-            <span className="text-4xl">⚽</span>
+            <span className="text-4xl">🏆</span>
           </div>
         </div>
         <h1 className="font-display text-4xl font-bold tracking-tight text-balance mb-3">
-          La Porra del Mundial
+          La Porra de la Champions
         </h1>
         <p className="text-muted max-w-xs text-balance mb-12">
-          Apuesta con tus amigos, pica en el grupo y demuestra quién sabe de fútbol en el Mundial 2026.
+          Apuesta con tus amigos, pica en el grupo y demuestra quién sabe de fútbol en la Champions League 2026/27.
         </p>
 
         <div className="grid gap-3 w-full max-w-xs">
@@ -41,7 +41,7 @@ export default function Landing() {
       </div>
 
       <footer className="container-app py-8 text-center text-xs text-muted">
-        Mundial 2026 · USA · Canadá · México
+        Champions League 2026/27
       </footer>
     </main>
   );

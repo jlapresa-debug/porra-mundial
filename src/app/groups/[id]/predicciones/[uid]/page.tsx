@@ -7,32 +7,40 @@ import { AppShell } from "@/components/AppShell";
 import { Header } from "@/components/Header";
 import { TeamBadge } from "@/components/TeamBadge";
 import { useUserPredictions } from "@/hooks/useUserPredictions";
-import { TEAMS_BY_GROUP, getTeam } from "@/lib/teams";
+import { getTeam } from "@/lib/teams";
 import { ALL_MATCHES } from "@/lib/matches";
 import { DEFAULT_RULES } from "@/lib/scoring";
 import { EXPRESS_BETS, RESULT_LABEL } from "@/lib/express";
 import { cn } from "@/lib/cn";
 import type { Match } from "@/lib/types";
 
-const ALL_GROUPS = ["A","B","C","D","E","F","G","H","I","J","K","L"];
 const KO_SECTIONS: { stage: Match["stage"]; label: string }[] = [
-  { stage: "round32",     label: "Dieciseisavos" },
-  { stage: "round16",    label: "Octavos" },
-  { stage: "quarter",    label: "Cuartos de final" },
-  { stage: "semi",       label: "Semifinales" },
-  { stage: "thirdplace", label: "Tercer puesto" },
-  { stage: "final",      label: "Final" },
+  { stage: "playoff", label: "Play-off" },
+  { stage: "round16", label: "Octavos" },
+  { stage: "quarter", label: "Cuartos de final" },
+  { stage: "semi",    label: "Semifinales" },
+  { stage: "final",   label: "Final" },
 ];
-const KO_MATCHES = ALL_MATCHES.filter((m) => m.stage !== "group");
+const LEAGUE_MATCHES = ALL_MATCHES.filter((m) => m.stage === "league");
+const KO_MATCHES = ALL_MATCHES.filter((m) => m.stage !== "league");
 
-type Tab = "grupos" | "eliminatorias" | "especiales" | "express";
-
-const POSITION = ["1°", "2°", "3°", "4°"];
+type Tab = "liga" | "eliminatorias" | "especiales" | "express";
 
 export default function UserPredictionsPage() {
   const { id: groupId, uid } = useParams<{ id: string; uid: string }>();
   const { data, loading } = useUserPredictions(uid);
-  const [tab, setTab] = useState<Tab>("grupos");
+  const [tab, setTab] = useState<Tab>("liga");
+
+  const leagueByMatchday = useMemo(() => {
+    const map = new Map<number, Match[]>();
+    for (const m of LEAGUE_MATCHES) {
+      const md = m.matchday ?? 0;
+      const arr = map.get(md) ?? [];
+      arr.push(m);
+      map.set(md, arr);
+    }
+    return map;
+  }, []);
 
   const koByStage = useMemo(() => {
     const map = new Map<string, Match[]>();
@@ -44,11 +52,8 @@ export default function UserPredictionsPage() {
     return map;
   }, []);
 
-  // Resumen de puntos apostados (no se pueden calcular sin resultados reales, se muestra N/A)
-  const groupsDone = data
-    ? ALL_GROUPS.filter((g) => !!data.groupPredictions[g]).length
-    : 0;
-  const koDone = data ? Object.keys(data.knockoutPredictions).length : 0;
+  const leagueDone = data ? LEAGUE_MATCHES.filter((m) => !!data.matchPredictions[m.id]).length : 0;
+  const koDone = data ? KO_MATCHES.filter((m) => !!data.matchPredictions[m.id]).length : 0;
 
   if (loading) {
     return (
@@ -70,10 +75,7 @@ export default function UserPredictionsPage() {
 
   return (
     <AppShell>
-      <Header
-        title="Apuestas del jugador"
-        back={`/groups/${groupId}`}
-      />
+      <Header title="Apuestas del jugador" back={`/groups/${groupId}`} />
 
       <div className="container-app mt-4 grid gap-4">
         {/* Avatar + nombre */}
@@ -90,14 +92,14 @@ export default function UserPredictionsPage() {
           <div>
             <div className="font-display font-bold text-base">{data.displayName}</div>
             <div className="text-xs text-muted mt-0.5">
-              {groupsDone} de 12 grupos · {koDone} eliminatorias
+              {leagueDone}/144 liga · {koDone}/{KO_MATCHES.length} eliminatorias
             </div>
           </div>
         </div>
 
         {/* Tabs */}
         <div className="flex gap-1 p-1 bg-bg-card border border-line rounded-2xl">
-          {(["grupos", "eliminatorias", "especiales", "express"] as Tab[]).map((t) => (
+          {(["liga", "eliminatorias", "especiales", "express"] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -108,7 +110,7 @@ export default function UserPredictionsPage() {
                   : "text-muted hover:text-white",
               )}
             >
-              {t === "grupos" ? "Grupos"
+              {t === "liga" ? "Liga"
                 : t === "eliminatorias" ? "Elim."
                 : t === "especiales" ? "Espec."
                 : "Express"}
@@ -116,43 +118,22 @@ export default function UserPredictionsPage() {
           ))}
         </div>
 
-        {/* ── TAB GRUPOS ────────────────────────────── */}
-        {tab === "grupos" && (
-          <div className="grid gap-3 pb-6 animate-fade-in">
-            {ALL_GROUPS.map((g) => {
-              const order = data.groupPredictions[g];
-              const teams = TEAMS_BY_GROUP[g] ?? [];
+        {/* ── TAB LIGA ──────────────────────────────── */}
+        {tab === "liga" && (
+          <div className="grid gap-4 pb-6 animate-fade-in">
+            {Array.from({ length: 8 }, (_, i) => i + 1).map((md) => {
+              const matches = leagueByMatchday.get(md) ?? [];
               return (
-                <div key={g} className="rounded-2xl bg-bg-card border border-line overflow-hidden">
-                  <div className="flex items-center justify-between px-4 py-2.5 border-b border-line bg-bg-elevated/40">
-                    <span className="font-display font-bold text-sm">GRUPO {g}</span>
-                    {order ? (
-                      <span className="text-[10px] text-brand font-semibold">✓ Apostado</span>
-                    ) : (
-                      <span className="text-[10px] text-muted">Sin apostar</span>
-                    )}
+                <section key={md}>
+                  <h2 className="text-[11px] uppercase tracking-widest text-muted font-semibold mb-2">
+                    Jornada {md}
+                  </h2>
+                  <div className="rounded-2xl bg-bg-card border border-line overflow-hidden divide-y divide-line">
+                    {matches.map((m) => (
+                      <PickRow key={m.id} match={m} pick={data.matchPredictions[m.id]} />
+                    ))}
                   </div>
-                  {order ? (
-                    <div className="divide-y divide-line">
-                      {order.map((code, i) => {
-                        const team = getTeam(code);
-                        return (
-                          <div key={code} className="flex items-center gap-3 px-4 py-2.5">
-                            <span className="w-6 text-center text-xs font-bold text-muted shrink-0">
-                              {POSITION[i]}
-                            </span>
-                            <TeamBadge team={team} size="sm" showName={false} />
-                            <span className="text-sm font-medium">{team?.name ?? code}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="px-4 py-3 text-xs text-muted italic">
-                      No apostó en este grupo
-                    </div>
-                  )}
-                </div>
+                </section>
               );
             })}
           </div>
@@ -170,38 +151,18 @@ export default function UserPredictionsPage() {
                     {label}
                   </h2>
                   <div className="rounded-2xl bg-bg-card border border-line overflow-hidden divide-y divide-line">
-                    {matches.map((m) => {
-                      const winner = data.knockoutPredictions[m.id];
-                      const winnerTeam = getTeam(winner);
-                      const homeTeam = getTeam(m.home);
-                      const awayTeam = getTeam(m.away);
-                      return (
-                        <div key={m.id} className="flex items-center gap-3 px-4 py-3">
-                          <span className="text-[10px] text-muted w-8 shrink-0">
-                            {m.matchNumber ? `M${m.matchNumber}` : ""}
-                          </span>
-                          <div className="flex-1 text-xs text-muted">
-                            <span>{homeTeam?.name ?? m.homePlaceholder ?? "—"}</span>
-                            <span className="mx-1.5 text-muted/50">vs</span>
-                            <span>{awayTeam?.name ?? m.awayPlaceholder ?? "—"}</span>
-                          </div>
-                          {winner ? (
-                            <div className="flex items-center gap-1.5">
-                              <TeamBadge team={winnerTeam} size="sm" showName={false} />
-                              <span className="text-xs font-semibold text-brand">
-                                {winnerTeam?.name ?? winner}
-                              </span>
-                            </div>
-                          ) : (
-                            <span className="text-[11px] text-muted italic">Sin apostar</span>
-                          )}
-                        </div>
-                      );
-                    })}
+                    {matches.map((m) => (
+                      <PickRow key={m.id} match={m} pick={data.matchPredictions[m.id]} />
+                    ))}
                   </div>
                 </section>
               );
             })}
+            {koByStage.size === 0 && (
+              <div className="text-center text-muted text-sm py-6">
+                Ninguna ronda eliminatoria sorteada todavía.
+              </div>
+            )}
           </div>
         )}
 
@@ -209,10 +170,9 @@ export default function UserPredictionsPage() {
         {tab === "especiales" && (
           <div className="grid gap-3 pb-6 animate-fade-in">
             {[
-              { key: "champion" as const,   icon: "🏆", label: "Campeón",          pts: DEFAULT_RULES.special.champion },
-              { key: "runnerUp" as const,   icon: "🥈", label: "Finalista",         pts: DEFAULT_RULES.special.runnerUp },
-              { key: "topScorer" as const,  icon: "⚽", label: "Máximo goleador",   pts: DEFAULT_RULES.special.topScorer },
-              { key: "bestPlayer" as const, icon: "✨", label: "Mejor jugador",     pts: DEFAULT_RULES.special.bestPlayer },
+              { key: "champion" as const,  icon: "🏆", label: "Campeón",        pts: DEFAULT_RULES.special.champion },
+              { key: "runnerUp" as const,  icon: "🥈", label: "Subcampeón",     pts: DEFAULT_RULES.special.runnerUp },
+              { key: "topScorer" as const, icon: "⚽", label: "Máximo goleador", pts: DEFAULT_RULES.special.topScorer },
             ].map(({ key, icon, label, pts }) => {
               const val = data.specials[key];
               const team = key === "champion" || key === "runnerUp"
@@ -226,9 +186,7 @@ export default function UserPredictionsPage() {
                     {val ? (
                       <div className="flex items-center gap-2 mt-0.5">
                         {team && <TeamBadge team={team} size="sm" showName={false} />}
-                        <span className="font-semibold text-sm">
-                          {team?.name ?? val}
-                        </span>
+                        <span className="font-semibold text-sm">{team?.name ?? val}</span>
                       </div>
                     ) : (
                       <span className="text-sm text-muted italic">Sin apostar</span>
@@ -331,5 +289,30 @@ export default function UserPredictionsPage() {
         )}
       </div>
     </AppShell>
+  );
+}
+
+function PickRow({ match, pick }: { match: Match; pick?: string }) {
+  const homeTeam = getTeam(match.home);
+  const awayTeam = getTeam(match.away);
+  const pickLabel = pick === "draw"
+    ? "Empate"
+    : pick
+      ? getTeam(pick)?.name ?? pick
+      : null;
+
+  return (
+    <div className="flex items-center gap-3 px-4 py-3">
+      <div className="flex-1 text-xs text-muted min-w-0 truncate">
+        <span>{homeTeam?.name ?? match.homePlaceholder ?? "—"}</span>
+        <span className="mx-1.5 text-muted/50">vs</span>
+        <span>{awayTeam?.name ?? match.awayPlaceholder ?? "—"}</span>
+      </div>
+      {pickLabel ? (
+        <span className="text-xs font-semibold text-brand shrink-0">{pickLabel}</span>
+      ) : (
+        <span className="text-[11px] text-muted italic shrink-0">Sin apostar</span>
+      )}
+    </div>
   );
 }

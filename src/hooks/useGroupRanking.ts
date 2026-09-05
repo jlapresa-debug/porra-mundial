@@ -3,11 +3,10 @@
 import { useEffect, useState } from "react";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import type { ExpressPrediction, GroupMemberScore, SpecialBets } from "@/lib/types";
+import type { ExpressPrediction, GroupMemberScore, MatchPick, SpecialBets } from "@/lib/types";
 import { ALL_MATCHES } from "@/lib/matches";
 import { DEFAULT_RULES, totalScore } from "@/lib/scoring";
 import { EXPRESS_OUTCOMES } from "@/lib/express";
-import { getAllFinalStandings, getAllCurrentStandings } from "@/lib/bracket";
 import { TOURNAMENT_OUTCOME } from "@/lib/results";
 
 export function useGroupRanking(memberIds: string[]) {
@@ -31,18 +30,10 @@ export function useGroupRanking(memberIds: string[]) {
           const profile = profileDoc.data() ?? { displayName: "Anónimo", photoURL: null };
 
           const predsSnap = await getDocs(collection(db!, "users", uid, "predictions"));
-          const groupPredictions: Record<string, string[]> = {};
-          const knockoutPredictions: Record<string, string> = {};
+          const matchPredictions: Record<string, MatchPick> = {};
           predsSnap.forEach((d) => {
-            if (d.id.startsWith("GROUP_")) {
-              const order = d.data().order;
-              if (Array.isArray(order)) {
-                groupPredictions[d.id.replace("GROUP_", "")] = order;
-              }
-            } else {
-              const winner = d.data().winner as string | undefined;
-              if (winner) knockoutPredictions[d.id] = winner;
-            }
+            const pick = d.data().pick as MatchPick | undefined;
+            if (pick) matchPredictions[d.id] = pick;
           });
 
           const specialsDoc = await getDoc(doc(db!, "users", uid, "meta", "specials"));
@@ -54,24 +45,10 @@ export function useGroupRanking(memberIds: string[]) {
             expressPredictions[d.id] = d.data() as ExpressPrediction;
           });
 
-          const real = totalScore(
-            groupPredictions,
-            knockoutPredictions,
+          const { total, leagueHits, koHits } = totalScore(
+            matchPredictions,
             specials,
             ALL_MATCHES,
-            getAllFinalStandings(ALL_MATCHES),
-            TOURNAMENT_OUTCOME,
-            DEFAULT_RULES,
-            expressPredictions,
-            EXPRESS_OUTCOMES,
-          );
-
-          const virtual = totalScore(
-            groupPredictions,
-            knockoutPredictions,
-            specials,
-            ALL_MATCHES,
-            getAllCurrentStandings(ALL_MATCHES),
             TOURNAMENT_OUTCOME,
             DEFAULT_RULES,
             expressPredictions,
@@ -82,21 +59,18 @@ export function useGroupRanking(memberIds: string[]) {
             uid,
             displayName: (profile.displayName as string) ?? "Anónimo",
             photoURL: (profile.photoURL as string | null) ?? null,
-            points: real.total,
-            virtualPoints: virtual.total,
-            groupHits: real.groupHits,
-            koHits: real.koHits,
+            points: total,
+            leagueHits,
+            koHits,
           };
         }),
       );
 
       if (!cancelled) {
-        // Por defecto ordenar por virtual (más informativo en tiempo real);
-        // el componente RankingTable puede re-ordenar con la prop sortBy
         setRanking(results.sort((a, b) =>
-          b.virtualPoints - a.virtualPoints ||
           b.points - a.points ||
-          b.groupHits - a.groupHits
+          b.leagueHits - a.leagueHits ||
+          b.koHits - a.koHits
         ));
         setLoading(false);
       }

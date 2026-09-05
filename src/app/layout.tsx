@@ -7,8 +7,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const grotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-display" });
 
 export const metadata: Metadata = {
-  title: "La Porra · Mundial 2026",
-  description: "Porra del Mundial 2026 con tus amigos",
+  title: "La Porra · Champions League",
+  description: "Porra de la Champions League 2026/27 con tus amigos",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

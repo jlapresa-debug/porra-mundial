@@ -3,72 +3,58 @@ export type TeamCode = string;
 export interface Team {
   code: TeamCode;
   name: string;
-  flag: string;
-  group: string;
-  confederation: "UEFA" | "CONMEBOL" | "CONCACAF" | "AFC" | "CAF" | "OFC";
+  country: string;
 }
 
-export type MatchStage =
-  | "group"
-  | "round32"
-  | "round16"
-  | "quarter"
-  | "semi"
-  | "thirdplace"
-  | "final";
+// "league"   → fase de liga (36 equipos, tabla única, 8 jornadas)
+// "playoff"  → play-off de acceso a octavos (ida y vuelta)
+// "round16"  → octavos de final (ida y vuelta)
+// "quarter"  → cuartos de final (ida y vuelta)
+// "semi"     → semifinales (ida y vuelta)
+// "final"    → final (partido único, sede neutral)
+export type MatchStage = "league" | "playoff" | "round16" | "quarter" | "semi" | "final";
+
+// Resultado de un partido para efectos de apuesta: quién gana ese
+// partido concreto (no la eliminatoria a doble partido).
+export type MatchPick = TeamCode | "draw";
 
 export interface Match {
   id: string;
-  matchNumber?: number;
+  matchNumber?: number; // jornada (fase de liga) — informativo
   stage: MatchStage;
-  group?: string;
-  matchday?: number;
-  kickoff: string; // ISO
+  matchday?: number;   // 1-8 en fase de liga
+  tie?: string;        // identificador de la eliminatoria (ej. "QF-1"), agrupa ida y vuelta
+  leg?: 1 | 2;         // ida (1) o vuelta (2) en eliminatorias a doble partido
+  kickoff: string;     // ISO
   home: TeamCode | null;
   away: TeamCode | null;
-  homePlaceholder?: string;
+  homePlaceholder?: string; // texto mientras no se conoce el rival (ej. "9º-24º · sorteo")
   awayPlaceholder?: string;
-  venue: string;
+  venue?: string;
   city?: string;
   result?: { home: number; away: number; penaltiesWinner?: "home" | "away" };
-  winner?: TeamCode; // se rellena cuando termina el partido
+  winner?: MatchPick; // quién gana ESTE partido concreto ("draw" si empate)
 }
 
-// Apuesta de clasificación en fase de grupos (A-L)
-// Almacenada en users/{uid}/predictions/GROUP_X
-export interface GroupStandingPrediction {
-  group: string;
-  order: [TeamCode, TeamCode, TeamCode, TeamCode]; // posición 0 = 1°, 3 = 4°
-  updatedAt: number;
-}
-
-// Apuesta del ganador en eliminatorias (M73-M104)
-// Almacenada en users/{uid}/predictions/M73 etc.
-export interface KnockoutPrediction {
+// Apuesta del resultado de un partido (fase de liga o cualquier eliminatoria)
+// Almacenada en users/{uid}/predictions/{matchId}
+export interface MatchPrediction {
   matchId: string;
-  winner: TeamCode;
+  pick: MatchPick;
   updatedAt: number;
 }
 
 // Apuesta Express: respuestas a las preguntas del bet.
 // Almacenada en users/{uid}/express/{betId}.
 //
-// Soporta dos formatos por compatibilidad:
-// - Apuestas "template-1" (ESP-SAU): q1, q2, q3 en la raíz (legacy)
-// - Apuestas genéricas (URU-ESP en adelante): binaryAnswers map
-//
 // binaryAnswers guarda, por id de pregunta, la respuesta como string:
 // - Preguntas binarias/multi-opción: el índice de la opción elegida ("0","1","2"...)
 // - Preguntas de jugador (selector de convocados): el nombre del jugador tal cual
-//
-// Ambos pueden coexistir en el mismo doc (no recomendable, pero válido).
 export interface ExpressPrediction {
   betId: string;
-  // Legacy ESP-SAU
   q1?: "win" | "draw" | "lose";
   q2?: { teamGoals: number; opponentGoals: number };
   q3?: string[];
-  // Genérico: id de pregunta → respuesta (índice de opción o nombre de jugador)
   binaryAnswers?: Record<string, string>;
   updatedAt: number;
 }
@@ -85,7 +71,6 @@ export interface SpecialBets {
   champion?: TeamCode;
   runnerUp?: TeamCode;
   topScorer?: string;
-  bestPlayer?: string;
   updatedAt?: number;
 }
 
@@ -108,15 +93,13 @@ export interface Group {
 }
 
 export interface ScoringRules {
-  // Puntos por posición exacta en grupo: [1°, 2°, 3°, 4°]
-  groupPosition: [number, number, number, number];
-  // Puntos por acertar el ganador en eliminatorias por ronda
-  knockout: {
-    round32: number;
+  // Puntos por acertar el resultado (ganador o empate) de un partido, por fase
+  points: {
+    league: number;
+    playoff: number;
     round16: number;
     quarter: number;
     semi: number;
-    thirdplace: number;
     final: number;
   };
   // Apuestas especiales
@@ -124,7 +107,6 @@ export interface ScoringRules {
     champion: number;
     runnerUp: number;
     topScorer: number;
-    bestPlayer: number;
   };
 }
 
@@ -140,8 +122,7 @@ export interface GroupMemberScore {
   uid: string;
   displayName: string;
   photoURL?: string | null;
-  points: number;        // confirmados — grupos cerrados, KOs jugados, etc.
-  virtualPoints: number; // proyección con el estado actual en tiempo real
-  groupHits: number;     // posiciones exactas en grupos cerrados
-  koHits: number;        // ganadores correctos en eliminatorias
+  points: number;      // puntos totales confirmados
+  leagueHits: number;  // aciertos en la fase de liga
+  koHits: number;       // aciertos en eliminatorias
 }

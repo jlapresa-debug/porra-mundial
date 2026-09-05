@@ -12,7 +12,7 @@ interface Props {
   disabled?: boolean;
 }
 
-export function TeamPicker({ value, onChange, placeholder = "Seleccionar selección", disabled = false }: Props) {
+export function TeamPicker({ value, onChange, placeholder = "Seleccionar equipo", disabled = false }: Props) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
 
@@ -57,7 +57,7 @@ export function TeamPicker({ value, onChange, placeholder = "Seleccionar selecci
                 autoFocus
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Buscar selección..."
+                placeholder="Buscar equipo..."
                 className="w-full h-11 px-4 rounded-xl bg-bg-card border border-line text-white placeholder:text-muted focus:outline-none focus:border-brand"
               />
             </div>
@@ -78,7 +78,7 @@ export function TeamPicker({ value, onChange, placeholder = "Seleccionar selecci
                   <TeamBadge team={t} size="sm" showName={false} />
                   <div className="flex-1">
                     <div className="font-medium text-sm">{t.name}</div>
-                    <div className="text-[10px] text-muted">Grupo {t.group} · {t.confederation}</div>
+                    <div className="text-[10px] text-muted">{t.country}</div>
                   </div>
                 </button>
               ))}

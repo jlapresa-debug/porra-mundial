@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Match } from "@/lib/types";
+import type { Match, MatchPick } from "@/lib/types";
 import { getTeam } from "@/lib/teams";
 import { TeamBadge } from "./TeamBadge";
 import { Button } from "./ui/Button";
@@ -9,9 +9,9 @@ import { cn } from "@/lib/cn";
 
 interface Props {
   match: Match;
-  savedWinner?: string;
+  savedPick?: MatchPick;
   locked: boolean;
-  onPick: (winner: string) => Promise<void>;
+  onPick: (pick: MatchPick) => Promise<void>;
 }
 
 function fmtDate(iso: string) {
@@ -24,16 +24,15 @@ function fmtDate(iso: string) {
   });
 }
 
-export function KnockoutMatchCard({ match, savedWinner, locked, onPick }: Props) {
-  // Selección local — cambia al pulsar un equipo, NO guarda en Firestore aún
-  const [pending, setPending] = useState<string | undefined>(savedWinner);
+export function KnockoutMatchCard({ match, savedPick, locked, onPick }: Props) {
+  // Selección local — cambia al pulsar, NO guarda en Firestore aún
+  const [pending, setPending] = useState<MatchPick | undefined>(savedPick);
   const [saving, setSaving] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
 
-  // Sincronizar cuando lleguen datos guardados (carga inicial)
   useEffect(() => {
-    setPending(savedWinner);
-  }, [savedWinner]);
+    setPending(savedPick);
+  }, [savedPick]);
 
   const homeTeam = getTeam(match.home);
   const awayTeam = getTeam(match.away);
@@ -42,16 +41,12 @@ export function KnockoutMatchCard({ match, savedWinner, locked, onPick }: Props)
   const homeName = homeTeam?.name ?? match.homePlaceholder ?? "—";
   const awayName = awayTeam?.name ?? match.awayPlaceholder ?? "—";
 
-  const isHomeSelected = !!match.home && pending === match.home;
-  const isAwaySelected = !!match.away && pending === match.away;
-
-  const dirty = pending !== savedWinner;
+  const dirty = pending !== savedPick;
   const canSave = !locked && teamsKnown && !!pending && dirty;
 
-  function pickLocally(side: "home" | "away") {
+  function pickLocally(pick: MatchPick) {
     if (!teamsKnown || locked) return;
-    const winner = side === "home" ? match.home! : match.away!;
-    setPending(winner);
+    setPending(pick);
     setJustSaved(false);
   }
 
@@ -67,86 +62,69 @@ export function KnockoutMatchCard({ match, savedWinner, locked, onPick }: Props)
     }
   }
 
-  // Etiqueta del botón
   let buttonLabel: string;
   if (justSaved) buttonLabel = "Guardado ✓";
-  else if (!pending) buttonLabel = "Elige un equipo";
-  else if (savedWinner && dirty) buttonLabel = "Guardar cambios";
-  else if (savedWinner) buttonLabel = "Guardado";
+  else if (!pending) buttonLabel = "Elige un resultado";
+  else if (savedPick && dirty) buttonLabel = "Guardar cambios";
+  else if (savedPick) buttonLabel = "Guardado";
   else buttonLabel = "Apostar";
 
   return (
     <div className={cn(
       "rounded-2xl bg-bg-card border overflow-hidden transition-colors",
-      (isHomeSelected || isAwaySelected) ? "border-brand/30" : "border-line",
+      pending ? "border-brand/30" : "border-line",
       !teamsKnown && "opacity-60",
     )}>
       {/* Cabecera */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-line bg-bg-elevated/40">
         <span className="text-[10px] uppercase tracking-wider text-muted font-medium">
-          {match.matchNumber ? `M${match.matchNumber} · ` : ""}{fmtDate(match.kickoff)}
+          {fmtDate(match.kickoff)}
         </span>
         <span className="text-[10px] text-muted">
           {locked ? "🔒 Cerrado" : !teamsKnown ? "Por definir" : ""}
         </span>
       </div>
 
-      {/* Selección de ganador */}
-      <div className="grid grid-cols-2">
-        <button
-          type="button"
-          onClick={() => pickLocally("home")}
-          disabled={!teamsKnown || locked}
-          className={cn(
-            "flex flex-col items-center gap-2 px-4 py-5 border-r border-line transition-colors",
-            teamsKnown && !locked && "hover:bg-bg-hover active:scale-[0.98] cursor-pointer",
-            isHomeSelected && "bg-brand/10",
-            !teamsKnown && "cursor-default",
-          )}
-        >
+      {/* Equipos */}
+      <div className="flex items-center justify-center gap-4 px-4 py-4">
+        <div className="flex flex-col items-center gap-1.5 flex-1">
           <TeamBadge team={homeTeam} size="md" showName={false} />
-          <span className={cn(
-            "text-xs font-medium text-center leading-snug",
-            isHomeSelected ? "text-brand" : "text-white",
-          )}>
-            {homeName}
-          </span>
-          {isHomeSelected && (
-            <span className="text-[9px] uppercase tracking-widest text-brand font-bold">
-              ✓ Elegido
-            </span>
-          )}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => pickLocally("away")}
-          disabled={!teamsKnown || locked}
-          className={cn(
-            "flex flex-col items-center gap-2 px-4 py-5 transition-colors",
-            teamsKnown && !locked && "hover:bg-bg-hover active:scale-[0.98] cursor-pointer",
-            isAwaySelected && "bg-brand/10",
-            !teamsKnown && "cursor-default",
-          )}
-        >
+          <span className="text-xs font-medium text-center leading-snug">{homeName}</span>
+        </div>
+        <span className="text-[10px] uppercase text-muted font-bold">vs</span>
+        <div className="flex flex-col items-center gap-1.5 flex-1">
           <TeamBadge team={awayTeam} size="md" showName={false} />
-          <span className={cn(
-            "text-xs font-medium text-center leading-snug",
-            isAwaySelected ? "text-brand" : "text-white",
-          )}>
-            {awayName}
-          </span>
-          {isAwaySelected && (
-            <span className="text-[9px] uppercase tracking-widest text-brand font-bold">
-              ✓ Elegido
-            </span>
-          )}
-        </button>
+          <span className="text-xs font-medium text-center leading-snug">{awayName}</span>
+        </div>
       </div>
+
+      {/* Selección de resultado */}
+      {teamsKnown && (
+        <div className="grid grid-cols-3 gap-2 px-4 pb-4">
+          <PickButton
+            label={homeTeam?.code ?? "1"}
+            selected={pending === match.home}
+            disabled={locked}
+            onClick={() => pickLocally(match.home!)}
+          />
+          <PickButton
+            label="Empate"
+            selected={pending === "draw"}
+            disabled={locked}
+            onClick={() => pickLocally("draw")}
+          />
+          <PickButton
+            label={awayTeam?.code ?? "2"}
+            selected={pending === match.away}
+            disabled={locked}
+            onClick={() => pickLocally(match.away!)}
+          />
+        </div>
+      )}
 
       {/* Botón de guardar */}
       {teamsKnown && !locked && (
-        <div className="px-4 py-3 border-t border-line">
+        <div className="px-4 pb-4">
           <Button
             size="sm"
             fullWidth
@@ -161,9 +139,28 @@ export function KnockoutMatchCard({ match, savedWinner, locked, onPick }: Props)
 
       {!teamsKnown && (
         <div className="px-4 py-2 border-t border-line text-center text-[11px] text-muted">
-          Los equipos se decidirán al avanzar el torneo
+          Los equipos se decidirán cuando se sortee esta ronda
         </div>
       )}
     </div>
+  );
+}
+
+function PickButton({
+  label, selected, disabled, onClick,
+}: { label: string; selected: boolean; disabled: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        "h-11 rounded-xl text-xs font-bold border transition-colors",
+        selected ? "bg-brand text-white border-brand" : "bg-bg-elevated border-line text-muted hover:text-white",
+        disabled && "opacity-50 cursor-not-allowed",
+      )}
+    >
+      {label}
+    </button>
   );
 }

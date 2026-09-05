@@ -4,20 +4,18 @@ import { useEffect, useState } from "react";
 import { collection, doc, onSnapshot, setDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./useAuth";
-import type { ExpressPrediction, SpecialBets } from "@/lib/types";
+import type { ExpressPrediction, MatchPick, SpecialBets } from "@/lib/types";
 
-// Almacenamiento en Firestore (colección predictions ya tiene reglas):
-//   users/{uid}/predictions/GROUP_A  → { group, order: [t1,t2,t3,t4] }
-//   users/{uid}/predictions/M73      → { matchId, winner: teamCode }
-//   users/{uid}/meta/specials        → SpecialBets
+// Almacenamiento en Firestore:
+//   users/{uid}/predictions/{matchId} → { matchId, pick: TeamCode | "draw" }
+//   users/{uid}/meta/specials         → SpecialBets
+//   users/{uid}/express/{betId}       → ExpressPrediction
 
 export function usePredictions() {
   const { user } = useAuth();
 
-  // group → ordered array of 4 team codes (pos 0 = 1°)
-  const [groupPredictions, setGroupPredictions] = useState<Record<string, string[]>>({});
-  // matchId → winning team code
-  const [knockoutPredictions, setKnockoutPredictions] = useState<Record<string, string>>({});
+  // matchId → pronóstico (código de equipo ganador, o "draw")
+  const [matchPredictions, setMatchPredictions] = useState<Record<string, MatchPick>>({});
   const [specials, setSpecials] = useState<SpecialBets>({});
   const [expressPredictions, setExpressPredictions] = useState<Record<string, ExpressPrediction>>({});
   const [loading, setLoading] = useState(true);
@@ -28,20 +26,12 @@ export function usePredictions() {
     const unsubP = onSnapshot(
       collection(db, "users", user.uid, "predictions"),
       (snap) => {
-        const groups: Record<string, string[]> = {};
-        const ko: Record<string, string> = {};
+        const picks: Record<string, MatchPick> = {};
         snap.forEach((d) => {
-          if (d.id.startsWith("GROUP_")) {
-            const group = d.id.replace("GROUP_", "");
-            const order = d.data().order;
-            if (Array.isArray(order)) groups[group] = order;
-          } else {
-            const winner = d.data().winner as string | undefined;
-            if (winner) ko[d.id] = winner;
-          }
+          const pick = d.data().pick as MatchPick | undefined;
+          if (pick) picks[d.id] = pick;
         });
-        setGroupPredictions(groups);
-        setKnockoutPredictions(ko);
+        setMatchPredictions(picks);
         setLoading(false);
       },
     );
@@ -65,19 +55,11 @@ export function usePredictions() {
     return () => { unsubP(); unsubS(); unsubE(); };
   }, [user]);
 
-  async function saveGroupPrediction(group: string, order: string[]) {
-    if (!user || !db) return;
-    await setDoc(
-      doc(db, "users", user.uid, "predictions", `GROUP_${group}`),
-      { group, order, updatedAt: serverTimestamp() },
-    );
-  }
-
-  async function saveKnockoutWinner(matchId: string, winner: string) {
+  async function saveMatchPick(matchId: string, pick: MatchPick) {
     if (!user || !db) return;
     await setDoc(
       doc(db, "users", user.uid, "predictions", matchId),
-      { matchId, winner, updatedAt: serverTimestamp() },
+      { matchId, pick, updatedAt: serverTimestamp() },
     );
   }
 
@@ -100,13 +82,11 @@ export function usePredictions() {
   }
 
   return {
-    groupPredictions,
-    knockoutPredictions,
+    matchPredictions,
     specials,
     expressPredictions,
     loading,
-    saveGroupPrediction,
-    saveKnockoutWinner,
+    saveMatchPick,
     saveSpecials,
     saveExpressPrediction,
   };

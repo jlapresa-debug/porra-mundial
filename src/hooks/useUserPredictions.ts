@@ -3,13 +3,12 @@
 import { useEffect, useState } from "react";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import type { ExpressPrediction, SpecialBets } from "@/lib/types";
+import type { ExpressPrediction, MatchPick, SpecialBets } from "@/lib/types";
 
 export interface UserPredictionsData {
   displayName: string;
   photoURL: string | null;
-  groupPredictions: Record<string, string[]>; // "A" → ["MEX","RSA","KOR","CZE"]
-  knockoutPredictions: Record<string, string>; // "M73" → "MEX"
+  matchPredictions: Record<string, MatchPick>; // matchId → pick
   specials: SpecialBets;
   expressPredictions: Record<string, ExpressPrediction>;
 }
@@ -32,19 +31,10 @@ export function useUserPredictions(uid: string) {
       ]);
 
       const profile = profileSnap.data() ?? {};
-      const groupPredictions: Record<string, string[]> = {};
-      const knockoutPredictions: Record<string, string> = {};
-
+      const matchPredictions: Record<string, MatchPick> = {};
       predsSnap.forEach((d) => {
-        if (d.id.startsWith("GROUP_")) {
-          const order = d.data().order;
-          if (Array.isArray(order)) {
-            groupPredictions[d.id.replace("GROUP_", "")] = order;
-          }
-        } else {
-          const winner = d.data().winner as string | undefined;
-          if (winner) knockoutPredictions[d.id] = winner;
-        }
+        const pick = d.data().pick as MatchPick | undefined;
+        if (pick) matchPredictions[d.id] = pick;
       });
 
       const expressPredictions: Record<string, ExpressPrediction> = {};
@@ -56,8 +46,7 @@ export function useUserPredictions(uid: string) {
         setData({
           displayName: (profile.displayName as string) || "Anónimo",
           photoURL: (profile.photoURL as string | null) ?? null,
-          groupPredictions,
-          knockoutPredictions,
+          matchPredictions,
           specials: (specialsSnap.data() as SpecialBets) ?? {},
           expressPredictions,
         });

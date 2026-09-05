@@ -1,6 +1,4 @@
-import Image from "next/image";
 import { Team } from "@/lib/types";
-import { flagUrl } from "@/lib/teams";
 import { cn } from "@/lib/cn";
 
 interface Props {
@@ -12,7 +10,11 @@ interface Props {
 }
 
 const px = { sm: 24, md: 36, lg: 56 } as const;
+const textSize = { sm: "text-[9px]", md: "text-xs", lg: "text-sm" } as const;
 
+// No usamos escudos de clubes reales (evitamos enlazar imágenes de terceros
+// sin verificar para 36 equipos). El badge muestra el código corto del
+// equipo sobre un círculo, manteniendo el mismo patrón visual que antes.
 export function TeamBadge({ team, size = "md", showName = true, align = "center", className }: Props) {
   const dim = px[size];
   return (
@@ -25,20 +27,15 @@ export function TeamBadge({ team, size = "md", showName = true, align = "center"
       )}
     >
       <div
-        className="rounded-full overflow-hidden ring-2 ring-white/10 bg-bg-elevated"
+        className="rounded-full overflow-hidden ring-2 ring-white/10 bg-bg-elevated grid place-items-center shrink-0"
         style={{ width: dim, height: dim }}
       >
         {team ? (
-          <Image
-            src={flagUrl(team, dim > 40 ? 160 : 80)}
-            alt={team.name}
-            width={dim}
-            height={dim}
-            className="object-cover w-full h-full"
-            unoptimized
-          />
+          <span className={cn("font-display font-bold tracking-tight", textSize[size])}>
+            {team.code}
+          </span>
         ) : (
-          <div className="w-full h-full grid place-items-center text-muted text-xs">?</div>
+          <span className="text-muted text-xs">?</span>
         )}
       </div>
       {showName && (

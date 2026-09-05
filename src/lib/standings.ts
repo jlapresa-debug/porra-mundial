@@ -1,20 +1,16 @@
-// Motor de clasificación de fase de grupos del Mundial 2026.
+// Motor de clasificación de la fase de liga (36 equipos, tabla única).
 //
-// Desempates oficiales FIFA (en orden):
-//   1. Puntos en todos los partidos del grupo
-//   2. Diferencia de goles en todos los partidos
-//   3. Goles a favor en todos los partidos
-//   Si siguen empatados:
-//   4. Puntos en los enfrentamientos directos entre los empatados
-//   5. Diferencia de goles entre los empatados
-//   6. Goles a favor entre los empatados
-//   7. Fair play (no implementado — devolvemos 0)
-//   8. Sorteo (no implementado)
+// Desempates: se usa una versión simplificada de los criterios UEFA
+// (puntos → diferencia de goles global → goles a favor global →
+// enfrentamiento directo entre empatados). La UEFA aplica además
+// criterios adicionales (goles fuera de casa, fair play, coeficiente
+// UEFA) que no se implementan aquí por ser marginales para una porra
+// de amigos.
 
 import type { Match, TeamCode } from "./types";
-import { TEAMS_BY_GROUP } from "./teams";
+import { TEAMS } from "./teams";
 
-interface TeamStat {
+export interface TeamStat {
   team: TeamCode;
   played: number;
   won: number;
@@ -42,7 +38,6 @@ function goalDiff(s: TeamStat): number {
   return s.goalsFor - s.goalsAgainst;
 }
 
-// Comparador para 1ª pasada: puntos / diferencia / goles a favor (globales)
 function compareOverall(a: TeamStat, b: TeamStat): number {
   if (b.points !== a.points) return b.points - a.points;
   if (goalDiff(b) !== goalDiff(a)) return goalDiff(b) - goalDiff(a);
@@ -50,18 +45,16 @@ function compareOverall(a: TeamStat, b: TeamStat): number {
   return 0;
 }
 
-// Para desempates entre equipos empatados: calcula stats restringidas a
-// los partidos entre ellos
 function statsHeadToHead(
   tiedTeams: TeamCode[],
-  matches: Match[],
+  leagueMatches: Match[],
   results: Record<string, { home: number; away: number }>,
 ): Record<TeamCode, TeamStat> {
   const set = new Set(tiedTeams);
   const stats: Record<string, TeamStat> = {};
   for (const t of tiedTeams) stats[t] = emptyStat(t);
 
-  for (const m of matches) {
+  for (const m of leagueMatches) {
     if (!m.home || !m.away) continue;
     if (!set.has(m.home) || !set.has(m.away)) continue;
     const r = results[m.id];
@@ -73,15 +66,14 @@ function statsHeadToHead(
   return stats;
 }
 
-// Reordena empates en bloque por enfrentamiento directo
 function breakTies(
   bucket: TeamStat[],
-  matches: Match[],
+  leagueMatches: Match[],
   results: Record<string, { home: number; away: number }>,
 ): TeamStat[] {
   if (bucket.length <= 1) return bucket;
   const teamCodes = bucket.map((s) => s.team);
-  const h2h = statsHeadToHead(teamCodes, matches, results);
+  const h2h = statsHeadToHead(teamCodes, leagueMatches, results);
   return [...bucket].sort((a, b) => {
     const ha = h2h[a.team];
     const hb = h2h[b.team];
@@ -92,37 +84,25 @@ function breakTies(
   });
 }
 
-// Devuelve los códigos de equipo ordenados de 1° a 4°, o null si no hay datos
-export function computeGroupStandings(
-  group: string,
+// Tabla de la fase de liga con los resultados disponibles hasta el momento
+// (incluye equipos que aún no han jugado ningún partido, con 0 en todo).
+export function computeLeagueTable(
   matches: Match[],
   results: Record<string, { home: number; away: number }>,
-): { standings: TeamCode[]; stats: TeamStat[] } | null {
-  const teams = TEAMS_BY_GROUP[group];
-  if (!teams || teams.length !== 4) return null;
-
-  const groupMatches = matches.filter((m) => m.group === group);
-
+): TeamStat[] {
+  const leagueMatches = matches.filter((m) => m.stage === "league");
   const stats: Record<string, TeamStat> = {};
-  for (const t of teams) stats[t.code] = emptyStat(t.code);
+  for (const t of TEAMS) stats[t.code] = emptyStat(t.code);
 
-  let played = 0;
-  for (const m of groupMatches) {
+  for (const m of leagueMatches) {
     const r = results[m.id];
     if (!r || !m.home || !m.away) continue;
     applyMatch(stats[m.home], r.home, r.away);
     applyMatch(stats[m.away], r.away, r.home);
-    played++;
   }
 
-  if (played === 0) return null;
+  const sorted = TEAMS.map((t) => stats[t.code]).sort(compareOverall);
 
-  // 1ª pasada: criterios globales
-  const sorted = teams
-    .map((t) => stats[t.code])
-    .sort(compareOverall);
-
-  // 2ª pasada: para cada grupo de empate, aplicar enfrentamiento directo
   const buckets: TeamStat[][] = [];
   let current: TeamStat[] = [sorted[0]];
   for (let i = 1; i < sorted.length; i++) {
@@ -137,49 +117,16 @@ export function computeGroupStandings(
 
   const finalOrder: TeamStat[] = [];
   for (const b of buckets) {
-    finalOrder.push(...breakTies(b, groupMatches, results));
+    finalOrder.push(...breakTies(b, leagueMatches, results));
   }
 
-  return {
-    standings: finalOrder.map((s) => s.team),
-    stats: finalOrder,
-  };
+  return finalOrder;
 }
 
-// Igual que el anterior pero solo si TODOS los 6 partidos del grupo están jugados
-// (necesario para puntuar la apuesta de clasificación final sin riesgo)
-export function computeFinalGroupStandings(
-  group: string,
+export function isLeaguePhaseComplete(
   matches: Match[],
   results: Record<string, { home: number; away: number }>,
-): TeamCode[] | null {
-  const groupMatches = matches.filter((m) => m.group === group);
-  const allPlayed = groupMatches.every((m) => !!results[m.id]);
-  if (!allPlayed) return null;
-  return computeGroupStandings(group, matches, results)?.standings ?? null;
-}
-
-// Ranking global de los 12 terceros para decidir cuáles 8 clasifican
-// (necesario para resolver los placeholders "3 X/Y/Z/..." del R32)
-export function rankAllThirdPlaces(
-  matches: Match[],
-  results: Record<string, { home: number; away: number }>,
-): { group: string; team: TeamCode; stat: TeamStat }[] | null {
-  const groups = Object.keys(TEAMS_BY_GROUP).sort();
-  const thirds: { group: string; team: TeamCode; stat: TeamStat }[] = [];
-
-  for (const g of groups) {
-    const standing = computeFinalGroupStandings(g, matches, results);
-    if (!standing) return null; // si algún grupo aún no acabó, no se puede rankear
-    const thirdCode = standing[2];
-    // recomputar stats para el tercero
-    const full = computeGroupStandings(g, matches, results);
-    const stat = full?.stats.find((s) => s.team === thirdCode);
-    if (!stat) return null;
-    thirds.push({ group: g, team: thirdCode, stat });
-  }
-
-  // Ordenar terceros por mismos criterios globales
-  thirds.sort((a, b) => compareOverall(a.stat, b.stat));
-  return thirds;
+): boolean {
+  const leagueMatches = matches.filter((m) => m.stage === "league");
+  return leagueMatches.length > 0 && leagueMatches.every((m) => !!results[m.id]);
 }

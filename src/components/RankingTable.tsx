@@ -20,7 +20,7 @@ export function RankingTable({ ranking, currentUid, groupId }: Props) {
       [...ranking].sort(
         (a, b) =>
           b.points - a.points ||
-          b.groupHits - a.groupHits ||
+          b.leagueHits - a.leagueHits ||
           b.koHits - a.koHits,
       ),
     [ranking],
@@ -65,7 +65,7 @@ export function RankingTable({ ranking, currentUid, groupId }: Props) {
                 {isYou && <span className="text-[10px] text-brand ml-1">(tú)</span>}
               </div>
               <div className="text-[10px] text-muted">
-                {m.groupHits} pos. grupo · {m.koHits} elim.
+                {m.leagueHits} liga · {m.koHits} elim.
               </div>
             </div>
             <div className="font-display font-bold text-lg tabular-nums">

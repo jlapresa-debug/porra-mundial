@@ -10,22 +10,21 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePredictions } from "@/hooks/usePredictions";
 import { DEFAULT_RULES, totalScore } from "@/lib/scoring";
 import {
-  GROUP_DEADLINE,
-  isGroupsLocked,
-  isKnockoutLocked,
+  SPECIALS_DEADLINE,
+  isSpecialsLocked,
+  isMatchLocked,
   formatDeadlineSpain,
 } from "@/lib/deadlines";
 import { EXPRESS_BETS, EXPRESS_OUTCOMES, isExpressLocked } from "@/lib/express";
-import { getAllFinalStandings } from "@/lib/bracket";
 import { TOURNAMENT_OUTCOME } from "@/lib/results";
 import { ALL_MATCHES } from "@/lib/matches";
 
-const ALL_GROUPS = ["A","B","C","D","E","F","G","H","I","J","K","L"];
-const KO_MATCHES = ALL_MATCHES.filter((m) => m.stage !== "group");
+const LEAGUE_MATCHES = ALL_MATCHES.filter((m) => m.stage === "league");
+const KO_MATCHES = ALL_MATCHES.filter((m) => m.stage !== "league");
 
-// Próximo cierre de eliminatorias (primer partido KO cuyo plazo aún no ha pasado)
-function nextKODeadlineLabel(): string | null {
-  const next = KO_MATCHES.find((m) => !isKnockoutLocked(m.kickoff));
+// Próximo cierre de partido (fase de liga o eliminatoria) cuyo plazo aún no ha pasado
+function nextMatchDeadlineLabel(): string | null {
+  const next = ALL_MATCHES.find((m) => !isMatchLocked(m.kickoff));
   if (!next) return null;
   const d = new Date(new Date(next.kickoff).getTime() - 3_600_000);
   return formatDeadlineSpain(d);
@@ -41,24 +40,22 @@ function nextExpressDeadlineLabel(): string | null {
 export default function ProfilePage() {
   const { user, logout } = useAuth();
   const router = useRouter();
-  const { groupPredictions, knockoutPredictions, specials, expressPredictions } = usePredictions();
+  const { matchPredictions, specials, expressPredictions } = usePredictions();
 
   const stats = useMemo(() => {
-    const { total, groupHits, koHits } = totalScore(
-      groupPredictions,
-      knockoutPredictions,
+    const { total, leagueHits, koHits } = totalScore(
+      matchPredictions,
       specials,
       ALL_MATCHES,
-      getAllFinalStandings(ALL_MATCHES),
       TOURNAMENT_OUTCOME,
       DEFAULT_RULES,
       expressPredictions,
       EXPRESS_OUTCOMES,
     );
-    const groupsDone = ALL_GROUPS.filter((g) => !!groupPredictions[g]).length;
-    const koDone = Object.keys(knockoutPredictions).length;
-    return { total, groupHits, koHits, groupsDone, koDone };
-  }, [groupPredictions, knockoutPredictions, specials, expressPredictions]);
+    const leagueDone = LEAGUE_MATCHES.filter((m) => !!matchPredictions[m.id]).length;
+    const koDone = KO_MATCHES.filter((m) => !!matchPredictions[m.id]).length;
+    return { total, leagueHits, koHits, leagueDone, koDone };
+  }, [matchPredictions, specials, expressPredictions]);
 
   async function handleLogout() {
     await logout();
@@ -88,8 +85,8 @@ export default function ProfilePage() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3">
           <Stat label="Puntos" value={stats.total} highlight />
-          <Stat label="Grupos" value={`${stats.groupsDone}/12`} />
-          <Stat label="Elim." value={`${stats.koDone}/32`} />
+          <Stat label="Liga" value={`${stats.leagueDone}/144`} />
+          <Stat label="Elim." value={`${stats.koDone}/${KO_MATCHES.length}`} />
         </div>
 
         {/* Reglas */}
@@ -98,25 +95,15 @@ export default function ProfilePage() {
           <div className="space-y-3">
             <div>
               <p className="text-[10px] uppercase tracking-wider text-muted font-semibold mb-1.5">
-                Clasificación de grupo
+                Acertar el resultado de un partido
               </p>
               <ul className="text-xs text-muted space-y-1">
-                <Rule pts={DEFAULT_RULES.groupPosition[0]}>1° puesto exacto</Rule>
-                <Rule pts={DEFAULT_RULES.groupPosition[1]}>2° puesto exacto</Rule>
-                <Rule pts={DEFAULT_RULES.groupPosition[2]}>3° puesto exacto</Rule>
-                <Rule pts={DEFAULT_RULES.groupPosition[3]}>4° puesto exacto</Rule>
-              </ul>
-            </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-wider text-muted font-semibold mb-1.5">
-                Ganador en eliminatorias
-              </p>
-              <ul className="text-xs text-muted space-y-1">
-                <Rule pts={DEFAULT_RULES.knockout.round32}>Dieciseisavos</Rule>
-                <Rule pts={DEFAULT_RULES.knockout.round16}>Octavos</Rule>
-                <Rule pts={DEFAULT_RULES.knockout.quarter}>Cuartos</Rule>
-                <Rule pts={DEFAULT_RULES.knockout.semi}>Semifinales</Rule>
-                <Rule pts={DEFAULT_RULES.knockout.final}>Final</Rule>
+                <Rule pts={DEFAULT_RULES.points.league}>Fase de liga</Rule>
+                <Rule pts={DEFAULT_RULES.points.playoff}>Play-off</Rule>
+                <Rule pts={DEFAULT_RULES.points.round16}>Octavos</Rule>
+                <Rule pts={DEFAULT_RULES.points.quarter}>Cuartos</Rule>
+                <Rule pts={DEFAULT_RULES.points.semi}>Semifinales</Rule>
+                <Rule pts={DEFAULT_RULES.points.final}>Final</Rule>
               </ul>
             </div>
             <div>
@@ -125,9 +112,8 @@ export default function ProfilePage() {
               </p>
               <ul className="text-xs text-muted space-y-1">
                 <Rule pts={DEFAULT_RULES.special.champion}>Campeón</Rule>
+                <Rule pts={DEFAULT_RULES.special.runnerUp}>Subcampeón</Rule>
                 <Rule pts={DEFAULT_RULES.special.topScorer}>Máximo goleador</Rule>
-                <Rule pts={DEFAULT_RULES.special.runnerUp}>Finalista</Rule>
-                <Rule pts={DEFAULT_RULES.special.bestPlayer}>Mejor jugador</Rule>
               </ul>
             </div>
             {EXPRESS_BETS.length > 0 && (
@@ -135,11 +121,7 @@ export default function ProfilePage() {
                 <p className="text-[10px] uppercase tracking-wider text-muted font-semibold mb-1.5">
                   Apuestas express
                 </p>
-                <ul className="text-xs text-muted space-y-1">
-                  <Rule pts={2}>Resultado del equipo (ganar/empatar/perder)</Rule>
-                  <Rule pts={4}>Resultado exacto del partido</Rule>
-                  <Rule pts={2}>Por cada goleador acertado</Rule>
-                </ul>
+                <p className="text-xs text-muted">Puntos variables por pregunta — se detallan en cada apuesta.</p>
               </div>
             )}
           </div>
@@ -150,17 +132,18 @@ export default function ProfilePage() {
           <h3 className="font-display font-bold text-sm mb-3">Calendario de apuestas</h3>
           <div className="space-y-3">
             <DeadlineRow
-              icon="🗓"
-              label="Grupos y apuestas especiales"
-              deadline={formatDeadlineSpain(GROUP_DEADLINE)}
-              locked={isGroupsLocked()}
-            />
-            <DeadlineRow
               icon="⚡"
-              label="Eliminatorias"
-              deadline={nextKODeadlineLabel() ?? "Todos los partidos cerrados"}
+              label="Fase de liga y eliminatorias"
+              deadline={nextMatchDeadlineLabel() ?? "Todos los partidos cerrados"}
               sublabel="Cierre 1h antes de cada partido"
               locked={false}
+            />
+            <DeadlineRow
+              icon="🗓"
+              label="Apuestas especiales"
+              deadline={formatDeadlineSpain(SPECIALS_DEADLINE)}
+              sublabel="Campeón, subcampeón y máximo goleador"
+              locked={isSpecialsLocked()}
             />
             <DeadlineRow
               icon="✨"
@@ -176,7 +159,7 @@ export default function ProfilePage() {
           Cerrar sesión
         </Button>
 
-        <p className="text-center text-[10px] text-muted mt-2">v0.2.0 · La Porra del Mundial</p>
+        <p className="text-center text-[10px] text-muted mt-2">v1.0.0 · La Porra de la Champions</p>
       </div>
     </AppShell>
   );

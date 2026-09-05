@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await signInWithEmailAndPassword(auth, email, password);
       },
       async registerEmail() {
-        // La inscripción está cerrada — el Mundial 2026 ya empezó.
+        // La inscripción está cerrada — solo juegan los miembros ya invitados.
         throw new Error("Inscripción cerrada. No se admiten nuevos usuarios.");
       },
       async signInGoogle() {
@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Nuevo usuario: registro cerrado, cerrar sesión y avisar
           await signOut(auth);
           throw new Error(
-            "Inscripción cerrada. El Mundial ya está en marcha y no se admiten nuevos usuarios.",
+            "Inscripción cerrada. No se admiten nuevos usuarios.",
           );
         }
         // Usuario existente: refrescar metadatos por si cambiaron en Google

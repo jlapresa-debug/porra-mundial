@@ -3,49 +3,49 @@
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { Header } from "@/components/Header";
-import { GroupStandingCard } from "@/components/GroupStandingCard";
 import { KnockoutMatchCard } from "@/components/KnockoutMatchCard";
 import { ALL_MATCHES } from "@/lib/matches";
-import { TEAMS_BY_GROUP } from "@/lib/teams";
 import { usePredictions } from "@/hooks/usePredictions";
 import { cn } from "@/lib/cn";
-import { isGroupsLocked, isKnockoutLocked } from "@/lib/deadlines";
+import { isMatchLocked } from "@/lib/deadlines";
 import type { Match } from "@/lib/types";
 
-const ALL_GROUPS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
-
-type MainTab = "grupos" | "eliminatorias";
+type MainTab = "liga" | "eliminatorias";
 
 const KO_SECTIONS: { stage: Match["stage"]; short: string; label: string }[] = [
-  { stage: "round32",    short: "16avos",   label: "Dieciseisavos de final" },
-  { stage: "round16",    short: "Octavos",  label: "Octavos de final" },
-  { stage: "quarter",    short: "Cuartos",  label: "Cuartos de final" },
-  { stage: "semi",       short: "Semis",    label: "Semifinales" },
-  { stage: "thirdplace", short: "3er pto",  label: "Tercer puesto" },
-  { stage: "final",      short: "Final",    label: "FINAL" },
+  { stage: "playoff", short: "Play-off", label: "Play-off" },
+  { stage: "round16", short: "Octavos", label: "Octavos de final" },
+  { stage: "quarter", short: "Cuartos", label: "Cuartos de final" },
+  { stage: "semi",    short: "Semis",   label: "Semifinales" },
+  { stage: "final",   short: "Final",  label: "FINAL" },
 ];
 
 export default function MatchesPage() {
-  const [mainTab, setMainTab] = useState<MainTab>("grupos");
-  const [activeGroup, setActiveGroup] = useState("A");
-  const [activeStage, setActiveStage] = useState<Match["stage"]>("round32");
+  const [mainTab, setMainTab] = useState<MainTab>("liga");
+  const [activeMatchday, setActiveMatchday] = useState(1);
+  const [activeStage, setActiveStage] = useState<Match["stage"]>("playoff");
 
-  const {
-    groupPredictions,
-    knockoutPredictions,
-    saveGroupPrediction,
-    saveKnockoutWinner,
-  } = usePredictions();
+  const { matchPredictions, saveMatchPick } = usePredictions();
 
-  const groupsLocked = isGroupsLocked();
-  const groupsDone = ALL_GROUPS.filter((g) => !!groupPredictions[g]).length;
-  const koDone = Object.keys(knockoutPredictions).length;
+  const leagueMatches = useMemo(
+    () => ALL_MATCHES.filter((m) => m.stage === "league"),
+    [],
+  );
+  const leagueByMatchday = useMemo(() => {
+    const map = new Map<number, Match[]>();
+    for (const m of leagueMatches) {
+      const md = m.matchday ?? 0;
+      const arr = map.get(md) ?? [];
+      arr.push(m);
+      map.set(md, arr);
+    }
+    return map;
+  }, [leagueMatches]);
 
-  // KO matches agrupados por ronda
   const koByStage = useMemo(() => {
     const map = new Map<string, Match[]>();
     for (const m of ALL_MATCHES) {
-      if (m.stage === "group") continue;
+      if (m.stage === "league") continue;
       const arr = map.get(m.stage) ?? [];
       arr.push(m);
       map.set(m.stage, arr);
@@ -53,23 +53,28 @@ export default function MatchesPage() {
     return map;
   }, []);
 
-  const teamsInActiveGroup = TEAMS_BY_GROUP[activeGroup] ?? [];
+  const leagueDone = leagueMatches.filter((m) => !!matchPredictions[m.id]).length;
+  const koTotal = ALL_MATCHES.filter((m) => m.stage !== "league").length;
+  const koDone = ALL_MATCHES.filter((m) => m.stage !== "league" && !!matchPredictions[m.id]).length;
+
+  const matchdayMatches = leagueByMatchday.get(activeMatchday) ?? [];
+  const matchdayDone = matchdayMatches.filter((m) => !!matchPredictions[m.id]).length;
 
   return (
     <AppShell>
       <Header
         title="Apuestas"
         subtitle={
-          mainTab === "grupos"
-            ? `${groupsDone} de 12 grupos completados`
-            : `${koDone} de 32 ganadores elegidos`
+          mainTab === "liga"
+            ? `${leagueDone} de 144 partidos de liga apostados`
+            : `${koDone} de ${koTotal} eliminatorias apostadas`
         }
       />
 
       {/* Tabs principales */}
       <div className="container-app mt-3">
         <div className="flex gap-1 p-1 bg-bg-card border border-line rounded-2xl">
-          {(["grupos", "eliminatorias"] as MainTab[]).map((t) => (
+          {(["liga", "eliminatorias"] as MainTab[]).map((t) => (
             <button
               key={t}
               onClick={() => setMainTab(t)}
@@ -80,54 +85,58 @@ export default function MatchesPage() {
                   : "text-muted hover:text-white",
               )}
             >
-              {t === "grupos" ? "Grupos" : "Eliminatorias"}
+              {t === "liga" ? "Fase de Liga" : "Eliminatorias"}
             </button>
           ))}
         </div>
       </div>
 
-      {/* ── TAB GRUPOS ─────────────────────────────── */}
-      {mainTab === "grupos" && (
+      {/* ── TAB FASE DE LIGA ───────────────────────── */}
+      {mainTab === "liga" && (
         <>
-          {/* Selector de grupo */}
           <div className="flex gap-2 overflow-x-auto scrollbar-hide px-4 pb-2 mt-4">
-            {ALL_GROUPS.map((g) => {
-              const done = !!groupPredictions[g];
-              const active = activeGroup === g;
+            {Array.from({ length: 8 }, (_, i) => i + 1).map((md) => {
+              const matches = leagueByMatchday.get(md) ?? [];
+              const done = matches.filter((m) => !!matchPredictions[m.id]).length;
+              const active = activeMatchday === md;
               return (
                 <button
-                  key={g}
-                  onClick={() => setActiveGroup(g)}
+                  key={md}
+                  onClick={() => setActiveMatchday(md)}
                   className={cn(
-                    "shrink-0 w-10 h-10 rounded-full text-sm font-bold transition-all relative",
+                    "shrink-0 px-3.5 h-10 rounded-full text-xs font-bold transition-all relative",
                     active
                       ? "bg-gradient-brand text-white shadow-md shadow-brand/20"
                       : "bg-bg-card text-muted border border-line hover:text-white",
                   )}
                 >
-                  {g}
-                  {done && !active && (
-                    <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-bg" />
+                  J{md}
+                  {done > 0 && (
+                    <span className={cn(
+                      "ml-1 text-[10px] tabular-nums",
+                      active ? "opacity-80" : "text-brand",
+                    )}>
+                      {done}/{matches.length}
+                    </span>
                   )}
                 </button>
               );
             })}
           </div>
 
-          <div className="container-app mt-3 pb-6 animate-fade-in">
-            {groupsLocked && (
-              <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 px-4 py-3 text-xs text-amber-300 mb-4">
-                🔒 Plazo cerrado — las clasificaciones de grupo ya no se pueden modificar.
-              </div>
-            )}
-            <GroupStandingCard
-              key={activeGroup}
-              group={activeGroup}
-              teams={teamsInActiveGroup}
-              savedOrder={groupPredictions[activeGroup]}
-              locked={groupsLocked}
-              onSave={(order) => saveGroupPrediction(activeGroup, order)}
-            />
+          <div className="container-app mt-3 pb-6 grid gap-3 animate-fade-in">
+            <h2 className="text-[11px] uppercase tracking-widest text-muted font-semibold">
+              Jornada {activeMatchday} · {matchdayDone}/{matchdayMatches.length} apostados
+            </h2>
+            {matchdayMatches.map((m) => (
+              <KnockoutMatchCard
+                key={m.id}
+                match={m}
+                savedPick={matchPredictions[m.id]}
+                locked={isMatchLocked(m.kickoff)}
+                onPick={(pick) => saveMatchPick(m.id, pick)}
+              />
+            ))}
           </div>
         </>
       )}
@@ -135,12 +144,10 @@ export default function MatchesPage() {
       {/* ── TAB ELIMINATORIAS ──────────────────────── */}
       {mainTab === "eliminatorias" && (
         <>
-          {/* Selector de ronda */}
           <div className="flex gap-2 overflow-x-auto scrollbar-hide px-4 pb-2 mt-4">
             {KO_SECTIONS.map(({ stage, short }) => {
               const matches = koByStage.get(stage) ?? [];
-              const total = matches.length;
-              const apostados = matches.filter((m) => knockoutPredictions[m.id]).length;
+              const done = matches.filter((m) => !!matchPredictions[m.id]).length;
               const active = activeStage === stage;
               return (
                 <button
@@ -154,12 +161,12 @@ export default function MatchesPage() {
                   )}
                 >
                   {short}
-                  {apostados > 0 && (
+                  {matches.length > 0 && done > 0 && (
                     <span className={cn(
                       "ml-1.5 text-[10px] tabular-nums",
                       active ? "opacity-80" : "text-brand",
                     )}>
-                      {apostados}/{total}
+                      {done}/{matches.length}
                     </span>
                   )}
                 </button>
@@ -167,23 +174,27 @@ export default function MatchesPage() {
             })}
           </div>
 
-          {/* Tarjetas del nivel activo */}
           <div className="container-app mt-3 pb-6 grid gap-3 animate-fade-in">
             <h2 className="text-[11px] uppercase tracking-widest text-muted font-semibold">
               {KO_SECTIONS.find((s) => s.stage === activeStage)?.label}
             </h2>
-            {(koByStage.get(activeStage) ?? []).map((m) => {
-              const locked = isKnockoutLocked(m.kickoff);
-              return (
+            {(koByStage.get(activeStage) ?? []).length === 0 ? (
+              <div className="rounded-2xl bg-bg-card border border-line border-dashed p-6 text-center text-sm text-muted">
+                Esta ronda aún no se ha sorteado. La Champions League sortea cada
+                eliminatoria justo antes de jugarse — en cuanto se conozcan los
+                emparejamientos, aparecerán aquí.
+              </div>
+            ) : (
+              (koByStage.get(activeStage) ?? []).map((m) => (
                 <KnockoutMatchCard
                   key={m.id}
                   match={m}
-                  savedWinner={knockoutPredictions[m.id]}
-                  locked={locked}
-                  onPick={(winner) => saveKnockoutWinner(m.id, winner)}
+                  savedPick={matchPredictions[m.id]}
+                  locked={isMatchLocked(m.kickoff)}
+                  onPick={(pick) => saveMatchPick(m.id, pick)}
                 />
-              );
-            })}
+              ))
+            )}
           </div>
         </>
       )}

@@ -17,7 +17,6 @@ export default function SpecialsPage() {
   const [champion, setChampion] = useState<string | undefined>();
   const [runnerUp, setRunnerUp] = useState<string | undefined>();
   const [topScorer, setTopScorer] = useState("");
-  const [bestPlayer, setBestPlayer] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -27,14 +26,13 @@ export default function SpecialsPage() {
     setChampion(specials.champion);
     setRunnerUp(specials.runnerUp);
     setTopScorer(specials.topScorer ?? "");
-    setBestPlayer(specials.bestPlayer ?? "");
   }, [specials]);
 
   async function handleSave() {
     if (locked) return;
     setSaving(true);
     try {
-      await saveSpecials({ champion, runnerUp, topScorer, bestPlayer });
+      await saveSpecials({ champion, runnerUp, topScorer });
       setSaved(true);
       setTimeout(() => setSaved(false), 1500);
     } finally {
@@ -123,26 +121,12 @@ export default function SpecialsPage() {
         <Section
           title="⚽ Máximo goleador"
           points={DEFAULT_RULES.special.topScorer}
-          description="Bota de oro del torneo"
+          description="Bota de oro de la Champions"
           locked={locked}
         >
           <Input
             value={topScorer}
             onChange={(e) => setTopScorer(e.target.value)}
-            placeholder="Nombre del jugador"
-            disabled={locked}
-          />
-        </Section>
-
-        <Section
-          title="✨ Mejor jugador"
-          points={DEFAULT_RULES.special.bestPlayer}
-          description="Balón de oro del Mundial"
-          locked={locked}
-        >
-          <Input
-            value={bestPlayer}
-            onChange={(e) => setBestPlayer(e.target.value)}
             placeholder="Nombre del jugador"
             disabled={locked}
           />

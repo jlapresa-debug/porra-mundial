@@ -12,12 +12,12 @@ export default {
           hover: "#222838",
         },
         accent: {
-          DEFAULT: "#10b981",
-          hover: "#059669",
+          DEFAULT: "#eab308",
+          hover: "#ca8a04",
         },
         brand: {
-          DEFAULT: "#a855f7",
-          hover: "#9333ea",
+          DEFAULT: "#2563eb",
+          hover: "#1d4ed8",
         },
         muted: "#9ca3af",
         line: "#2a3142",
@@ -46,8 +46,8 @@ export default {
         },
       },
       backgroundImage: {
-        "gradient-brand": "linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #10b981 100%)",
-        "gradient-card": "linear-gradient(180deg, rgba(168,85,247,0.08) 0%, rgba(168,85,247,0) 100%)",
+        "gradient-brand": "linear-gradient(135deg, #2563eb 0%, #312e81 50%, #0a0e1a 100%)",
+        "gradient-card": "linear-gradient(180deg, rgba(37,99,235,0.10) 0%, rgba(37,99,235,0) 100%)",
       },
     },
   },

@@ -1,61 +1,37 @@
-import type { ExpressOutcome, ExpressPrediction, Match, ScoringRules, SpecialBets } from "./types";
+import type { ExpressOutcome, ExpressPrediction, Match, MatchPick, ScoringRules, SpecialBets } from "./types";
 import { EXPRESS_BETS, type ExpressBet } from "./express";
 
 export const DEFAULT_RULES: ScoringRules = {
-  // Puntos por posición exacta en grupo: 1°=5, 2°=3, 3°=2, 4°=1
-  groupPosition: [5, 3, 2, 1],
-  // Puntos por acertar el ganador en eliminatorias
-  knockout: {
-    round32:    2,
-    round16:    3,
-    quarter:    5,
-    semi:       7,
-    thirdplace: 3,
-    final:      10,
+  // Puntos por acertar el resultado (1/X/2) de un partido, por fase
+  points: {
+    league:   2,
+    playoff:  3,
+    round16:  4,
+    quarter:  6,
+    semi:     8,
+    final:    12,
   },
   special: {
-    champion:   25,
-    runnerUp:   12,
-    topScorer:  15,
-    bestPlayer: 10,
+    champion:  25,
+    runnerUp:  12,
+    topScorer: 15,
   },
 };
 
-// Puntos por clasificación de grupo
-export function scoreGroupStanding(
-  predicted: string[],
-  actual: string[],
-  rules: ScoringRules = DEFAULT_RULES,
-): number {
-  let pts = 0;
-  for (let i = 0; i < 4; i++) {
-    if (predicted[i] && actual[i] && predicted[i] === actual[i]) {
-      pts += rules.groupPosition[i];
-    }
-  }
-  return pts;
-}
-
-// Puntos por acertar el ganador de un partido eliminatorio
-export function scoreKnockoutWinner(
+// Puntos por acertar el resultado de un partido concreto (fase de liga o eliminatoria)
+export function scoreMatchPick(
   match: Match,
-  predictedWinner: string,
+  predictedPick: MatchPick,
   rules: ScoringRules = DEFAULT_RULES,
 ): number {
   if (!match.winner) return 0;
-  if (match.winner !== predictedWinner) return 0;
-  const pts = rules.knockout[match.stage as keyof typeof rules.knockout];
-  return pts ?? 0;
+  if (match.winner !== predictedPick) return 0;
+  return rules.points[match.stage] ?? 0;
 }
 
 export function scoreSpecials(
   s: SpecialBets,
-  outcome: {
-    champion?: string;
-    runnerUp?: string;
-    topScorer?: string;
-    bestPlayer?: string;
-  },
+  outcome: { champion?: string; runnerUp?: string; topScorer?: string },
   rules: ScoringRules = DEFAULT_RULES,
 ): number {
   let pts = 0;
@@ -66,9 +42,6 @@ export function scoreSpecials(
   if (s.topScorer && outcome.topScorer &&
       s.topScorer.toLowerCase() === outcome.topScorer.toLowerCase())
     pts += rules.special.topScorer;
-  if (s.bestPlayer && outcome.bestPlayer &&
-      s.bestPlayer.toLowerCase() === outcome.bestPlayer.toLowerCase())
-    pts += rules.special.bestPlayer;
   return pts;
 }
 
@@ -85,7 +58,6 @@ export function scoreExpressBet(
   let q3Pts = 0;
   const binary: Record<string, number> = {};
 
-  // Template-1: Q1 / Q2 / Q3
   if (bet.q1 && prediction.q1 && outcome.q1 && prediction.q1 === outcome.q1) {
     q1Pts = bet.q1.points;
   }
@@ -107,8 +79,6 @@ export function scoreExpressBet(
     }
   }
 
-  // Genérico: preguntas de opciones y de jugador
-  // (todas comparten el mismo almacén prediction/outcome.binaryAnswers)
   for (const q of bet.questions ?? []) {
     const guess = prediction.binaryAnswers?.[q.id];
     const truth = outcome.binaryAnswers?.[q.id];
@@ -130,42 +100,31 @@ export function scoreExpressBet(
 }
 
 export function totalScore(
-  groupPredictions: Record<string, string[]>,
-  knockoutPredictions: Record<string, string>,
+  matchPredictions: Record<string, MatchPick>,
   specials: SpecialBets,
   matches: Match[],
-  groupResults: Record<string, string[]> = {},
   outcome: Parameters<typeof scoreSpecials>[1] = {},
   rules: ScoringRules = DEFAULT_RULES,
   expressPredictions: Record<string, ExpressPrediction> = {},
   expressOutcomes: Record<string, ExpressOutcome> = {},
-): { total: number; groupHits: number; koHits: number; expressHits: number } {
+): { total: number; leagueHits: number; koHits: number; expressHits: number } {
   let total = 0;
-  let groupHits = 0;
+  let leagueHits = 0;
   let koHits = 0;
 
-  // Grupos
-  for (const [group, predicted] of Object.entries(groupPredictions)) {
-    const actual = groupResults[group];
-    if (!actual) continue;
-    const pts = scoreGroupStanding(predicted, actual, rules);
-    total += pts;
-    groupHits += predicted.filter((t, i) => actual[i] === t).length;
-  }
-
-  // Eliminatorias
   for (const match of matches) {
-    if (match.stage === "group") continue;
-    const winner = knockoutPredictions[match.id];
-    if (!winner || !match.winner) continue;
-    const pts = scoreKnockoutWinner(match, winner, rules);
+    const pick = matchPredictions[match.id];
+    if (!pick || !match.winner) continue;
+    const pts = scoreMatchPick(match, pick, rules);
     total += pts;
-    if (pts > 0) koHits += 1;
+    if (pts > 0) {
+      if (match.stage === "league") leagueHits += 1;
+      else koHits += 1;
+    }
   }
 
   total += scoreSpecials(specials, outcome, rules);
 
-  // Express bets
   let expressHits = 0;
   for (const bet of EXPRESS_BETS) {
     const pred = expressPredictions[bet.id];
@@ -176,5 +135,5 @@ export function totalScore(
     if (pts > 0) expressHits += 1;
   }
 
-  return { total, groupHits, koHits, expressHits };
+  return { total, leagueHits, koHits, expressHits };
 }

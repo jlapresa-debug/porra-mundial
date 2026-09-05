@@ -4,7 +4,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { Header } from "@/components/Header";
 
-// Los registros están cerrados — el Mundial ya empezó y la porra está cerrada.
+// Los registros están cerrados — solo juegan los miembros ya invitados.
 export default function RegisterClosedPage() {
   return (
     <AppShell>
@@ -15,8 +15,9 @@ export default function RegisterClosedPage() {
           <div className="text-4xl mb-3">🔒</div>
           <h2 className="font-display font-bold text-lg mb-2">Porra cerrada</h2>
           <p className="text-sm text-muted leading-relaxed">
-            El Mundial 2026 ya está en marcha y la inscripción a la porra está
-            cerrada. Si ya tienes cuenta puedes acceder con normalidad.
+            La inscripción a esta porra está cerrada — solo juegan los
+            miembros ya invitados. Si ya tienes cuenta puedes acceder con
+            normalidad.
           </p>
         </div>
 

@@ -87,7 +87,7 @@ export default function LoginPage() {
         </Button>
 
         <p className="text-xs text-muted text-center mt-8 leading-relaxed">
-          🔒 La inscripción está cerrada — el Mundial ya empezó.<br />
+          🔒 La inscripción está cerrada.<br />
           Solo pueden acceder los usuarios ya registrados.
         </p>
       </div>
