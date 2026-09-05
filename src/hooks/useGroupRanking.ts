@@ -7,7 +7,10 @@ import type { ExpressPrediction, GroupMemberScore, MatchPick, SpecialBets } from
 import { ALL_MATCHES } from "@/lib/matches";
 import { DEFAULT_RULES, totalScore } from "@/lib/scoring";
 import { EXPRESS_OUTCOMES } from "@/lib/express";
-import { TOURNAMENT_OUTCOME } from "@/lib/results";
+import { TOURNAMENT_OUTCOME, LEAGUE_MATCH_RESULTS } from "@/lib/results";
+import { getFinalTop8 } from "@/lib/standings";
+
+const OUTCOME = { ...TOURNAMENT_OUTCOME, top8: getFinalTop8(ALL_MATCHES, LEAGUE_MATCH_RESULTS) ?? undefined };
 
 export function useGroupRanking(memberIds: string[]) {
   const [ranking, setRanking] = useState<GroupMemberScore[]>([]);
@@ -45,11 +48,11 @@ export function useGroupRanking(memberIds: string[]) {
             expressPredictions[d.id] = d.data() as ExpressPrediction;
           });
 
-          const { total, leagueHits, koHits } = totalScore(
+          const { total, leagueHits, koHits, top8Hits } = totalScore(
             matchPredictions,
             specials,
             ALL_MATCHES,
-            TOURNAMENT_OUTCOME,
+            OUTCOME,
             DEFAULT_RULES,
             expressPredictions,
             EXPRESS_OUTCOMES,
@@ -62,6 +65,7 @@ export function useGroupRanking(memberIds: string[]) {
             points: total,
             leagueHits,
             koHits,
+            top8Hits,
           };
         }),
       );

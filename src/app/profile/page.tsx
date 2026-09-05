@@ -16,11 +16,13 @@ import {
   formatDeadlineSpain,
 } from "@/lib/deadlines";
 import { EXPRESS_BETS, EXPRESS_OUTCOMES, isExpressLocked } from "@/lib/express";
-import { TOURNAMENT_OUTCOME } from "@/lib/results";
+import { TOURNAMENT_OUTCOME, LEAGUE_MATCH_RESULTS } from "@/lib/results";
+import { getFinalTop8 } from "@/lib/standings";
 import { ALL_MATCHES } from "@/lib/matches";
 
 const LEAGUE_MATCHES = ALL_MATCHES.filter((m) => m.stage === "league");
 const KO_MATCHES = ALL_MATCHES.filter((m) => m.stage !== "league");
+const OUTCOME = { ...TOURNAMENT_OUTCOME, top8: getFinalTop8(ALL_MATCHES, LEAGUE_MATCH_RESULTS) ?? undefined };
 
 // Próximo cierre de partido (fase de liga o eliminatoria) cuyo plazo aún no ha pasado
 function nextMatchDeadlineLabel(): string | null {
@@ -43,18 +45,18 @@ export default function ProfilePage() {
   const { matchPredictions, specials, expressPredictions } = usePredictions();
 
   const stats = useMemo(() => {
-    const { total, leagueHits, koHits } = totalScore(
+    const { total, leagueHits, koHits, top8Hits } = totalScore(
       matchPredictions,
       specials,
       ALL_MATCHES,
-      TOURNAMENT_OUTCOME,
+      OUTCOME,
       DEFAULT_RULES,
       expressPredictions,
       EXPRESS_OUTCOMES,
     );
     const leagueDone = LEAGUE_MATCHES.filter((m) => !!matchPredictions[m.id]).length;
     const koDone = KO_MATCHES.filter((m) => !!matchPredictions[m.id]).length;
-    return { total, leagueHits, koHits, leagueDone, koDone };
+    return { total, leagueHits, koHits, top8Hits, leagueDone, koDone };
   }, [matchPredictions, specials, expressPredictions]);
 
   async function handleLogout() {
@@ -108,12 +110,20 @@ export default function ProfilePage() {
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-wider text-muted font-semibold mb-1.5">
-                Apuestas especiales
+                Generales
               </p>
               <ul className="text-xs text-muted space-y-1">
                 <Rule pts={DEFAULT_RULES.special.champion}>Campeón</Rule>
                 <Rule pts={DEFAULT_RULES.special.runnerUp}>Subcampeón</Rule>
                 <Rule pts={DEFAULT_RULES.special.topScorer}>Máximo goleador</Rule>
+              </ul>
+            </div>
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-muted font-semibold mb-1.5">
+                Fase 1
+              </p>
+              <ul className="text-xs text-muted space-y-1">
+                <Rule pts={DEFAULT_RULES.special.top8PerTeam}>Por cada equipo acertado en el top-8</Rule>
               </ul>
             </div>
             {EXPRESS_BETS.length > 0 && (

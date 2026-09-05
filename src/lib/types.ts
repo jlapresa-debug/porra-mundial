@@ -71,6 +71,10 @@ export interface SpecialBets {
   champion?: TeamCode;
   runnerUp?: TeamCode;
   topScorer?: string;
+  // Apuesta "Fase 1": los 8 equipos que el usuario cree que acabarán
+  // clasificados en los 8 primeros puestos de la fase de liga (sin
+  // importar el orden). Siempre 8 códigos, o ausente si no ha apostado.
+  top8?: TeamCode[];
   updatedAt?: number;
 }
 
@@ -107,6 +111,7 @@ export interface ScoringRules {
     champion: number;
     runnerUp: number;
     topScorer: number;
+    top8PerTeam: number; // puntos por cada equipo acertado en la apuesta "Fase 1"
   };
 }
 
@@ -125,4 +130,5 @@ export interface GroupMemberScore {
   points: number;      // puntos totales confirmados
   leagueHits: number;  // aciertos en la fase de liga
   koHits: number;       // aciertos en eliminatorias
+  top8Hits: number;    // equipos acertados en la apuesta "Fase 1"
 }

@@ -12,9 +12,10 @@ export const DEFAULT_RULES: ScoringRules = {
     final:    12,
   },
   special: {
-    champion:  25,
-    runnerUp:  12,
-    topScorer: 15,
+    champion:    25,
+    runnerUp:    12,
+    topScorer:   15,
+    top8PerTeam: 5,
   },
 };
 
@@ -31,9 +32,9 @@ export function scoreMatchPick(
 
 export function scoreSpecials(
   s: SpecialBets,
-  outcome: { champion?: string; runnerUp?: string; topScorer?: string },
+  outcome: { champion?: string; runnerUp?: string; topScorer?: string; top8?: string[] },
   rules: ScoringRules = DEFAULT_RULES,
-): number {
+): { total: number; top8Hits: number } {
   let pts = 0;
   if (s.champion && outcome.champion && s.champion === outcome.champion)
     pts += rules.special.champion;
@@ -42,7 +43,16 @@ export function scoreSpecials(
   if (s.topScorer && outcome.topScorer &&
       s.topScorer.toLowerCase() === outcome.topScorer.toLowerCase())
     pts += rules.special.topScorer;
-  return pts;
+
+  let top8Hits = 0;
+  if (s.top8 && outcome.top8) {
+    for (const team of s.top8) {
+      if (outcome.top8.includes(team)) top8Hits += 1;
+    }
+    pts += top8Hits * rules.special.top8PerTeam;
+  }
+
+  return { total: pts, top8Hits };
 }
 
 export function scoreExpressBet(
@@ -107,7 +117,7 @@ export function totalScore(
   rules: ScoringRules = DEFAULT_RULES,
   expressPredictions: Record<string, ExpressPrediction> = {},
   expressOutcomes: Record<string, ExpressOutcome> = {},
-): { total: number; leagueHits: number; koHits: number; expressHits: number } {
+): { total: number; leagueHits: number; koHits: number; top8Hits: number; expressHits: number } {
   let total = 0;
   let leagueHits = 0;
   let koHits = 0;
@@ -123,7 +133,8 @@ export function totalScore(
     }
   }
 
-  total += scoreSpecials(specials, outcome, rules);
+  const specialsResult = scoreSpecials(specials, outcome, rules);
+  total += specialsResult.total;
 
   let expressHits = 0;
   for (const bet of EXPRESS_BETS) {
@@ -135,5 +146,5 @@ export function totalScore(
     if (pts > 0) expressHits += 1;
   }
 
-  return { total, leagueHits, koHits, expressHits };
+  return { total, leagueHits, koHits, top8Hits: specialsResult.top8Hits, expressHits };
 }

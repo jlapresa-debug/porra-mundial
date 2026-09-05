@@ -198,6 +198,30 @@ export default function UserPredictionsPage() {
                 </div>
               );
             })}
+
+            <div className="bg-bg-card border border-line rounded-2xl overflow-hidden mt-2">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-line bg-bg-elevated/40">
+                <span className="font-display font-bold text-sm">📊 Fase 1 · Top 8</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand/20 text-brand">
+                  +{DEFAULT_RULES.special.top8PerTeam}/equipo
+                </span>
+              </div>
+              {data.specials.top8 && data.specials.top8.length > 0 ? (
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2 p-4">
+                  {data.specials.top8.map((code) => {
+                    const team = getTeam(code);
+                    return (
+                      <div key={code} className="flex items-center gap-2">
+                        <TeamBadge team={team} size="sm" showName={false} />
+                        <span className="text-xs font-medium truncate">{team?.name ?? code}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="px-4 py-3 text-xs text-muted italic">Sin apostar</div>
+              )}
+            </div>
           </div>
         )}
 

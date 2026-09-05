@@ -130,3 +130,14 @@ export function isLeaguePhaseComplete(
   const leagueMatches = matches.filter((m) => m.stage === "league");
   return leagueMatches.length > 0 && leagueMatches.every((m) => !!results[m.id]);
 }
+
+// Los 8 primeros clasificados de la fase de liga, solo cuando las 144
+// jornadas se han jugado (para puntuar la apuesta "Fase 1" sin riesgo
+// de contar clasificaciones parciales).
+export function getFinalTop8(
+  matches: Match[],
+  results: Record<string, { home: number; away: number }>,
+): TeamCode[] | null {
+  if (!isLeaguePhaseComplete(matches, results)) return null;
+  return computeLeagueTable(matches, results).slice(0, 8).map((s) => s.team);
+}
