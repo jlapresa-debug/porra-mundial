@@ -22,7 +22,21 @@ import type { TeamCode } from "./types";
 // key = match.id (ej: "L1-AEK-LAS")
 // value = goles del local y del visitante
 export const LEAGUE_MATCH_RESULTS: Record<string, { home: number; away: number }> = {
-  // Se rellena jornada a jornada a partir del 8 de septiembre de 2026.
+  // ── Jornada 1 (8-9 sep 2026, verificado con ESPN + VAVEL/Sky Sports) ──
+  "L1-AEK-LAS": { home: 1, away: 0 },
+  "L1-BRU-AVL": { home: 2, away: 3 },
+  "L1-DOR-VIL": { home: 3, away: 2 },
+  "L1-POR-MCI": { home: 0, away: 2 },
+  "L1-LIL-BET": { home: 2, away: 3 },
+  "L1-RMA-INT": { home: 2, away: 1 },
+  "L1-BAR-FEY": { home: 5, away: 1 },
+  "L1-STU-VIK": { home: 3, away: 1 },
+  "L1-LIV-ATM": { home: 2, away: 1 },
+  "L1-PSG-SVK": { home: 6, away: 1 },
+  "L1-SCP-GAL": { home: 3, away: 1 },
+  "L1-NAP-ARS": { home: 0, away: 1 },
+  // Pendientes de la J1 (10 sep, aún no disputados en el momento de esta
+  // actualización): FEN-ROM, PSV-SHK, COM-LEI, BAY-BOD, MUN-SAB, SLA-LEN.
 };
 
 // ───────────── ELIMINATORIAS (play-off, octavos, cuartos, semis, final) ─────────────
@@ -44,7 +58,7 @@ export const TOURNAMENT_OUTCOME: {
 
 // ───────────── METADATOS ─────────────
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-09-05T00:00:00Z",
-  by: "Claude (migración a Champions League 2026/27 — sin resultados aún)",
-  source: "UEFA.com",
+  iso: "2026-09-10T00:00:00Z",
+  by: "Claude (actualización manual pedida en chat)",
+  source: "ESPN + VAVEL/Sky Sports (verificado con 2+ fuentes por partido)",
 };
