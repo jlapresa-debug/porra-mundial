@@ -35,8 +35,13 @@ export const LEAGUE_MATCH_RESULTS: Record<string, { home: number; away: number }
   "L1-PSG-SVK": { home: 6, away: 1 },
   "L1-SCP-GAL": { home: 3, away: 1 },
   "L1-NAP-ARS": { home: 0, away: 1 },
-  // Pendientes de la J1 (10 sep, aún no disputados en el momento de esta
-  // actualización): FEN-ROM, PSV-SHK, COM-LEI, BAY-BOD, MUN-SAB, SLA-LEN.
+  "L1-FEN-ROM": { home: 1, away: 1 },
+  "L1-PSV-SHK": { home: 1, away: 1 },
+  "L1-COM-LEI": { home: 4, away: 1 },
+  "L1-BAY-BOD": { home: 5, away: 0 },
+  "L1-MUN-SAB": { home: 4, away: 0 },
+  "L1-SLA-LEN": { home: 2, away: 3 },
+  // Jornada 1 completa (18/18).
 };
 
 // ───────────── ELIMINATORIAS (play-off, octavos, cuartos, semis, final) ─────────────
@@ -58,7 +63,7 @@ export const TOURNAMENT_OUTCOME: {
 
 // ───────────── METADATOS ─────────────
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-09-10T00:00:00Z",
+  iso: "2026-09-11T00:00:00Z",
   by: "Claude (actualización manual pedida en chat)",
-  source: "ESPN + VAVEL/Sky Sports (verificado con 2+ fuentes por partido)",
+  source: "ESPN + VAVEL/LaPresse/AllFootball (verificado con 2+ fuentes por partido)",
 };
