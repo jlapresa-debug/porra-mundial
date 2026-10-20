@@ -64,6 +64,19 @@ export const LEAGUE_MATCH_RESULTS: Record<string, { home: number; away: number }
   "L2-BET-POR": { home: 3, away: 2 },
   "L2-SVK-STU": { home: 0, away: 3 },
   // Jornada 2 completa (18/18).
+
+  // ── Jornada 3 (20 oct 2026, verificado con ESPN/VAVEL/Sky Sports/Yahoo) ──
+  "L3-FEN-SLA": { home: 2, away: 2 },
+  "L3-SAB-DOR": { home: 1, away: 2 },
+  "L3-ROM-SVK": { home: 4, away: 0 },
+  "L3-POR-PSV": { home: 0, away: 1 },
+  "L3-LIV-VIL": { home: 4, away: 3 },
+  "L3-MCI-AEK": { home: 5, away: 1 },
+  "L3-PSG-BAR": { home: 4, away: 2 },
+  "L3-NAP-BOD": { home: 4, away: 3 },
+  "L3-STU-ATM": { home: 1, away: 1 },
+  // Pendientes de la J3 (21 oct, aún no disputados): COM-MUN, LIL-GAL,
+  // AVL-VIK, BRU-LEN, BAY-ARS, INT-SHK, RMA-LEI, BET-FEY, SCP-LAS.
 };
 
 // ───────────── ELIMINATORIAS (play-off, octavos, cuartos, semis, final) ─────────────
@@ -85,7 +98,7 @@ export const TOURNAMENT_OUTCOME: {
 
 // ───────────── METADATOS ─────────────
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-10-15T00:00:00Z",
+  iso: "2026-10-20T00:00:00Z",
   by: "Claude (actualización manual pedida en chat)",
   source: "UEFA.com + CBS Sports + ESPN/VAVEL (verificado con 2+ fuentes por partido)",
 };
