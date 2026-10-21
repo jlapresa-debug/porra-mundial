@@ -75,8 +75,17 @@ export const LEAGUE_MATCH_RESULTS: Record<string, { home: number; away: number }
   "L3-PSG-BAR": { home: 4, away: 2 },
   "L3-NAP-BOD": { home: 4, away: 3 },
   "L3-STU-ATM": { home: 1, away: 1 },
-  // Pendientes de la J3 (21 oct, aún no disputados): COM-MUN, LIL-GAL,
-  // AVL-VIK, BRU-LEN, BAY-ARS, INT-SHK, RMA-LEI, BET-FEY, SCP-LAS.
+  // J3 (21 oct 2026, verificado con ESPN/Sky Sports/VAVEL/Sofascore)
+  "L3-COM-MUN": { home: 4, away: 1 },
+  "L3-LIL-GAL": { home: 2, away: 4 },
+  "L3-AVL-VIK": { home: 3, away: 1 },
+  "L3-BRU-LEN": { home: 3, away: 0 },
+  "L3-BAY-ARS": { home: 2, away: 2 },
+  "L3-INT-SHK": { home: 1, away: 0 },
+  "L3-RMA-LEI": { home: 4, away: 1 },
+  "L3-BET-FEY": { home: 1, away: 0 },
+  "L3-SCP-LAS": { home: 2, away: 3 },
+  // Jornada 3 completa (18/18).
 };
 
 // ───────────── ELIMINATORIAS (play-off, octavos, cuartos, semis, final) ─────────────
@@ -98,7 +107,7 @@ export const TOURNAMENT_OUTCOME: {
 
 // ───────────── METADATOS ─────────────
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-10-20T00:00:00Z",
+  iso: "2026-10-21T00:00:00Z",
   by: "Claude (actualización manual pedida en chat)",
   source: "UEFA.com + CBS Sports + ESPN/VAVEL (verificado con 2+ fuentes por partido)",
 };
