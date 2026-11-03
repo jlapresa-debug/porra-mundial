@@ -86,6 +86,19 @@ export const LEAGUE_MATCH_RESULTS: Record<string, { home: number; away: number }
   "L3-BET-FEY": { home: 1, away: 0 },
   "L3-SCP-LAS": { home: 2, away: 3 },
   // Jornada 3 completa (18/18).
+
+  // ── Jornada 4 (3 nov 2026, verificado con ESPN/Sky Sports/VAVEL/ORF/AllFootball) ──
+  "L4-SHK-SCP": { home: 0, away: 1 },
+  "L4-GAL-STU": { home: 2, away: 0 },
+  "L4-ATM-BAY": { home: 0, away: 2 },
+  "L4-BAR-AVL": { home: 3, away: 0 },
+  "L4-FEY-INT": { home: 0, away: 3 },
+  "L4-BOD-LIL": { home: 0, away: 0 },
+  "L4-LAS-SVK": { home: 4, away: 0 },
+  "L4-MUN-ROM": { home: 3, away: 2 },
+  "L4-VIL-PSG": { home: 0, away: 6 },
+  // Pendientes de la J4 (4 nov, aún no disputados): AEK-RMA, FEN-LIV,
+  // DOR-BET, POR-NAP, PSV-BRU, LEI-MCI, LEN-COM, SLA-ARS, VIK-SAB.
 };
 
 // ───────────── ELIMINATORIAS (play-off, octavos, cuartos, semis, final) ─────────────
@@ -107,7 +120,7 @@ export const TOURNAMENT_OUTCOME: {
 
 // ───────────── METADATOS ─────────────
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-10-21T00:00:00Z",
+  iso: "2026-11-03T00:00:00Z",
   by: "Claude (actualización manual pedida en chat)",
   source: "UEFA.com + CBS Sports + ESPN/VAVEL (verificado con 2+ fuentes por partido)",
 };
