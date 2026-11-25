@@ -108,6 +108,19 @@ export const LEAGUE_MATCH_RESULTS: Record<string, { home: number; away: number }
   "L4-SLA-ARS": { home: 1, away: 2 },
   "L4-VIK-SAB": { home: 4, away: 1 },
   // Jornada 4 completa (18/18).
+
+  // ── Jornada 5 (24 nov 2026, verificado con ESPN/Sofascore/VAVEL/Sky Sports) ──
+  "L5-BOD-LAS": { home: 1, away: 0 },
+  "L5-GAL-AVL": { home: 1, away: 0 },
+  "L5-ARS-DOR": { home: 1, away: 1 },
+  "L5-COM-AEK": { home: 1, away: 0 },
+  "L5-FEY-POR": { home: 0, away: 1 },
+  "L5-MCI-NAP": { home: 2, away: 2 },
+  "L5-LEI-LEN": { home: 3, away: 1 },
+  "L5-RMA-PSV": { home: 5, away: 1 },
+  "L5-SVK-BET": { home: 0, away: 2 },
+  // Pendientes de la J5 (25 nov, aún no disputados): SAB-BAR, SLA-VIL,
+  // ATM-VIK, BRU-LIV, INT-STU, SHK-FEN, LIL-BAY, PSG-ROM, SCP-MUN.
 };
 
 // ───────────── ELIMINATORIAS (play-off, octavos, cuartos, semis, final) ─────────────
@@ -129,7 +142,7 @@ export const TOURNAMENT_OUTCOME: {
 
 // ───────────── METADATOS ─────────────
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-11-05T00:00:00Z",
+  iso: "2026-11-25T00:00:00Z",
   by: "Claude (actualización manual pedida en chat)",
   source: "UEFA.com + CBS Sports + ESPN/VAVEL (verificado con 2+ fuentes por partido)",
 };
