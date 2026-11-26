@@ -119,8 +119,17 @@ export const LEAGUE_MATCH_RESULTS: Record<string, { home: number; away: number }
   "L5-LEI-LEN": { home: 3, away: 1 },
   "L5-RMA-PSV": { home: 5, away: 1 },
   "L5-SVK-BET": { home: 0, away: 2 },
-  // Pendientes de la J5 (25 nov, aún no disputados): SAB-BAR, SLA-VIL,
-  // ATM-VIK, BRU-LIV, INT-STU, SHK-FEN, LIL-BAY, PSG-ROM, SCP-MUN.
+  // J5 (25 nov 2026, verificado con ESPN/Sofascore/VAVEL/Flashscore)
+  "L5-SAB-BAR": { home: 1, away: 4 },
+  "L5-SLA-VIL": { home: 0, away: 1 },
+  "L5-ATM-VIK": { home: 2, away: 0 },
+  "L5-BRU-LIV": { home: 0, away: 3 },
+  "L5-INT-STU": { home: 2, away: 0 },
+  "L5-SHK-FEN": { home: 0, away: 1 },
+  "L5-LIL-BAY": { home: 2, away: 1 },
+  "L5-PSG-ROM": { home: 2, away: 2 },
+  "L5-SCP-MUN": { home: 2, away: 2 },
+  // Jornada 5 completa (18/18).
 };
 
 // ───────────── ELIMINATORIAS (play-off, octavos, cuartos, semis, final) ─────────────
@@ -142,7 +151,7 @@ export const TOURNAMENT_OUTCOME: {
 
 // ───────────── METADATOS ─────────────
 export const RESULTS_LAST_UPDATE = {
-  iso: "2026-11-25T00:00:00Z",
+  iso: "2026-11-26T00:00:00Z",
   by: "Claude (actualización manual pedida en chat)",
   source: "UEFA.com + CBS Sports + ESPN/VAVEL (verificado con 2+ fuentes por partido)",
 };
